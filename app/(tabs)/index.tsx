@@ -1,7 +1,7 @@
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Text } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
+import { TextInput } from "react-native";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Institution } from "../types/Institution";
 

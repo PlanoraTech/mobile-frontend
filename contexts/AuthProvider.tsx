@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { Credentials, User } from '@/app/types/User';
+import { Credentials, RegisterData, User } from '@/app/types/User';
 import { JWTAuthAdapter } from './JWTAuthAdapter';
 
 interface AuthContextType {
@@ -7,6 +7,7 @@ interface AuthContextType {
     loading: boolean;
     login: (credentials: Credentials) => Promise<any>;
     logout: () => Promise<void>;
+    register: (data: RegisterData) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -30,6 +31,12 @@ export function AuthProvider({ children, authAdapter }: { children: React.ReactN
         }
     };
 
+    const register = async (data: RegisterData) => {
+        const result = await authAdapter.register(data);
+        await loadUser();
+        return result;
+    };
+
     const login = async (credentials: Credentials) => {
         const result = await authAdapter.login(credentials);
         await loadUser();
@@ -42,7 +49,7 @@ export function AuthProvider({ children, authAdapter }: { children: React.ReactN
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, register }}>
             {children}
         </AuthContext.Provider>
     );

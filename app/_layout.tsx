@@ -5,9 +5,9 @@ import { JWTAuthAdapter } from "@/contexts/JWTAuthAdapter";
 const authAdapter = new JWTAuthAdapter();
 
 export default function RootLayout() {
-  return <Stack>
-    <AuthProvider authAdapter={authAdapter}>
+  return <AuthProvider authAdapter={authAdapter}>
+    <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </AuthProvider>
-  </Stack>;
+    </Stack>;
+  </AuthProvider>
 }

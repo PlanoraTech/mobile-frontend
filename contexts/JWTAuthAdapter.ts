@@ -1,9 +1,39 @@
 
-import { Credentials} from '@/app/types/User';
+import { Credentials, RegisterData} from '@/app/types/User';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export class JWTAuthAdapter {
     constructor(private apiUrl: string = 'localhost:3000') {}
+
+    async register(data: RegisterData) {
+        try {
+            const response = await fetch(`${this.apiUrl}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Registration failed');
+            }
+    
+            const responseData = await response.json();
+            
+            await AsyncStorage.setItem('auth_tokens', JSON.stringify({
+                accessToken: responseData.accessToken,
+                refreshToken: responseData.refreshToken,
+            }));
+    
+            return responseData;
+        } catch (error) {
+            console.error('Registration error:', error);
+            throw error;
+        }
+    }
+
     async login(credentials: Credentials) {
         try {
             const response = await fetch(`${this.apiUrl}/auth/login`, {

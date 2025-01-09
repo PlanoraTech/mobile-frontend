@@ -5,6 +5,13 @@ export interface User {
 }
 
 export interface Credentials {
-    username: string,
-    passowrd: string
+    email: string,
+    password: string
+}
+
+export interface RegisterData {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
 }

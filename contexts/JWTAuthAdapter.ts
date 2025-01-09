@@ -15,7 +15,7 @@ export class JWTAuthAdapter {
             });
 
             if (!response.ok) {
-                throw new Error('Login failed');
+                throw new Error('Sikertelen bejelentkezés');
             }
 
             const data = await response.json();
@@ -26,7 +26,7 @@ export class JWTAuthAdapter {
 
             return data;
         } catch (error) {
-            console.error('Hiba a bejelentkezés során:', error);
+            console.error('Hiba a bejelentkezés során: ', error);
             throw error;
         }
     }
@@ -50,13 +50,16 @@ export class JWTAuthAdapter {
             if (!response.ok) {
                 throw new Error('Nem sikerült betölteni a jelenlegi felhasználót');
             }
-
-            return await response.json();
+            const user = await response.json();
+            user.accessToken = accessToken;
+            return user
         } catch (error) {
             console.error('Hiba a felhasználó betöltése során: ', error);
             return null;
         }
     }
+
+    
 
     async refreshToken() {
         try {

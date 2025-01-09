@@ -1,6 +1,7 @@
 export interface User {
     id: number,
-    credentials: Credentials
+    credentials: Credentials,
+    accessToken: string
 }
 
 export interface Credentials {

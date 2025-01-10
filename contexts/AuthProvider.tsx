@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { Credentials, RegisterData, User } from '@/app/types/User';
+import { Credentials, RegisterData, User } from '@/types/User';
 import { JWTAuthAdapter } from './JWTAuthAdapter';
 
 interface AuthContextType {

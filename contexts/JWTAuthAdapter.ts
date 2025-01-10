@@ -1,5 +1,5 @@
 
-import { Credentials, RegisterData} from '@/app/types/User';
+import { Credentials, RegisterData} from '@/types/User';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export class JWTAuthAdapter {

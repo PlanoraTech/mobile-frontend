@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { TextInput } from "react-native";
 import { useAuth } from "@/contexts/AuthProvider";
-import { Institution } from "../types/Institution";
+import { Institution } from "../../types/Institution";
 import { FlatList, Pressable } from "react-native";
 
 interface Todo {
@@ -14,6 +14,7 @@ interface Todo {
 }
 
 export default function Index() {
+  
   const { user } = useAuth();
   const [institutions, setInstitutions] = useState<Todo[]>([]);
   const [searchString, setSearchString] = useState("");

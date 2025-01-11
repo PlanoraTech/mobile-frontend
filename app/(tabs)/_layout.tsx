@@ -8,7 +8,7 @@ export default function TabLayout() {
         <Tabs.Screen name="register" options={{title: 'Regisztráció'}} />
         {!institutionIds?
          <Tabs.Screen name="index" options={{title: 'Főoldal'}} />
-        : <Tabs.Screen name="institution" options={{title: 'Órarend'}} />}
+        : <Tabs.Screen name="institution" options={{title: 'Intézmény'}} />}
         <Tabs.Screen name="login" options={{title: 'Bejelentkezés'}} />
         <Tabs.Screen name="timetable" options={{title: 'Órarend'}} />
         </Tabs>

@@ -2,37 +2,27 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { DropdownData } from '@/types/types';
 
-// This type allows us to handle both institution and timetable data structures
-type DataItem = {
-  id: number | string;
-  name: string;
-  access?: 'private' | 'public';
-};
-
-interface Props {
-  data: DataItem[];
-  placeholder?: string;
-  searchPlaceholder?: string;
-  label?: string;
-  onSelect?: (item: DataItem) => void;
+interface DropdownProps {
+  data: DropdownData[];
+  placeholder: string;
+  searchPlaceholder: string;
+  label: string;
+  onSelect: (item: any) => void;
 }
 
 const DropdownComponent = ({
   data,
   placeholder = 'Válassz elemet',
   searchPlaceholder = 'Keresés...',
-  label = 'Válassz',
+  label,
   onSelect
-}: Props) => {
-  const [value, setValue] = useState<string | number | null>(null);
+}: DropdownProps) => {
+  const [value, setValue] = useState<string | null>(null);
   const [isFocus, setIsFocus] = useState(false);
 
-  const transformedData = data.map(item => ({
-    ...item,
-    value: item.id 
-  }));
-
+  console.log(data);
   const renderLabel = () => {
     if (value || isFocus) {
       return (
@@ -43,7 +33,6 @@ const DropdownComponent = ({
     }
     return null;
   };
-
   return (
     <View style={styles.container}>
       {renderLabel()}
@@ -53,11 +42,11 @@ const DropdownComponent = ({
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
         iconStyle={styles.iconStyle}
-        data={transformedData}
+        data={data}
         search
         maxHeight={300}
-        labelField="name"
-        valueField="id"
+        labelField="name"  
+        valueField="id"          
         placeholder={!isFocus ? placeholder : '...'}
         searchPlaceholder={searchPlaceholder}
         value={value}

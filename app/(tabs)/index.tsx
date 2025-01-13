@@ -8,7 +8,7 @@ import DropdownComponent from "@/components/Dropdown";
 import { Institution } from "@/types/Institution";
 
 export default function Index() {
-  const api = 'http://192.168.1.2:3000/api/institutions/';
+  const api = 'http://localhost:3000/institutions/';
   
   const { user } = useAuth();
   const [institutions, setInstitutions] = useState<Institution[]>([]);
@@ -28,7 +28,7 @@ export default function Index() {
 
  
 
-  const handlePress = async (id: number, access: string) => {
+  const handlePress = async (id: string, access: string) => {
     try {
       if (access === 'public') {
         const response = await fetch(api + id);
@@ -48,7 +48,7 @@ export default function Index() {
           const data = await response.json();
           console.log(data);
         } else {
-          console.log('Nincs jogosultságod az intézmény megtekintéséhez!');
+          
         }
       }
     } catch (error) {
@@ -60,10 +60,9 @@ export default function Index() {
     <View>
       <DropdownComponent 
         data={institutions}
-        placeholder="Válassz intézményt"
         label="Intézmény"
-        onSelect={(item) => handlePress(Number(item.id), item.access || 'public')}
-      />
+        placeholder="Válassz intézményt"
+        onSelect={(item) => handlePress(item.id, item.access || 'public')} searchPlaceholder={""}      />
       <Link href="../login">Bejelentkezés</Link>
       <Link href="../register">Regisztráció</Link>
     </View>

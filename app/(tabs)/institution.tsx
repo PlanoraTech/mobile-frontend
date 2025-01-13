@@ -1,203 +1,105 @@
-import { useEffect, useState } from "react";
-import {
-    Text,
-    StyleSheet,
-    ActivityIndicator,
-    View,
-    Linking,
-    ScrollView,
-    Pressable,
-} from "react-native";
-import { useGlobalSearchParams } from "expo-router";
+
+import { router, useGlobalSearchParams } from "expo-router";
+import { StyleSheet, View, Linking, ScrollView, Text } from "react-native";
 import DropdownComponent from "@/components/Dropdown";
-import React from "react";
-import { DropdownData } from "@/types/types";
-interface Institution {
-    id: string;
-    name: string;
-    website: string;
-    color: string;
-}
+import { ErrorMessage } from '@/components/ErrorMessage';
+import { InstitutionHeader } from '@/components/InstitutionHeader';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useInstitutionData } from "@/assets/hooks/useInstitutionData";
 
 
 
 export default function InstitutionScreen() {
     const { inst } = useGlobalSearchParams();
-    const [institution, setInstitution] = useState<Institution | null>(null);
-    const [timetables, setTimetables] = useState([] as DropdownData[]);
-    const [groups, setGroups] = useState([] as DropdownData[]);
-    const [presentators, setPresentators] = useState([] as DropdownData[]);
-    const [rooms, setRooms] = useState([] as DropdownData[]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [selectedTimetable, setSelectedTimetable] = useState<any>(null);
-    const [selectedGroup, setSelectedGroup] = useState<any>(null);
-
-    useEffect(() => {
-        const fetchInstitution = async () => {
-            try {
-                setIsLoading(true);
-                const response = await fetch(`http://localhost:3000/institutions/${inst}`);
-                if (!response.ok) {
-                    console.log(response);
-                    throw new Error("Nem sikerült betölteni az intézményt");
-                }
-                const data: Institution = await response.json();
-
-                setInstitution(data);
-
-
-            } catch (error: any) {
-                setError(error.message || "Hiba az adatok kérése közben");
-            }
-        };
-
-        const fetchTimetables = async () => {
-            try {
-                setIsLoading(true);
-                const response = await fetch(`http://localhost:3000/institutions/${inst}/timetables`);
-                if (!response.ok) {
-                    throw new Error("Nem sikerült betölteni az órarendeket");
-                }
-                const data = await response.json();
-                setTimetables(data);
-            } catch (error: any) {
-                setError(error.message || "Hiba az adatok kérése közben");
-            }
-        }
-
-        const fetchGroups = async () => {
-            try {
-                setIsLoading(true);
-                const response = await fetch(`http://localhost:3000/institutions/${inst}/groups`);
-                if (!response.ok) {
-                    throw new Error("Nem sikerült betölteni a csoportokat");
-                }
-                const data = await response.json();
-                setGroups(data);
-            } catch (error: any) {
-                setError(error.message || "Hiba az adatok kérése közben");
-            }
-        }
-
-        const fetchPresentators = async () => {
-            try {
-                setIsLoading(true);
-                const response = await fetch(`http://localhost:3000/institutions/${inst}/presentators`);
-                if (!response.ok) {
-                    throw new Error("Nem sikerült betölteni az előadókat");
-                }
-                const data = await response.json();
-                setPresentators(data);
-            } catch (error: any) {
-                setError(error.message || "Hiba az adatok kérése közben");
-            }
-        }
-
-        const fetchRooms = async () => {
-            try {
-                setIsLoading(true);
-                const response = await fetch(`http://localhost:3000/institutions/${inst}/rooms`);
-                if (!response.ok) {
-                    throw new Error("Nem sikerült betölteni a termeket");
-                }
-                const data = await response.json();
-                setRooms(data);
-            } catch (error: any) {
-                setError(error.message || "Hiba az adatok kérése közben");
-            }
-        }
-
-        if (inst) {
-            fetchInstitution();
-            fetchTimetables();
-            fetchGroups();
-            fetchPresentators();
-            fetchRooms();
-            setIsLoading(false);
-        }
-    }, []);
+    const { data, loading, error } = useInstitutionData(inst);
 
     const handleWebsitePress = async () => {
-        if (institution?.website) {
+        if (data.institution?.website) {
             try {
-                await Linking.openURL(institution.website);
+                await Linking.openURL(data.institution.website);
             } catch (error) {
-                setError("Nem sikerült megnyitni a weboldalt");
+                console.error('Hiba a weboldal megnyitása közben: ', error);
             }
         }
     };
 
-    if (isLoading)
-        return (
-            <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" color="#0066CC" />
-            </View>
-        );
+    if (error) return <ErrorMessage message={error} />;
+    
+    if (loading.institution) return <LoadingSpinner />;
 
-    if (error)
-        return (
-            <View style={styles.centerContainer}>
-                <Text style={styles.error}>{error}</Text>
-            </View>
-        );
+    if (!data.institution) {
+        return <ErrorMessage message="Nincs kiválasztott intézmény!" />;
+    }
 
-    if (!institution)
-        return (
-            <View style={styles.centerContainer}>
-                <Text style={styles.error}>Nincs intézmény kiválasztva</Text>
-            </View>
-        );
+    const handleSelection = (id: string, endpoint: string) => {
+       router.push(`/${endpoint}?inst=${inst}&id=${id}`as any);
+    }
     return (
         <ScrollView style={styles.container}>
-            <Pressable onPress={handleWebsitePress}>
-                <Text style={[styles.institutionName, { color: institution.color }]}>
-                    {institution.name}
-                </Text>
-            </Pressable>
+            <InstitutionHeader 
+                institution={data.institution}
+                onPress={handleWebsitePress}
+            />
             <View style={styles.dropdownContainer}>
                 <Text style={styles.sectionTitle}>Órarendek</Text>
-                <DropdownComponent
-                    data={timetables}
-                    placeholder="Válassz órarendet"
-                    label="Órarend"
-                    searchPlaceholder="Órarend keresése..."
-                    onSelect={(item) => {
-                        setSelectedTimetable(item);
-                        setSelectedGroup(null);
-                    }}
-                />
-
+                {loading.timetables ? (
+                    <LoadingSpinner />
+                ) : (
+                    <DropdownComponent
+                        data={data.timetables}
+                        placeholder="Válassz órarendet"
+                        label="Órarend"
+                        searchPlaceholder="Órarend keresése..."
+                        onSelect={(item) => {
+                            handleSelection(item.id, 'timetables');
+                        }}
+                    />
+                )}
 
                 <Text style={styles.sectionTitle}>Csoportok</Text>
-                <DropdownComponent
-                    data={groups}
-                    placeholder="Válassz csoportot"
-                    label="Csoport"
-                    searchPlaceholder="Csoport keresése..."
-                    onSelect={setSelectedGroup} />
-          
-             
-                        <Text style={styles.sectionTitle}>Előadók</Text>
-                <DropdownComponent
-                    data={presentators}
-                    placeholder="Válassz előadót"
-                    label="Előadó"
-                    searchPlaceholder="Előadó keresése..." onSelect={function (item: any): void {
-                        throw new Error("Function not implemented.");
-                    }} />
+                {loading.groups ? (
+                    <LoadingSpinner />
+                ) : (
+                    <DropdownComponent
+                        data={data.groups}
+                        placeholder="Válassz csoportot"
+                        label="Csoport"
+                        searchPlaceholder="Csoport keresése..."
+                        onSelect={(item) => {
+                            handleSelection(item.id, 'groups');
+                        }}
+                    />
+                )}
 
-
+                <Text style={styles.sectionTitle}>Előadók</Text>
+                {loading.presentators ? (
+                    <LoadingSpinner />
+                ) : (
+                    <DropdownComponent
+                        data={data.presentators}
+                        placeholder="Válassz előadót"
+                        label="Előadó"
+                        searchPlaceholder="Előadó keresése..."
+                        onSelect={(item) => {
+                            handleSelection(item.id, 'presentators');
+                        }}
+                    />
+                )}
 
                 <Text style={styles.sectionTitle}>Termek</Text>
-                <DropdownComponent
-                    data={rooms}
-                    label="Terem"
-                    placeholder="Válassz termet"
-                    searchPlaceholder="Terem keresése..." onSelect={function (item: any): void {
-                        throw new Error("Function not implemented.");
-                    }} />
-
+                {loading.rooms ? (
+                    <LoadingSpinner />
+                ) : (
+                    <DropdownComponent
+                        data={data.rooms}
+                        placeholder="Válassz termet"
+                        label="Terem"
+                        searchPlaceholder="Terem keresése..."
+                        onSelect={(item) => {
+                            handleSelection(item.id, 'rooms');
+                        }}
+                    />
+                )}
             </View>
         </ScrollView>
     );

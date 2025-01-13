@@ -5,14 +5,15 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { saveInstitutionId } from "@/utils/saveId";
 import { router } from 'expo-router';
 import DropdownComponent from "@/components/Dropdown";
-import { Institution } from "@/types/Institution";
+import { DropdownData } from "@/types/types";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function Index() {
   const api = 'http://localhost:3000/institutions/';
-  
-  const { user } = useAuth();
-  const [institutions, setInstitutions] = useState<Institution[]>([]);
 
+  const { user } = useAuth();
+  const [institutions, setInstitutions] = useState([] as DropdownData[]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     async function fetchInstitutions() {
       try {
@@ -21,18 +22,20 @@ export default function Index() {
         setInstitutions(data);
       } catch (error) {
         console.error('Nem sikerült betölteni az intézményeket:', error);
+      } finally {
+        setLoading(false);
       }
     }
     fetchInstitutions();
   }, [user?.accessToken]);
 
- 
+
 
   const handlePress = async (id: string, access: string) => {
     try {
       if (access === 'public') {
         const response = await fetch(api + id);
-        const data: Institution = await response.json();
+        const data: DropdownData = await response.json();
         if (!data) {
           throw new Error('Nem található az intézmény!');
         }
@@ -48,7 +51,7 @@ export default function Index() {
           const data = await response.json();
           console.log(data);
         } else {
-          
+
         }
       }
     } catch (error) {
@@ -57,18 +60,60 @@ export default function Index() {
   }
 
   return (
-    <View>
-      <DropdownComponent 
-        data={institutions}
-        label="Intézmény"
-        placeholder="Válassz intézményt"
-        onSelect={(item) => handlePress(item.id, item.access || 'public')} searchPlaceholder={""}      />
-      <Link href="../login">Bejelentkezés</Link>
-      <Link href="../register">Regisztráció</Link>
+    <View style={styles.container}>
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <DropdownComponent
+          data={institutions}
+          label="Intézmény"
+          placeholder="Válassz intézményt"
+          onSelect={(item) => handlePress(item.id, item.access || 'public')}
+          searchPlaceholder=""
+        />
+      )}
+  
+      <View style={styles.linksContainer}>
+        <Link href="../login" style={styles.link}>
+          <Text style={styles.linkText}>Bejelentkezés</Text>
+        </Link>
+        <Link href="../register" style={[styles.link, styles.registerLink]}>
+          <Text style={styles.linkText}>Regisztráció</Text>
+        </Link>
+      </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-
-})
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#ffffff',
+      paddingHorizontal: 20,
+      paddingTop: 40,
+      justifyContent: 'space-between',
+    },
+    linksContainer: {
+      width: '100%',
+      gap: 12,
+      marginBottom: 40,
+    },
+    link: {
+      backgroundColor: '#2563eb', 
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+    },
+    linkText: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: '600',
+      textAlign: 'center',
+    },
+    registerLink: {
+      backgroundColor: '#1d4ed8',
+    },
+  });

@@ -1,6 +1,7 @@
 export interface DropdownData {
     id: string;
     name: string;
+    access?: string;
 }
 
 export interface Institution {

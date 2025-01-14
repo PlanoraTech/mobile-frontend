@@ -12,7 +12,7 @@ import { useInstitutionData } from "@/assets/hooks/useInstitutionData";
 export default function InstitutionScreen() {
     const { inst } = useGlobalSearchParams();
     const { data, loading, error } = useInstitutionData(inst);
-
+    
     const handleWebsitePress = async () => {
         if (data.institution?.website) {
             try {

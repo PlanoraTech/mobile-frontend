@@ -33,6 +33,7 @@ export default function Index() {
 
 
   const handlePress = async (id: string, access: string) => {
+    console.log('access:', access);
     try {
       if (access === 'public') {
         const response = await fetch(`${BASE_URL}/${id}`);
@@ -68,7 +69,7 @@ export default function Index() {
           data={institutions}
           label="Intézmény"
           placeholder="Válassz intézményt"
-          onSelect={(item) => handlePress(item.id, item.access || 'public')}
+          onSelect={(item) => handlePress(item.id, item.access )}
           searchPlaceholder=""
         />
       )}

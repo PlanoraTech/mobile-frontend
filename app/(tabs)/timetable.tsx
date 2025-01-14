@@ -162,9 +162,10 @@ export default function TimetableScreen() {
   );
 
   const renderDayPage = ({ item, index }: { item: string; index: number }) => {
-    const dayAppointments = appointments.filter(
-      appointment => appointment.dayOfWeek === DAYS[index]
-    ).toSorted((a, b) => formatTime(a.start).localeCompare(formatTime(b.start)));
+    const dayAppointments = appointments
+        .filter(appointment => appointment.dayOfWeek === DAYS[index])
+        .slice() 
+        .sort((a, b) => formatTime(a.start).localeCompare(formatTime(b.start)));
 
     return (
       <View style={styles.dayPage}>

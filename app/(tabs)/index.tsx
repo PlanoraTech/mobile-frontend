@@ -7,9 +7,10 @@ import { router } from 'expo-router';
 import DropdownComponent from "@/components/Dropdown";
 import { DropdownData } from "@/types/types";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { BASE_URL } from "@/utils/baseUrl";
 
 export default function Index() {
-  const api = 'http://localhost:3000/institutions/';
+
 
   const { user } = useAuth();
   const [institutions, setInstitutions] = useState([] as DropdownData[]);
@@ -17,7 +18,7 @@ export default function Index() {
   useEffect(() => {
     async function fetchInstitutions() {
       try {
-        const response = await fetch(api);
+        const response = await fetch(BASE_URL);
         const data = await response.json();
         setInstitutions(data);
       } catch (error) {
@@ -34,7 +35,7 @@ export default function Index() {
   const handlePress = async (id: string, access: string) => {
     try {
       if (access === 'public') {
-        const response = await fetch(api + id);
+        const response = await fetch(`${BASE_URL}/${id}`);
         const data: DropdownData = await response.json();
         if (!data) {
           throw new Error('Nem található az intézmény!');
@@ -43,15 +44,14 @@ export default function Index() {
         router.push(`/institution?inst=${id}`);
       } else {
         if (user?.accessToken) {
-          const response = await fetch(api + id, {
+          const response = await fetch(`${BASE_URL}/${id}`, {
             headers: {
               'Authorization': `Bearer ${user.accessToken}`
             }
           });
           const data = await response.json();
-          console.log(data);
         } else {
-
+          router.push('/login');
         }
       }
     } catch (error) {

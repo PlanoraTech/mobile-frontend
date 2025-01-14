@@ -51,7 +51,7 @@ export default function InstitutionScreen() {
                         label="Órarend"
                         searchPlaceholder="Órarend keresése..."
                         onSelect={(item) => {
-                            handleSelection(item.id, 'timetables');
+                            handleSelection(item.id, 'timetable');
                         }}
                     />
                 )}
@@ -96,7 +96,7 @@ export default function InstitutionScreen() {
                         label="Terem"
                         searchPlaceholder="Terem keresése..."
                         onSelect={(item) => {
-                            handleSelection(item.id, 'rooms');
+                            handleSelection(item.id, 'rooms');  
                         }}
                     />
                 )}

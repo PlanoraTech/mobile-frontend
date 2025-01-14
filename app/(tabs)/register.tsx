@@ -5,6 +5,7 @@ import {
     Pressable,
     KeyboardAvoidingView,
     Platform,
+    ScrollView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';
@@ -59,7 +60,7 @@ export default function RegisterScreen() {
             style={styles.container}
         >
             <StatusBar style="auto" />
-            <View style={styles.formContainer}>
+            <ScrollView style={styles.formContainer}>
                 <Text style={styles.title}>Fiók létrehozása</Text>
                 <Text style={styles.subtitle}>Hozz létre egy fiókot a privát intézmények eléréséhez</Text>
 
@@ -117,7 +118,7 @@ export default function RegisterScreen() {
                     <Text style={styles.switchAuthText}>Van már fiókod? </Text>
                     <Link style={styles.switchAuthLink} href="/login">Bejelentkezés</Link>
                 </View>
-            </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     );
 }

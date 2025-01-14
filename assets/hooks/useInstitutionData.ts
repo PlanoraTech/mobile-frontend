@@ -1,7 +1,6 @@
 import { InstitutionData, LoadingState } from '@/types/types';
+import { BASE_URL } from '@/utils/baseUrl';
 import { useState, useEffect } from 'react';
-
-const BASE_URL = 'http://localhost:3000';
 
 export const useInstitutionData = (institutionId: string | string[]) => {
     const [data, setData] = useState<InstitutionData>({
@@ -25,7 +24,7 @@ export const useInstitutionData = (institutionId: string | string[]) => {
     const fetchData = async (endpoint: string, dataKey: keyof InstitutionData, loadingKey: keyof LoadingState) => {
         try {
             setLoading(prev => ({ ...prev, [loadingKey]: true }));
-            const response = await fetch(`${BASE_URL}/institutions/${institutionId}${endpoint}`);
+            const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}`);
             
             if (!response.ok) {
                 throw new Error(`Hiba az adatkérés során: ${dataKey}`);

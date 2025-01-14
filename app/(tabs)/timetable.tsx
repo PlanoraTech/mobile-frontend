@@ -160,7 +160,7 @@ export default function TimetableScreen() {
       </Text>
     </Pressable>
   );
-
+  //test
   const renderDayPage = ({ item, index }: { item: string; index: number }) => {
     const dayAppointments = appointments
         .filter(appointment => appointment.dayOfWeek === DAYS[index])

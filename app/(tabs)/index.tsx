@@ -35,14 +35,14 @@ export default function Index() {
   const handlePress = async (id: string, access: string) => {
     console.log('access:', access);
     try {
-      if (access === 'public') {
+      if (access === 'PUBLIC') {
         const response = await fetch(`${BASE_URL}/${id}`);
         const data: DropdownData = await response.json();
         if (!data) {
           throw new Error('Nem található az intézmény!');
         }
         saveInstitutionId(id.toString());
-        router.push(`/institution?inst=${id}`);
+        router.navigate(`/institution?inst=${id}`);
       } else {
         if (user?.accessToken) {
           const response = await fetch(`${BASE_URL}/${id}`, {
@@ -52,7 +52,7 @@ export default function Index() {
           });
           const data = await response.json();
         } else {
-          router.push('/login');
+          router.navigate({ pathname: '/login', params: { inst: id } });
         }
       }
     } catch (error) {

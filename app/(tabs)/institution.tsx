@@ -1,18 +1,34 @@
 
-import { router, useGlobalSearchParams } from "expo-router";
+import { router, useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import { StyleSheet, View, Linking, ScrollView, Text } from "react-native";
 import DropdownComponent from "@/components/Dropdown";
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { InstitutionHeader } from '@/components/InstitutionHeader';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useInstitutionData } from "@/assets/hooks/useInstitutionData";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect } from "react";
 
 
 
 export default function InstitutionScreen() {
-    const { inst } = useGlobalSearchParams();
+    const { inst } = useLocalSearchParams();
+
+    useEffect(() => {
+        if (inst) return;
+
+        AsyncStorage.getItem('institution').then((id) => {
+            console.log("saved id: " + id);
+            (id !== null) && router.navigate(`/institution?inst=${id}`);
+        })
+    },
+
+    []);
+
     const { data, loading, error } = useInstitutionData(inst);
-    
+    if (!inst) {
+        return <ErrorMessage message="Nincs kiválasztott intézmény!" />;
+    }
     const handleWebsitePress = async () => {
         if (data.institution?.website) {
             try {
@@ -24,7 +40,7 @@ export default function InstitutionScreen() {
     };
 
     if (error) return <ErrorMessage message={error} />;
-    
+
     if (loading.institution) return <LoadingSpinner />;
 
     if (!data.institution) {
@@ -32,11 +48,11 @@ export default function InstitutionScreen() {
     }
 
     const handleSelection = (id: string, endpoint: string) => {
-       router.push(`/${endpoint}?inst=${inst}&id=${id}`as any);
+        router.navigate(`/${endpoint}?inst=${inst}&id=${id}` as any);
     }
     return (
         <ScrollView style={styles.container}>
-            <InstitutionHeader 
+            <InstitutionHeader
                 institution={data.institution}
                 onPress={handleWebsitePress}
             />
@@ -96,7 +112,7 @@ export default function InstitutionScreen() {
                         label="Terem"
                         searchPlaceholder="Terem keresése..."
                         onSelect={(item) => {
-                            handleSelection(item.id, 'rooms');  
+                            handleSelection(item.id, 'rooms');
                         }}
                     />
                 )}

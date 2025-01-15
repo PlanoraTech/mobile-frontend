@@ -7,6 +7,7 @@ export interface DropdownData {
 export interface Institution {
     id: string;
     name: string;
+    access: string;
     website: string;
     color: string;
 }

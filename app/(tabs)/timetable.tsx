@@ -21,7 +21,7 @@ enum DayOfWeek {
 
 interface Appointment {
   id: string;
-  subject?: {
+  subject: {
     id: string;
     name: string;
   };
@@ -130,20 +130,6 @@ export default function TimetableScreen() {
     index,
   })).current;
 
-  const onScrollToIndexFailed = useRef((info: {
-    index: number;
-    highestMeasuredFrameIndex: number;
-    averageItemLength: number;
-  }) => {
-    const wait = new Promise(resolve => setTimeout(resolve, 100));
-    wait.then(() => {
-      appointmentsListRef.current?.scrollToIndex({
-        index: info.index,
-        animated: true
-      });
-    });
-  }).current;
-
   const renderDayTab = ({ item, index }: { item: string; index: number }) => (
     <Pressable 
       style={[
@@ -152,7 +138,9 @@ export default function TimetableScreen() {
       ]}
       onPress={() => handleDayChange(index)}
     >
-      <Text style={[
+      <Text 
+      numberOfLines={1}
+      style={[
         styles.dayText,
         index === currentDayIndex && styles.activeDayText
       ]}>
@@ -161,11 +149,19 @@ export default function TimetableScreen() {
     </Pressable>
   );
   //test
-  const renderDayPage = ({ item, index }: { item: string; index: number }) => {
+  const renderDayPage = ({ index }: { index: number }) => {
     const dayAppointments = appointments
-        .filter(appointment => appointment.dayOfWeek === DAYS[index])
-        .slice() 
-        .sort((a, b) => formatTime(a.start).localeCompare(formatTime(b.start)));
+        .filter(appointment => 
+          appointment.dayOfWeek.toUpperCase() === DAYS[index]
+        )
+        .slice()
+        .sort((a, b) => {
+          const [hoursA, minutesA] = a.start.split('T')[1].split(':');
+          const [hoursB, minutesB] = b.start.split('T')[1].split(':');
+          const totalMinutesA = Number(hoursA) * 60 + Number(minutesA);
+          const totalMinutesB = Number(hoursB) * 60 + Number(minutesB);
+          return totalMinutesA - totalMinutesB;
+        });
 
     return (
       <View style={styles.dayPage}>
@@ -178,7 +174,7 @@ export default function TimetableScreen() {
               appointment.isCancelled && styles.cancelledCard
             ]}>
               <Text style={styles.subjectName}>
-                {appointment.subject?.name}
+                {appointment.subject.name}
               </Text>
               <Text style={styles.timeText}>
                 {formatTime(appointment.start)} - {formatTime(appointment.end)}
@@ -187,7 +183,7 @@ export default function TimetableScreen() {
                 {appointment.presentators.map(p => p.name).join(', ')}
               </Text>
               <Text style={styles.roomText}>
-                {appointment.rooms.map(r => r.name).join(', ')}
+                {appointment.rooms.map(r => r.name).join('- ')}
               </Text>
               {appointment.isCancelled && (
                 <Text style={styles.cancelledText}>ELMARAD</Text>
@@ -238,8 +234,6 @@ export default function TimetableScreen() {
         onViewableItemsChanged={handleViewableItemsChanged}
         viewabilityConfig={viewabilityConfigRef.current}
         getItemLayout={getItemLayout}
-        initialScrollIndex={currentDayIndex}
-        onScrollToIndexFailed={onScrollToIndexFailed}
         renderItem={renderDayPage}
       />
     </View>
@@ -264,7 +258,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   dayTab: {
-    padding: 15,
+    padding: 5,
     width: SCREEN_WIDTH / 5,
     alignItems: 'center',
     justifyContent: 'center',
@@ -274,8 +268,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#0066cc',
   },
   dayText: {
-    fontSize: 16,
-    wordWrap: 'no-wrap',
+    fontSize: 14,
     color: '#666666',
   },
   activeDayText: {

@@ -1,9 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const saveInstitutionId = async (id: string) => {
+export const saveId = async (key: string, id: string) => {
   try {
-    await AsyncStorage.setItem('institution', id.toString());
-    console.log('Intézmény elmentve');
+    await AsyncStorage.setItem(key, id.toString());
   } catch (error) {
     console.error('Hiba az id elmentése közben: ', error);
   }

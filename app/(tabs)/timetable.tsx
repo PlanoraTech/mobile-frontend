@@ -1,6 +1,7 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { BASE_URL } from '@/utils/baseUrl';
-import { useGlobalSearchParams } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState, useRef } from 'react';
 import { 
   View, 
@@ -43,7 +44,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
 
 export default function TimetableScreen() {
-  const { inst, id } = useGlobalSearchParams();
+  const { inst, id } = useLocalSearchParams();
   const [appointments, setAppointments] = useState([] as Appointment[]);
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -58,17 +59,26 @@ export default function TimetableScreen() {
 
   useEffect(() => {
     const fetchTimetable = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch(
-          `${BASE_URL}/${inst}/timetables/${id}/appointments`
-        );
-        if (!response.ok) {
-          throw new Error('Hiba az órarend betöltése során.');
+        if (inst && id) {
+          const response = await fetch(
+            `${BASE_URL}/${inst}/timetables/${id}/appointments`
+          );
+          if (!response.ok) {
+            throw new Error('Hiba az órarend betöltése során.');
+          }
+          const data = await response.json();
+          setAppointments(data);
+          
+        } else {
+          const savedTimetableId = await AsyncStorage.getItem('timetable');
+          const savedInstId = await AsyncStorage.getItem('institution');
+          
+          if (savedTimetableId && savedInstId) {
+            router.navigate(`/timetable?inst=${savedInstId}&id=${savedTimetableId}`);
+          }
         }
-        const data = await response.json();
-        setAppointments(data);
       } catch (error: any) {
         console.error(error.message || "Valami hiba történt...");
         setError('Hiba az órarend betöltése során. Kérjük próbáld újra később.');
@@ -76,10 +86,8 @@ export default function TimetableScreen() {
         setLoading(false);
       }
     };
-
-    if (inst && id) {
-      fetchTimetable();
-    }
+  
+    fetchTimetable();
   }, [id, inst]);
 
   const formatTime = (dateString: string) => {
@@ -148,7 +156,7 @@ export default function TimetableScreen() {
       </Text>
     </Pressable>
   );
-  //test
+
   const renderDayPage = ({ index }: { index: number }) => {
     const dayAppointments = appointments
         .filter(appointment => 

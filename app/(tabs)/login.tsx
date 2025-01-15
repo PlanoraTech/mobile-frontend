@@ -46,7 +46,7 @@ export default function LoginScreen() {
             style={styles.container}
         >
             <StatusBar style="auto" />
-            <ScrollView style={styles.formContainer}>
+            <View style={styles.formContainer}>
                 <Text style={styles.title}>Üdv újra!</Text>
                 <Text style={styles.subtitle}>Jelentkezz be a folytatáshoz</Text>
 
@@ -80,7 +80,7 @@ export default function LoginScreen() {
                     <Text style={styles.switchAuthText}>Nincs még fiókod? </Text>
                     <Link style={styles.switchAuthLink} href="/register">Regisztáció</Link>
                 </View>
-            </ScrollView>
+            </View>
         </KeyboardAvoidingView>
     );
 }

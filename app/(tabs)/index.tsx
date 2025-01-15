@@ -2,7 +2,7 @@ import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useAuth } from "@/contexts/AuthProvider";
-import { saveInstitutionId } from "@/utils/saveId";
+import { saveId } from "@/utils/saveId";
 import { router } from 'expo-router';
 import DropdownComponent from "@/components/Dropdown";
 import { DropdownData } from "@/types/types";
@@ -41,7 +41,7 @@ export default function Index() {
         if (!data) {
           throw new Error('Nem található az intézmény!');
         }
-        saveInstitutionId(id.toString());
+        saveId('institution', id.toString());
         router.navigate(`/institution?inst=${id}`);
       } else {
         if (user?.accessToken) {

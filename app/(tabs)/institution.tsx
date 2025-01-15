@@ -1,5 +1,5 @@
 
-import { router, useGlobalSearchParams, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { StyleSheet, View, Linking, ScrollView, Text } from "react-native";
 import DropdownComponent from "@/components/Dropdown";
 import { ErrorMessage } from '@/components/ErrorMessage';
@@ -8,6 +8,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useInstitutionData } from "@/assets/hooks/useInstitutionData";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect } from "react";
+import { saveId } from "@/utils/saveId";
 
 
 
@@ -18,12 +19,11 @@ export default function InstitutionScreen() {
         if (inst) return;
 
         AsyncStorage.getItem('institution').then((id) => {
-            console.log("saved id: " + id);
             (id !== null) && router.navigate(`/institution?inst=${id}`);
         })
     },
 
-    []);
+        []);
 
     const { data, loading, error } = useInstitutionData(inst);
     if (!inst) {
@@ -48,6 +48,7 @@ export default function InstitutionScreen() {
     }
 
     const handleSelection = (id: string, endpoint: string) => {
+        saveId(endpoint, id);
         router.navigate(`/${endpoint}?inst=${inst}&id=${id}` as any);
     }
     return (
@@ -82,7 +83,7 @@ export default function InstitutionScreen() {
                         label="Csoport"
                         searchPlaceholder="Csoport keresése..."
                         onSelect={(item) => {
-                            handleSelection(item.id, 'groups');
+                            handleSelection(item.id, 'group');
                         }}
                     />
                 )}

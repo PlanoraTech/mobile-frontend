@@ -1,8 +1,8 @@
-import { useInstiturion } from '@/contexts/InstitutionProvider';
+import { useInstitution } from '@/contexts/InstitutionProvider';
 import {Tabs} from 'expo-router';
 
 export default function TabLayout() {
-    const institutionIds = useInstiturion().ids;
+    const institutionIds = useInstitution().ids;
     return (
         <Tabs>
         <Tabs.Screen name="register" options={{title: 'Regisztráció'}} />

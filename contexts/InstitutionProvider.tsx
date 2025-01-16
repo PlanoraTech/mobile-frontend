@@ -30,7 +30,7 @@ const InstitutionProvider = ({ children }: { children: React.ReactNode }) => {
     );
 }
 
-export const useInstiturion = () => {
+export const useInstitution = () => {
     const context = useContext(InstitutionContext);
     if (!context) {
         throw new Error();

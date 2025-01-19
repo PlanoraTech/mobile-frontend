@@ -1,4 +1,4 @@
-import { Institution } from "@/types/types";
+import { Institution } from "@/types";
 import { Pressable, Text, StyleSheet } from "react-native";
 
 interface InstitutionHeaderProps {

@@ -1,6 +1,6 @@
 import DropdownComponent from "@/components/Dropdown";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { DropdownData } from "@/types/types";
+import { DropdownData } from "@/types";
 import { BASE_URL } from "@/utils/baseUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";

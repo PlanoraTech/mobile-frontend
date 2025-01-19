@@ -1,104 +1,57 @@
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { BASE_URL } from '@/utils/baseUrl';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Dimensions, 
-  Pressable, 
-  FlatList,
-} from 'react-native';
-
-enum DayOfWeek {
-  Monday = 'Monday',
-  Tuesday = 'Tuesday',
-  Wednesday = 'Wednesday',
-  Thursday = 'Thursday',
-  Friday = 'Friday'
-}
-
-interface Appointment {
-  id: string;
-  subject: {
-    id: string;
-    name: string;
-  };
-  presentators: {
-    id: string;
-    name: string;
-  }[];
-  rooms: {
-    id: string;
-    name: string;
-  }[];
-  dayOfWeek: DayOfWeek;
-  start: string;
-  end: string;
-  isCancelled: boolean;
-}
-
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
+import { useInstitutionData } from "@/assets/hooks/useInstitutionData";
+import { useTimetable } from "@/assets/hooks/useTimetable";
+import { ErrorMessage } from "@/components/ErrorMessage";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { TimetableView } from "@/components/TimeTableView";
+import { SCREEN_WIDTH, TITLE_TRANSLATIONS } from "@/constants";
+import { saveId } from "@/utils/saveId";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
+import { FlatList, Linking, Pressable, SafeAreaView, View, Text, StyleSheet } from "react-native";
+import { Settings } from 'lucide-react-native';
+import { SettingsModal } from "@/components/SettingsModal";
 
 export default function TimetableScreen() {
-  const { inst, id } = useLocalSearchParams();
-  const [appointments, setAppointments] = useState([] as Appointment[]);
+  const { inst } = useLocalSearchParams();
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedView, setSelectedView] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedTitle, setSelectedTitle] = useState<string>("");
   
   const daysListRef = useRef<FlatList>(null);
   const appointmentsListRef = useRef<FlatList>(null);
-  const viewabilityConfigRef = useRef({
-    viewAreaCoveragePercentThreshold: 50,
-    minimumViewTime: 0,
-  });
+
+  const { data, loading: institutionLoading, error: institutionError } = useInstitutionData(inst);
+  const { appointments, loading, error } = useTimetable({ inst, selectedView, selectedId });
 
   useEffect(() => {
-    const fetchTimetable = async () => {
-      setLoading(true);
-      try {
-        if (inst && id) {
-          const response = await fetch(
-            `${BASE_URL}/${inst}/timetables/${id}/appointments`
-          );
-          if (!response.ok) {
-            throw new Error('Hiba az órarend betöltése során.');
-          }
-          const data = await response.json();
-          setAppointments(data);
-          
-        } else {
-          const savedTimetableId = await AsyncStorage.getItem('timetable');
-          const savedInstId = await AsyncStorage.getItem('institution');
-          
-          if (savedTimetableId && savedInstId) {
-            router.navigate(`/timetable?inst=${savedInstId}&id=${savedTimetableId}`);
-          }
-        }
-      } catch (error: any) {
-        console.error(error.message || "Valami hiba történt...");
-        setError('Hiba az órarend betöltése során. Kérjük próbáld újra később.');
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchTimetable();
-  }, [id, inst]);
+    if (!inst) {
+      AsyncStorage.getItem('institution').then((id) => {
+        (id !== null) && router.navigate(`/institution?inst=${id}`);
+      });
+    }
+  }, [inst]);
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const handleSelection = (id: string, endpoint: string) => {
+    setSelectedView(endpoint);
+    setSelectedId(id);
+    saveId(endpoint, id);
+    setModalVisible(false);
+  };
+
+  const handleWebsitePress = async () => {
+    if (data.institution?.website) {
+      try {
+        await Linking.openURL(data.institution.website);
+      } catch (error) {
+        console.error('Hiba a weboldal megnyitása közben: ', error);
+      }
+    }
   };
 
   const handleDayChange = (index: number) => {
-
     if (appointmentsListRef.current) {
       appointmentsListRef.current.scrollToOffset({ 
         offset: index * SCREEN_WIDTH,
@@ -106,16 +59,6 @@ export default function TimetableScreen() {
       });
     }
   };
-
-  const translateDayOfWeek = (day: string) => {
-    switch (day) {
-      case 'MONDAY': return 'Hétfő';
-      case 'TUESDAY': return 'Kedd';
-      case 'WEDNESDAY': return 'Szerda';
-      case 'THURSDAY': return 'Csütörtök';
-      case 'FRIDAY': return 'Péntek';
-      default: return day;
-    }};
 
   const handleViewableItemsChanged = useRef(({ viewableItems }: any) => {
     if (viewableItems && viewableItems.length > 0) {
@@ -132,117 +75,63 @@ export default function TimetableScreen() {
     }
   }).current;
 
-  const getItemLayout = useRef((data: any, index: number) => ({
-    length: SCREEN_WIDTH,
-    offset: SCREEN_WIDTH * index,
-    index,
-  })).current;
-
-  const renderDayTab = ({ item, index }: { item: string; index: number }) => (
-    <Pressable 
-      style={[
-        styles.dayTab,
-        index === currentDayIndex && styles.activeDayTab
-      ]}
-      onPress={() => handleDayChange(index)}
-    >
-      <Text 
-      numberOfLines={1}
-      style={[
-        styles.dayText,
-        index === currentDayIndex && styles.activeDayText
-      ]}>
-        {translateDayOfWeek(item)}
-      </Text>
-    </Pressable>
-  );
-
-  const renderDayPage = ({ index }: { index: number }) => {
-    const dayAppointments = appointments
-        .filter(appointment => 
-          appointment.dayOfWeek.toUpperCase() === DAYS[index]
-        )
-        .slice()
-        .sort((a, b) => {
-          const [hoursA, minutesA] = a.start.split('T')[1].split(':');
-          const [hoursB, minutesB] = b.start.split('T')[1].split(':');
-          const totalMinutesA = Number(hoursA) * 60 + Number(minutesA);
-          const totalMinutesB = Number(hoursB) * 60 + Number(minutesB);
-          return totalMinutesA - totalMinutesB;
-        });
-
-    return (
-      <View style={styles.dayPage}>
-        <FlatList
-          data={dayAppointments}
-          keyExtractor={(appointment) => appointment.id}
-          renderItem={({ item: appointment }) => (
-            <View style={[
-              styles.appointmentCard,
-              appointment.isCancelled && styles.cancelledCard
-            ]}>
-              <Text style={styles.subjectName}>
-                {appointment.subject.name}
-              </Text>
-              <Text style={styles.timeText}>
-                {formatTime(appointment.start)} - {formatTime(appointment.end)}
-              </Text>
-              <Text style={styles.presentatorText}>
-                {appointment.presentators.map(p => p.name).join(', ')}
-              </Text>
-              <Text style={styles.roomText}>
-                {appointment.rooms.map(r => r.name).join('- ')}
-              </Text>
-              {appointment.isCancelled && (
-                <Text style={styles.cancelledText}>ELMARAD</Text>
-              )}
-            </View>
-          )}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-    );
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.centerContainer}>
-        <LoadingSpinner />
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-      </View>
-    );
-  }
+  if (!inst) return <ErrorMessage message="Nincs kiválasztott intézmény!" />;
+  if (institutionError) return <ErrorMessage message={institutionError} />;
+  if (institutionLoading.institution) return <LoadingSpinner />;
+  if (!data.institution) return <ErrorMessage message="Nincs kiválasztott intézmény!" />;
 
   return (
     <View style={styles.container}>
-      <FlatList
-        ref={daysListRef}
-        data={DAYS}
-        keyExtractor={(item) => item}
-        horizontal
-        style={styles.daysList}
-        showsHorizontalScrollIndicator={false}
-        renderItem={renderDayTab}
-      />
-      <FlatList
-        ref={appointmentsListRef}
-        data={DAYS}
-        keyExtractor={(item) => item}
-        horizontal
-        pagingEnabled
-        bounces={false}
-        showsHorizontalScrollIndicator={false}
-        onViewableItemsChanged={handleViewableItemsChanged}
-        viewabilityConfig={viewabilityConfigRef.current}
-        getItemLayout={getItemLayout}
-        renderItem={renderDayPage}
+      <SafeAreaView style={styles.header}>
+        <View style={styles.headerContent}>
+          <Text style={styles.selectedTitle}>
+            {selectedTitle || 'Válassz órarendet'}
+          </Text>
+          <Pressable
+            style={styles.settingsButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <Settings color="#0066cc" size={24} />
+          </Pressable>
+        </View>
+      </SafeAreaView>
+
+      {selectedId ? (
+        <>
+          {loading ? (
+            <LoadingSpinner />
+          ) : error ? (
+            <ErrorMessage message={error} />
+          ) : (
+            <TimetableView
+              appointments={appointments}
+              currentDayIndex={currentDayIndex}
+              onDayChange={handleDayChange}
+              daysListRef={daysListRef}
+              appointmentsListRef={appointmentsListRef}
+              handleViewableItemsChanged={handleViewableItemsChanged}
+            />
+          )}
+        </>
+      ) : (
+        <View style={styles.noSelectionContainer}>
+          <Text style={styles.noSelectionText}>
+            Válassz órarendet, előadót vagy termet a beállítások gombbal
+          </Text>
+        </View>
+      )}
+
+      <SettingsModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        institution={data.institution}
+        onWebsitePress={handleWebsitePress}
+        loading={institutionLoading}
+        data={data}
+        onSelect={(item, type) => {
+          setSelectedTitle(`${TITLE_TRANSLATIONS[type]} - ${item.name}`);
+          handleSelection(item.id, type.toLowerCase());
+        }}
       />
     </View>
   );
@@ -251,90 +140,39 @@ export default function TimetableScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  daysList: {
-    maxHeight: 50,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFFFFF',
+},
+header: {
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  dayTab: {
-    padding: 5,
-    width: SCREEN_WIDTH / 5,
+    borderBottomColor: '#E5E5E5',
+},
+headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeDayTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#0066cc',
-  },
-  dayText: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  activeDayText: {
-    color: '#0066cc',
-    fontWeight: '600',
-  },
-  dayPage: {
-    width: SCREEN_WIDTH,
-    padding: 10,
-  },
-  appointmentCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    padding: 15,
-    marginVertical: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  cancelledCard: {
-    opacity: 0.7,
-    backgroundColor: '#f8f8f8',
-  },
-  subjectName: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+},
+selectedTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333333',
-    marginBottom: 5,
-  },
-  timeText: {
-    fontSize: 14,
-    color: '#0066cc',
-    marginBottom: 5,
-  },
-  presentatorText: {
-    fontSize: 14,
-    color: '#666666',
-    marginBottom: 3,
-  },
-  roomText: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  cancelledText: {
-    color: '#ff3b30',
-    fontWeight: '600',
-    fontSize: 12,
-    marginTop: 5,
-  },
-  errorText: {
-    color: '#ff3b30',
-    fontSize: 16,
-    textAlign: 'center',
+    flex: 1,
+},
+settingsButton: {
+    padding: 8,
+},
+noSelectionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
-  },
+},
+noSelectionText: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
+},
+
 });

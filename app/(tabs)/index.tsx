@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { saveId } from "@/utils/saveId";
 import { router } from 'expo-router';
 import DropdownComponent from "@/components/Dropdown";
-import { DropdownData } from "@/types/types";
+import { DropdownData } from "@/types";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { BASE_URL } from "@/utils/baseUrl";
 

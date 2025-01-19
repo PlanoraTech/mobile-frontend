@@ -1,4 +1,4 @@
-import { InstitutionData, LoadingState } from '@/types/types';
+import { InstitutionData, LoadingState } from '@/types';
 import { BASE_URL } from '@/utils/baseUrl';
 import { useState, useEffect } from 'react';
 

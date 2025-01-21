@@ -3,9 +3,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { StyleSheet, View, Linking, ScrollView, Text } from "react-native";
 import DropdownComponent from "@/components/Dropdown";
 import { ErrorMessage } from '@/components/ErrorMessage';
-import { InstitutionHeader } from '@/components/InstitutionHeader';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { useInstitutionData } from "@/assets/hooks/useInstitutionData";
+import { useInstitutionData } from "@/hooks/useInstitutionData";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect } from "react";
 import { saveId } from "@/utils/saveId";
@@ -53,10 +52,7 @@ export default function InstitutionScreen() {
     }
     return (
         <ScrollView style={styles.container}>
-            <InstitutionHeader
-                institution={data.institution}
-                onPress={handleWebsitePress}
-            />
+   
             <View style={styles.dropdownContainer}>
                 <Text style={styles.sectionTitle}>Órarendek</Text>
                 {loading.timetables ? (

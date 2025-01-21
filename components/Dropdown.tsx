@@ -10,6 +10,10 @@ interface DropdownProps {
   searchPlaceholder: string;
   label: string;
   onSelect: (item: any) => void;
+  customStyles?: any;
+  customPlaceholderStyle?: any,
+  customInputSearchStyle?: any,
+  customSelectedTextStyle?: any
 }
 
 const DropdownComponent = ({
@@ -17,7 +21,11 @@ const DropdownComponent = ({
   placeholder = 'Válassz elemet',
   searchPlaceholder = 'Keresés...',
   label,
-  onSelect
+  onSelect,
+  customStyles,
+  customPlaceholderStyle,
+  customSelectedTextStyle,
+  customInputSearchStyle
 }: DropdownProps) => {
   const [value, setValue] = useState<string | null>(null);
   const [isFocus, setIsFocus] = useState(false);
@@ -36,18 +44,19 @@ const DropdownComponent = ({
     <View style={styles.container}>
       {renderLabel()}
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
+      
+        style={[customStyles, styles.dropdown, isFocus && { borderColor: 'blue' }]}
+        placeholderStyle={customPlaceholderStyle || styles.placeholderStyle}
+        selectedTextStyle={customSelectedTextStyle || styles.selectedTextStyle}
+        inputSearchStyle={customInputSearchStyle || styles.inputSearchStyle}
         iconStyle={styles.iconStyle}
         data={data}
         search
-        maxHeight={300}
+        maxHeight={225}
         labelField="name"  
         valueField="id"          
         placeholder={!isFocus ? placeholder : '...'}
-        searchPlaceholder={searchPlaceholder}
+        searchPlaceholder={ searchPlaceholder}
         value={value}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
@@ -58,14 +67,8 @@ const DropdownComponent = ({
             onSelect(item);
           }
         }}
-        renderLeftIcon={() => (
-          <AntDesign
-            style={styles.icon}
-            color={isFocus ? 'blue' : 'black'}
-            name="Safety"
-            size={20}
-          />
-        )}
+        renderLeftIcon={() => null}
+        renderRightIcon={() => null}
       />
     </View>
   );
@@ -82,21 +85,24 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: 8,
+
   },
   icon: {
     marginRight: 5,
   },
   label: {
-    position: 'absolute',
+    //position: 'absolute',
     backgroundColor: 'white',
-    left: 22,
-    top: 8,
+    marginHorizontal: 'auto',
+    marginTop: 10,
     zIndex: 999,
     paddingHorizontal: 8,
     fontSize: 14,
+    
   },
   placeholderStyle: {
     fontSize: 16,
+    textAlign: 'center'
   },
   selectedTextStyle: {
     fontSize: 16,

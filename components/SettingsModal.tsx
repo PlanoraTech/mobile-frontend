@@ -7,10 +7,11 @@ import {
     ScrollView,
     StyleSheet
 } from 'react-native';
-import { InstitutionHeader } from '@/components/InstitutionHeader';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import DropdownComponent from '@/components/Dropdown';
 import { Institution } from '@/types';
+import { Scroll } from 'lucide-react-native';
+
 
 
 interface SettingsModalProps {
@@ -67,27 +68,35 @@ export const SettingsModal = ({
                     </View>
 
                     <ScrollView style={styles.modalScrollView}>
-                        <InstitutionHeader
-                            institution={institution}
-                            onPress={onWebsitePress}
+
+                        <DropdownComponent
+                            data={data.timetables}
+                            placeholder={institution.name}
+                            label="Intézmény"
+                            searchPlaceholder="Intézmény keresése..."
+                            onSelect={(item) => onSelect(item, 'institution')}
+
+
                         />
                         <View style={styles.dropdownContainer}>
                             <View style={styles.card}>
 
                                 <View style={styles.timetableHeader}>
-                                    <Text style={styles.sectionTitle}>Órarendek</Text>
+
                                     {loading.groups ? (
                                         <LoadingSpinner />
                                     ) : (
-                                        <View style={styles.groupDropdown}>
+
                                         <DropdownComponent
                                             data={data.groups}
-                                            placeholder="Szűrés csoportra"
+                                            placeholder="Szűrés"
                                             label="Csoport"
-                                            searchPlaceholder="Csoport keresése..."
+                                            searchPlaceholder="Keresés..."
                                             onSelect={(item) => setSelectedGroup(item.id)}
+                                            customStyles={styles.groupDropdown}
+
                                         />
-                                        </View>
+
                                     )}
                                 </View>
                                 {loading.timetables ? (
@@ -104,7 +113,7 @@ export const SettingsModal = ({
                             </View>
 
                             <View style={styles.card}>
-                                <Text style={styles.sectionTitle}>Előadók</Text>
+
                                 {loading.presentators ? (
                                     <LoadingSpinner />
                                 ) : (
@@ -118,11 +127,11 @@ export const SettingsModal = ({
                                 )}
                             </View>
                             <View style={styles.card}>
-                                <Text style={styles.sectionTitle}>Termek</Text>
+
                                 {loading.rooms ? (
                                     <LoadingSpinner />
                                 ) : (
-                                    
+
                                     <DropdownComponent
                                         data={data.rooms}
                                         placeholder="Válassz termet"
@@ -144,13 +153,13 @@ const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     modalContent: {
-        flex: 1,
         backgroundColor: '#FFFFFF',
-        marginTop: 50,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        borderRadius: 10,
+        width: 350
     },
     modalHeader: {
         flexDirection: 'row',
@@ -205,8 +214,12 @@ const styles = StyleSheet.create({
         color: '#333333',
         marginBottom: 8,
         marginTop: 16,
+        paddingLeft: 16,
+
     },
     groupDropdown: {
-        width: '48%',
+        width: 120,
+
     },
+
 });

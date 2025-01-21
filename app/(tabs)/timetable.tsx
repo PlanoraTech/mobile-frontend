@@ -1,5 +1,5 @@
-import { useInstitutionData } from "@/assets/hooks/useInstitutionData";
-import { useTimetable } from "@/assets/hooks/useTimetable";
+import { useInstitutionData } from "@/hooks/useInstitutionData";
+import { useTimetable } from "@/hooks/useTimetable";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TimetableView } from "@/components/TimeTableView";

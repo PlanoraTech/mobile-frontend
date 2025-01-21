@@ -2,29 +2,29 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface InstitutionContextType {
-    ids: number[] | null;
+    id: string;
 }
 
 const InstitutionContext = createContext<InstitutionContextType | null>(null);
 
 const InstitutionProvider = ({ children }: { children: React.ReactNode }) => {
-    const [ids, setIds] = useState<number[] | null>(null);
+    const [id, setId] = useState("");
 
     useEffect(() => {
-        const getInstitutionIds = async () => {
+        const getInstitutionId = async () => {
             try {
-                const storedIds = await AsyncStorage.getItem('institutionIds');
-                setIds(storedIds ? JSON.parse(storedIds).map(Number) : null);
+                const storedId = await AsyncStorage.getItem('institution');
+                setId(storedId || '');
             } catch (error) {
                 console.error('Hiba az intézmények betöltése során: ', error);
-                setIds(null);
+                setId('');
             }
         };
-        getInstitutionIds();
+        getInstitutionId();
     }, []);
 
     return (
-        <InstitutionContext.Provider value={{ ids }}>
+        <InstitutionContext.Provider value={{ id }}>
             {children}
         </InstitutionContext.Provider>
     );

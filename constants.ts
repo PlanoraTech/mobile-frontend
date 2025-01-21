@@ -13,5 +13,6 @@ export const DAY_TRANSLATIONS: Record<string, string> = {
 export const TITLE_TRANSLATIONS: Record<string, string> = {
   'timetable': 'Órarend',
   'rooms': 'Terem',
-  'presentators': 'Oktató'
+  'presentators': 'Oktató',
+  'groups': 'Csoport'
 };

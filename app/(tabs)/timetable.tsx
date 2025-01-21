@@ -45,7 +45,7 @@ export default function TimetableScreen() {
     if (data.institution?.website) {
       try {
         await Linking.openURL(data.institution.website);
-      } catch (error) {
+      } catch (error) { 
         console.error('Hiba a weboldal megnyitása közben: ', error);
       }
     }

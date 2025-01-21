@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Modal,
     View,
     Text,
-    TouchableOpacity,
+    Pressable,
     ScrollView,
     StyleSheet
 } from 'react-native';
@@ -22,11 +22,13 @@ interface SettingsModalProps {
         timetables: boolean;
         presentators: boolean;
         rooms: boolean;
+        groups: boolean;
     };
     data: {
         timetables: any[];
         presentators: any[];
         rooms: any[];
+        groups: any[];
     };
     onSelect: (item: any, type: string) => void;
 }
@@ -41,6 +43,10 @@ export const SettingsModal = ({
     onSelect
 }: SettingsModalProps
 ) => {
+    const [selectedGroup, setSelectedGroup] = useState("");
+    console.log(data.timetables);
+    console.log(selectedGroup);
+    const filteredTimetable = selectedGroup ? data.timetables.filter((timetable) => timetable.groups[0].id === selectedGroup) : data.timetables;
     return (
         <Modal
             animationType="slide"
@@ -52,12 +58,12 @@ export const SettingsModal = ({
                 <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>Órarend beállítások</Text>
-                        <TouchableOpacity
+                        <Pressable
                             onPress={onClose}
                             style={styles.closeButton}
                         >
                             <Text style={styles.closeButtonText}>×</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     </View>
 
                     <ScrollView style={styles.modalScrollView}>
@@ -65,46 +71,67 @@ export const SettingsModal = ({
                             institution={institution}
                             onPress={onWebsitePress}
                         />
-
                         <View style={styles.dropdownContainer}>
-                            <Text style={styles.sectionTitle}>Órarendek</Text>
-                            {loading.timetables ? (
-                                <LoadingSpinner />
-                            ) : (
-                                <DropdownComponent
-                                    data={data.timetables}
-                                    placeholder="Válassz órarendet"
-                                    label="Órarend"
-                                    searchPlaceholder="Órarend keresése..."
-                                    onSelect={(item) => onSelect(item, 'timetable')}
-                                />
-                            )}
+                            <View style={styles.card}>
 
-                            <Text style={styles.sectionTitle}>Előadók</Text>
-                            {loading.presentators ? (
-                                <LoadingSpinner />
-                            ) : (
-                                <DropdownComponent
-                                    data={data.presentators}
-                                    placeholder="Válassz előadót"
-                                    label="Előadó"
-                                    searchPlaceholder="Előadó keresése..."
-                                    onSelect={(item) => onSelect(item, 'presentators')}
-                                />
-                            )}
+                                <View style={styles.timetableHeader}>
+                                    <Text style={styles.sectionTitle}>Órarendek</Text>
+                                    {loading.groups ? (
+                                        <LoadingSpinner />
+                                    ) : (
+                                        <View style={styles.groupDropdown}>
+                                        <DropdownComponent
+                                            data={data.groups}
+                                            placeholder="Szűrés csoportra"
+                                            label="Csoport"
+                                            searchPlaceholder="Csoport keresése..."
+                                            onSelect={(item) => setSelectedGroup(item.id)}
+                                        />
+                                        </View>
+                                    )}
+                                </View>
+                                {loading.timetables ? (
+                                    <LoadingSpinner />
+                                ) : (
+                                    <DropdownComponent
+                                        data={filteredTimetable}
+                                        placeholder="Válassz órarendet"
+                                        label="Órarend"
+                                        searchPlaceholder="Órarend keresése..."
+                                        onSelect={(item) => onSelect(item, 'timetable')}
+                                    />
+                                )}
+                            </View>
 
-                            <Text style={styles.sectionTitle}>Termek</Text>
-                            {loading.rooms ? (
-                                <LoadingSpinner />
-                            ) : (
-                                <DropdownComponent
-                                    data={data.rooms}
-                                    placeholder="Válassz termet"
-                                    label="Terem"
-                                    searchPlaceholder="Terem keresése..."
-                                    onSelect={(item) => onSelect(item, 'rooms')}
-                                />
-                            )}
+                            <View style={styles.card}>
+                                <Text style={styles.sectionTitle}>Előadók</Text>
+                                {loading.presentators ? (
+                                    <LoadingSpinner />
+                                ) : (
+                                    <DropdownComponent
+                                        data={data.presentators}
+                                        placeholder="Válassz előadót"
+                                        label="Előadó"
+                                        searchPlaceholder="Előadó keresése..."
+                                        onSelect={(item) => onSelect(item, 'presentators')}
+                                    />
+                                )}
+                            </View>
+                            <View style={styles.card}>
+                                <Text style={styles.sectionTitle}>Termek</Text>
+                                {loading.rooms ? (
+                                    <LoadingSpinner />
+                                ) : (
+                                    
+                                    <DropdownComponent
+                                        data={data.rooms}
+                                        placeholder="Válassz termet"
+                                        label="Terem"
+                                        searchPlaceholder="Terem keresése..."
+                                        onSelect={(item) => onSelect(item, 'rooms')}
+                                    />
+                                )}
+                            </View>
                         </View>
                     </ScrollView>
                 </View>
@@ -148,9 +175,29 @@ const styles = StyleSheet.create({
     modalScrollView: {
         flex: 1,
     },
+    card: {
+        borderWidth: 1,
+        borderRadius: 8,
+        padding: 16,
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 2,
+            height: 4,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
     dropdownContainer: {
         padding: 16,
         gap: 16,
+    },
+    timetableHeader: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     sectionTitle: {
         fontSize: 16,
@@ -158,5 +205,8 @@ const styles = StyleSheet.create({
         color: '#333333',
         marginBottom: 8,
         marginTop: 16,
+    },
+    groupDropdown: {
+        width: '48%',
     },
 });

@@ -1,13 +1,16 @@
 import { Appointment } from "@/types";
-import { View, Text, StyleSheet } from "react-native";
+import { useState } from "react";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import { AppointmentModal } from "./AppointmentModal";
+import { formatTime } from "@/utils/formatTime";
 
 interface AppointmentCardProps {
     appointment: Appointment;
-    formatTime: (dateString: string) => string;
   }
   
-export const AppointmentCard = ({ appointment, formatTime }: AppointmentCardProps) => (
-    <View style={[styles.appointmentCard, appointment.isCancelled && styles.cancelledCard]}>
+export const AppointmentCard = ({ appointment}: AppointmentCardProps) => {
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    return <Pressable onPress={()=>setIsModalVisible(true)} style={[styles.appointmentCard, appointment.isCancelled && styles.cancelledCard]}>
       <Text style={styles.subjectName}>{appointment.subject.name}</Text>
       <Text style={styles.timeText}>
         {formatTime(appointment.start)} - {formatTime(appointment.end)}
@@ -21,8 +24,9 @@ export const AppointmentCard = ({ appointment, formatTime }: AppointmentCardProp
       {appointment.isCancelled && (
         <Text style={styles.cancelledText}>ELMARAD</Text>
       )}
-    </View>
-  );
+      {isModalVisible && <AppointmentModal appointment={appointment} onClose={() => setIsModalVisible(false)} />}
+    </Pressable>
+  };
   
   const styles = StyleSheet.create({
     cancelledText: {

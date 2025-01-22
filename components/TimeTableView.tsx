@@ -22,12 +22,6 @@ interface TimetableViewProps {
     appointmentsListRef,
     handleViewableItemsChanged
     }: TimetableViewProps) => {
-    const formatTime = (dateString: string) => {
-      return new Date(dateString).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    };
   
     const renderDayPage = ({ index }: { index: number }) => {
       const dayAppointments = appointments
@@ -42,7 +36,6 @@ interface TimetableViewProps {
             renderItem={({ item }) => (
               <AppointmentCard 
                 appointment={item}
-                formatTime={formatTime}
               />
             )}
             showsVerticalScrollIndicator={false}

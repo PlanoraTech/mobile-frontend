@@ -29,7 +29,7 @@ export default function TimetableScreen() {
   useEffect(() => {
     if (!inst) {
       AsyncStorage.getItem('institution').then((id) => {
-        (id !== null) && router.navigate(`/institution?inst=${id}`);
+        (id !== null) && router.navigate(`/institution?inst=${id}` as any);
       });
     }
   }, [inst]);

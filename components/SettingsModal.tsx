@@ -10,7 +10,6 @@ import {
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import DropdownComponent from '@/components/Dropdown';
 import { Institution } from '@/types';
-import { Scroll } from 'lucide-react-native';
 
 
 
@@ -75,30 +74,32 @@ export const SettingsModal = ({
                             label="Intézmény"
                             searchPlaceholder="Intézmény keresése..."
                             onSelect={(item) => onSelect(item, 'institution')}
-
+                            customStyles={{}}
+                    
 
                         />
                         <View style={styles.dropdownContainer}>
                             <View style={styles.card}>
 
-                                <View style={styles.timetableHeader}>
+                              
 
                                     {loading.groups ? (
                                         <LoadingSpinner />
                                     ) : (
-
+                                        
                                         <DropdownComponent
                                             data={data.groups}
-                                            placeholder="Szűrés"
+                                            placeholder="Szűrés csoportra"
                                             label="Csoport"
                                             searchPlaceholder="Keresés..."
                                             onSelect={(item) => setSelectedGroup(item.id)}
                                             customStyles={styles.groupDropdown}
-
+                                  
+                
                                         />
 
                                     )}
-                                </View>
+                              
                                 {loading.timetables ? (
                                     <LoadingSpinner />
                                 ) : (
@@ -108,6 +109,8 @@ export const SettingsModal = ({
                                         label="Órarend"
                                         searchPlaceholder="Órarend keresése..."
                                         onSelect={(item) => onSelect(item, 'timetable')}
+                         
+                               
                                     />
                                 )}
                             </View>
@@ -119,6 +122,7 @@ export const SettingsModal = ({
                                 ) : (
                                     <DropdownComponent
                                         data={data.presentators}
+                                        dropDirection='top'
                                         placeholder="Válassz előadót"
                                         label="Előadó"
                                         searchPlaceholder="Előadó keresése..."
@@ -134,6 +138,7 @@ export const SettingsModal = ({
 
                                     <DropdownComponent
                                         data={data.rooms}
+                                        dropDirection='top'
                                         placeholder="Válassz termet"
                                         label="Terem"
                                         searchPlaceholder="Terem keresése..."
@@ -159,7 +164,15 @@ const styles = StyleSheet.create({
     modalContent: {
         backgroundColor: '#FFFFFF',
         borderRadius: 10,
-        width: 350
+        width: "80%",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 12,
+        },
+        shadowOpacity: 0.58,
+        shadowRadius: 16.00,
+        elevation: 24
     },
     modalHeader: {
         flexDirection: 'row',
@@ -185,29 +198,24 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     card: {
-        borderWidth: 1,
-        borderRadius: 8,
         padding: 16,
         marginBottom: 16,
-        shadowColor: '#000',
+        borderRadius: 15,
+        backgroundColor: '#FFFFFF',
+        shadowColor: "#000",
         shadowOffset: {
-            width: 2,
-            height: 4,
+            width: 5,
+            height: 5,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 10
     },
     dropdownContainer: {
         padding: 16,
         gap: 16,
     },
-    timetableHeader: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
+  
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',
@@ -215,11 +223,10 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         marginTop: 16,
         paddingLeft: 16,
-
     },
     groupDropdown: {
-        width: 120,
-
+        width: '70%',
+        alignSelf: 'center',
     },
 
 });

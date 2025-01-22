@@ -1,5 +1,6 @@
 import { useInstitution } from '@/contexts/InstitutionProvider';
 import { useInstitutionData } from '@/hooks/useInstitutionData';
+import { MaterialIcons } from '@expo/vector-icons';
 import {Tabs} from 'expo-router';
 
 interface GlobalInst {
@@ -11,15 +12,15 @@ export default function TabLayout() {
     const {data, loading, error} = useInstitutionData(institutionId);
     return (
         <Tabs>
-        <Tabs.Screen name="register" options={{title: 'Regisztráció'}} />
-
-        {institutionId?
-         <Tabs.Screen name="index" options={{title: data.institution?.name || 'asd'}} />
-        : <Tabs.Screen name="institution" options={{title: 'Intézmény'}} />}
-        <Tabs.Screen name="login" options={{title: 'Bejelentkezés'}} />
-        <Tabs.Screen name="timetable" options={{headerShown: false}} />
-        <Tabs.Screen name="profile" options={{title: 'Profil'}} />
-        <Tabs.Screen name="group" options={{title: 'Csoportok'}} />
+        <Tabs.Screen name="timetable" options={{
+            headerShown: false,
+            title: 'Órarend',
+            tabBarIcon: ({color, size}) => <MaterialIcons name="schedule" size={size} color={color} />,
+        }} />
+        <Tabs.Screen name="profile" options={{
+            title: 'Profil',
+            tabBarIcon: ({color, size}) => <MaterialIcons name="person" size={size} color={color} />,
+            }} />
         </Tabs>
     );
     }

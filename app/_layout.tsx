@@ -10,6 +10,8 @@ export default function RootLayout() {
   <AuthProvider authAdapter={authAdapter}>
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="screens/login" options={{ title: "Bejelentkezés" }} />
+      <Stack.Screen name="screens/register" options={{ title: "Regisztráció" }} />
     </Stack>
   </AuthProvider>
   </InstitutionProvider>

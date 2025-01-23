@@ -11,8 +11,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Linking, Pressable, SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { Settings } from 'lucide-react-native';
 import { SettingsModal } from "@/components/SettingsModal";
+import { useTheme } from "@/contexts/ThemeProvider";
+import { getThemeStyles } from "@/assets/styles/themes";
 
 export default function TimetableScreen() {
+  const {theme} = useTheme();
+  const themeStyles = getThemeStyles(theme);
   const { inst } = useLocalSearchParams();
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
   const [selectedView, setSelectedView] = useState<string | null>(null);
@@ -81,17 +85,17 @@ export default function TimetableScreen() {
   if (!data.institution) return <ErrorMessage message="Nincs kiválasztott intézmény!" />;
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.header}>
+    <View style={[styles.container, themeStyles.background]}>  
+      <SafeAreaView style={[styles.header, themeStyles.content]}>
         <View style={styles.headerContent}>
-          <Text style={styles.selectedTitle}>
+          <Text style={[styles.selectedTitle, themeStyles.text]}>
             {selectedTitle || 'Válassz órarendet'}
           </Text>
           <Pressable
             style={styles.settingsButton}
             onPress={() => setModalVisible(true)}
           >
-            <Settings color="#0066cc" size={24} />
+            <Settings color={themeStyles.secondaryText.color } size={28} />
           </Pressable>
         </View>
       </SafeAreaView>
@@ -115,7 +119,7 @@ export default function TimetableScreen() {
         </>
       ) : (
         <View style={styles.noSelectionContainer}>
-          <Text style={styles.noSelectionText}>
+          <Text style={[styles.noSelectionText, themeStyles.secondaryText]}>
             Válassz órarendet, előadót vagy termet a beállítások gombbal
           </Text>
         </View>
@@ -140,12 +144,9 @@ export default function TimetableScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
 },
 header: {
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
 },
 headerContent: {
     flexDirection: 'row',
@@ -157,7 +158,6 @@ headerContent: {
 selectedTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333333',
     flex: 1,
 },
 settingsButton: {
@@ -171,8 +171,7 @@ noSelectionContainer: {
 },
 noSelectionText: {
     fontSize: 16,
-    color: '#666666',
+    fontWeight: '400',
     textAlign: 'center',
 },
-
 });

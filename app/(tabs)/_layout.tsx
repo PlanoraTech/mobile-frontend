@@ -1,26 +1,28 @@
-import { useInstitution } from '@/contexts/InstitutionProvider';
-import { useInstitutionData } from '@/hooks/useInstitutionData';
+import { getThemeStyles } from '@/assets/styles/themes';
+import { useTheme } from '@/contexts/ThemeProvider';
 import { MaterialIcons } from '@expo/vector-icons';
-import {Tabs} from 'expo-router';
+import { Tabs } from 'expo-router';
 
-interface GlobalInst {
-    id: string;
-    name: string;
-}
 export default function TabLayout() {
-    const institutionId = useInstitution().id;
-    const {data, loading, error} = useInstitutionData(institutionId);
+    const { theme } = useTheme();
+    const themeStyles = getThemeStyles(theme);
+
     return (
-        <Tabs>
-        <Tabs.Screen name="timetable" options={{
+        <Tabs screenOptions={{
+            tabBarActiveTintColor: themeStyles.text.color,
+            headerTintColor: themeStyles.text.color,
+        }}>
+            <Tabs.Screen name="timetable" options={{
             headerShown: false,
-            title: 'Órarend',
-            tabBarIcon: ({color, size}) => <MaterialIcons name="schedule" size={size} color={color} />,
-        }} />
-        <Tabs.Screen name="profile" options={{
+            tabBarStyle: themeStyles.tabBar,
+            tabBarIcon: ({ color, size }) => <MaterialIcons name="schedule" size={size} color={color} />,
+            }} />
+            <Tabs.Screen name="profile" options={{
             title: 'Profil',
-            tabBarIcon: ({color, size}) => <MaterialIcons name="person" size={size} color={color} />,
+            headerStyle: themeStyles.tabHeader,
+            tabBarStyle: themeStyles.tabBar,
+            tabBarIcon: ({ color, size }) => <MaterialIcons name="person" size={size} color={color} />,
             }} />
         </Tabs>
     );
-    }
+}

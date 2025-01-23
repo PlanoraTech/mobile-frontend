@@ -1,24 +1,28 @@
 import { Appointment } from "@/types";
 import { useState } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { Text, StyleSheet, Pressable } from "react-native";
 import { AppointmentModal } from "./AppointmentModal";
 import { formatTime } from "@/utils/formatTime";
+import { useTheme } from "@/contexts/ThemeProvider";
+import { getThemeStyles } from "@/assets/styles/themes";
 
 interface AppointmentCardProps {
     appointment: Appointment;
   }
   
 export const AppointmentCard = ({ appointment}: AppointmentCardProps) => {
+  const {theme} = useTheme();
+  const themeStyles = getThemeStyles(theme);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    return <Pressable onPress={()=>setIsModalVisible(true)} style={[styles.appointmentCard, appointment.isCancelled && styles.cancelledCard]}>
-      <Text style={styles.subjectName}>{appointment.subject.name}</Text>
-      <Text style={styles.timeText}>
+    return <Pressable onPress={()=>setIsModalVisible(true)} style={[styles.appointmentCard, themeStyles.content, appointment.isCancelled && styles.cancelledCard]}>
+      <Text style={[styles.subjectName, themeStyles.secondaryText]}>{appointment.subject.name}</Text>
+      <Text style={[styles.timeText]}>
         {formatTime(appointment.start)} - {formatTime(appointment.end)}
       </Text>
-      <Text style={styles.presentatorText}>
+      <Text style={[styles.presentatorText, themeStyles.text]}>
         {appointment.presentators.map(p => p.name).join(', ')}
       </Text>
-      <Text style={styles.roomText}>
+      <Text style={[styles.roomText, themeStyles.text]}>
         {appointment.rooms.map(r => r.name).join(' - ')}
       </Text>
       {appointment.isCancelled && (
@@ -32,24 +36,20 @@ export const AppointmentCard = ({ appointment}: AppointmentCardProps) => {
     cancelledText: {
         color: '#ff3b30',
         fontWeight: '600',
-        fontSize: 12,
+        fontSize: 13,
         marginTop: 5,
     },
     cancelledCard: {
         opacity: 0.7,
-        backgroundColor: '#f8f8f8',
     },
     roomText: {
         fontSize: 14,
-        color: '#666666',
     },
     presentatorText: {
         fontSize: 14,
-        color: '#666666',
         marginBottom: 3,
     },
     appointmentCard: {
-        backgroundColor: '#ffffff',
         borderRadius: 8,
         padding: 15,
         marginVertical: 5,
@@ -63,14 +63,14 @@ export const AppointmentCard = ({ appointment}: AppointmentCardProps) => {
         elevation: 3,
     },
     timeText: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#0066cc',
         marginBottom: 5,
+        fontWeight: '600',
     },
     subjectName: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#333333',
         marginBottom: 5,
     },
   });

@@ -10,6 +10,8 @@ import {
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import DropdownComponent from '@/components/Dropdown';
 import { Institution } from '@/types';
+import { useTheme } from '@/contexts/ThemeProvider';
+import { getThemeStyles } from '@/assets/styles/themes';
 
 
 
@@ -43,6 +45,8 @@ export const SettingsModal = ({
     onSelect
 }: SettingsModalProps
 ) => {
+    const { theme } = useTheme();
+    const themeStyle = getThemeStyles(theme);
     const [selectedGroup, setSelectedGroup] = useState("");
     console.log(data.timetables);
     console.log(selectedGroup);
@@ -55,7 +59,7 @@ export const SettingsModal = ({
             onRequestClose={onClose}
         >
             <View style={styles.modalContainer}>
-                <View style={styles.modalContent}>
+                <View style={[styles.modalContent, themeStyle.content]}>
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>Órarend beállítások</Text>
                         <Pressable
@@ -75,31 +79,30 @@ export const SettingsModal = ({
                             searchPlaceholder="Intézmény keresése..."
                             onSelect={(item) => onSelect(item, 'institution')}
                             customStyles={{}}
-                    
+
 
                         />
                         <View style={styles.dropdownContainer}>
-                            <View style={styles.card}>
+                            <View style={[styles.card, themeStyle.content]}>
 
-                              
 
-                                    {loading.groups ? (
-                                        <LoadingSpinner />
-                                    ) : (
-                                        
-                                        <DropdownComponent
-                                            data={data.groups}
-                                            placeholder="Szűrés csoportra"
-                                            label="Csoport"
-                                            searchPlaceholder="Keresés..."
-                                            onSelect={(item) => setSelectedGroup(item.id)}
-                                            customStyles={styles.groupDropdown}
-                                  
-                
-                                        />
 
-                                    )}
-                              
+                                {loading.groups ? (
+                                    <LoadingSpinner />
+                                ) : (
+
+                                    <DropdownComponent
+                                        data={data.groups}
+                                        placeholder="Szűrés csoportra"
+                                        label="Csoport"
+                                        searchPlaceholder="Keresés..."
+                                        onSelect={(item) => setSelectedGroup(item.id)}
+                                        customStyles={styles.groupDropdown}
+
+                                    />
+
+                                )}
+
                                 {loading.timetables ? (
                                     <LoadingSpinner />
                                 ) : (
@@ -109,13 +112,11 @@ export const SettingsModal = ({
                                         label="Órarend"
                                         searchPlaceholder="Órarend keresése..."
                                         onSelect={(item) => onSelect(item, 'timetable')}
-                         
-                               
                                     />
                                 )}
                             </View>
 
-                            <View style={styles.card}>
+                            <View style={[styles.card, themeStyle.content]}>
 
                                 {loading.presentators ? (
                                     <LoadingSpinner />
@@ -130,8 +131,7 @@ export const SettingsModal = ({
                                     />
                                 )}
                             </View>
-                            <View style={styles.card}>
-
+                            <View style={[styles.card, themeStyle.content]}>
                                 {loading.rooms ? (
                                     <LoadingSpinner />
                                 ) : (
@@ -157,15 +157,14 @@ export const SettingsModal = ({
 const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     modalContent: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#d0d0c0',
         borderRadius: 10,
         width: "80%",
-        shadowColor: "#000",
+        shadowColor: "lightgrey",
         shadowOffset: {
             width: 0,
             height: 12,
@@ -201,8 +200,7 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 16,
         borderRadius: 15,
-        backgroundColor: '#FFFFFF',
-        shadowColor: "#000",
+        shadowColor: "lightgrey",
         shadowOffset: {
             width: 5,
             height: 5,
@@ -215,7 +213,7 @@ const styles = StyleSheet.create({
         padding: 16,
         gap: 16,
     },
-  
+
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',

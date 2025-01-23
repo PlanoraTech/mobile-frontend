@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { DropdownData } from '@/types';
+import { useTheme } from '@/contexts/ThemeProvider';
+import { getThemeStyles } from '@/assets/styles/themes';
 
 interface DropdownProps {
   data: DropdownData[];
@@ -30,6 +32,8 @@ const DropdownComponent = ({
   customItemTextStyle,
   dropDirection
 }: DropdownProps) => {
+  const {theme} = useTheme();
+  const themeStyle = getThemeStyles(theme);
   const [value, setValue] = useState<string | null>(null);
   const [isFocus, setIsFocus] = useState(false);
 
@@ -44,18 +48,18 @@ const DropdownComponent = ({
     return null;
   };
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, themeStyle.content]}>
       {renderLabel()}
       <Dropdown
 
-        style={[customStyles, styles.dropdown, isFocus && { borderColor: 'blue' }]}
-        placeholderStyle={customPlaceholderStyle || styles.placeholderStyle}
-        selectedTextStyle={customSelectedTextStyle || styles.selectedTextStyle}
-        inputSearchStyle={customInputSearchStyle || styles.inputSearchStyle}
+        style={[themeStyle.content, styles.dropdown, isFocus && { borderColor: 'blue' }]}
+        placeholderStyle={[styles.placeholderStyle, themeStyle.secondaryText]}
+        selectedTextStyle={[styles.selectedTextStyle, themeStyle.secondaryText]}
+        inputSearchStyle={[styles.inputSearchStyle, themeStyle.secondaryText]}
         iconStyle={styles.iconStyle}
-        itemTextStyle={customItemTextStyle}
-        itemContainerStyle={styles.itemContainerStyle}
-        containerStyle={styles.listContainer}
+        itemTextStyle={[themeStyle.secondaryText]}
+        itemContainerStyle={[styles.itemContainerStyle, themeStyle.content]}
+        containerStyle={[styles.listContainer, themeStyle.content]}
 
         data={data}
         search
@@ -85,19 +89,15 @@ const DropdownComponent = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
     padding: 16,
   },
   listContainer: {
-    backgroundColor: 'white',
     borderRadius: 8,
-    borderColor: 'gray',
     borderWidth: 0.5,
     paddingHorizontal: 4
   },
   dropdown: {
     height: 50,
-    borderColor: 'gray',
     borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: 8,

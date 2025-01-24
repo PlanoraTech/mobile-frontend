@@ -32,7 +32,7 @@ const DropdownComponent = ({
   customItemTextStyle,
   dropDirection
 }: DropdownProps) => {
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const themeStyle = getThemeStyles(theme);
   const [value, setValue] = useState<string | null>(null);
   const [isFocus, setIsFocus] = useState(false);
@@ -52,15 +52,14 @@ const DropdownComponent = ({
       {renderLabel()}
       <Dropdown
 
-        style={[themeStyle.content, styles.dropdown, isFocus && { borderColor: 'blue' }]}
-        placeholderStyle={[styles.placeholderStyle, themeStyle.secondaryText]}
-        selectedTextStyle={[styles.selectedTextStyle, themeStyle.secondaryText]}
-        inputSearchStyle={[styles.inputSearchStyle, themeStyle.secondaryText]}
-        iconStyle={styles.iconStyle}
-        itemTextStyle={[themeStyle.secondaryText]}
+        style={[themeStyle.content, styles.dropdown, isFocus && { borderColor: themeStyle.text.color }]}
+        placeholderStyle={[styles.placeholderStyle, themeStyle.text]}
+        selectedTextStyle={[styles.selectedTextStyle, themeStyle.text]}
+        inputSearchStyle={[styles.inputSearchStyle, themeStyle.text]}
+        itemTextStyle={[styles.itemTextStyle, themeStyle.text]}
         itemContainerStyle={[styles.itemContainerStyle, themeStyle.content]}
         containerStyle={[styles.listContainer, themeStyle.content]}
-
+        searchPlaceholderTextColor={themeStyle.secondaryText.color}
         data={data}
         search
         maxHeight={225}
@@ -93,14 +92,15 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     borderRadius: 8,
-    borderWidth: 0.5,
+    borderWidth: 0,
     paddingHorizontal: 4
   },
   dropdown: {
     height: 50,
-    borderWidth: 0.5,
+    borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 8,
+    borderColor: 'grey',
 
   },
   icon: {
@@ -117,22 +117,23 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: {
     fontSize: 16,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   selectedTextStyle: {
     fontSize: 16,
-    textAlign: 'center'
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
+    textAlign: 'center',
   },
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+    borderRadius: 8,
   },
   itemContainerStyle: {
     alignItems: 'center',
+
+  },
+  itemTextStyle: {
+    fontSize: 16,
   },
 });
 

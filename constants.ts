@@ -14,5 +14,6 @@ export const TITLE_TRANSLATIONS: Record<string, string> = {
   'timetable': 'Órarend',
   'rooms': 'Terem',
   'presentators': 'Oktató',
-  'groups': 'Csoport'
 };
+
+export const BASE_URL = 'http://192.168.27.1:3000/institutions';

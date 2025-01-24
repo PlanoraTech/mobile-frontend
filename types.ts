@@ -15,7 +15,6 @@ export interface Institution {
 export interface InstitutionData {
     institution: Institution | null;
     timetables: DropdownData[];
-    groups: DropdownData[];
     presentators: DropdownData[];
     rooms: DropdownData[];
 }
@@ -23,7 +22,6 @@ export interface InstitutionData {
 export interface LoadingState {
     institution: boolean;
     timetables: boolean;
-    groups: boolean;
     presentators: boolean;
     rooms: boolean;
 }

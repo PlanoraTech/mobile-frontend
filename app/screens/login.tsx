@@ -11,9 +11,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';
 import { AuthInput } from '@/components/AuthInput';
 import { validateEmail, validatePassword } from '@/utils/validation';
-import { styles } from '@/assets/styles/authStyles'
 import { Link } from 'expo-router';
+import { createAuthStyles } from '@/assets/styles/authStyles';
 export default function LoginScreen() {
+    const styles = createAuthStyles(); 
     const { login } = useAuth();
     const [formData, setFormData] = useState({
         email: '',

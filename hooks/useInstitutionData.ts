@@ -1,12 +1,11 @@
 import { InstitutionData, LoadingState } from '@/types';
-import { BASE_URL } from '@/utils/baseUrl';
+import { BASE_URL } from '@/constants';
 import { useState, useEffect } from 'react';
 
 export const useInstitutionData = (institutionId: string | string[]) => {
     const [data, setData] = useState<InstitutionData>({
         institution: null,
         timetables: [],
-        groups: [],
         presentators: [],
         rooms: []
     });
@@ -14,7 +13,6 @@ export const useInstitutionData = (institutionId: string | string[]) => {
     const [loading, setLoading] = useState<LoadingState>({
         institution: true,
         timetables: true,
-        groups: true,
         presentators: true,
         rooms: true
     });
@@ -44,7 +42,6 @@ export const useInstitutionData = (institutionId: string | string[]) => {
             Promise.all([
                 fetchData('', 'institution', 'institution'),
                 fetchData('/timetables', 'timetables', 'timetables'),
-                fetchData('/groups', 'groups', 'groups'),
                 fetchData('/presentators', 'presentators', 'presentators'),
                 fetchData('/rooms', 'rooms', 'rooms')
             ]);

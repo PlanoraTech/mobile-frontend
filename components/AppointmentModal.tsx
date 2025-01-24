@@ -3,32 +3,36 @@ import { formatTime } from "@/utils/formatTime";
 import { Modal, View, Text, StyleSheet, Pressable, Switch } from "react-native"
 import DropdownComponent from "./Dropdown";
 import { useState } from "react";
+import { getThemeStyles } from "@/assets/styles/themes";
+import { useTheme } from "@/contexts/ThemeProvider";
 
 interface AppointmentModalProps {
     appointment: Appointment;
     onClose: () => void;
 }
 export const AppointmentModal = ({ appointment, onClose }: AppointmentModalProps) => {
+    const {theme} = useTheme(); 
+    const themeStyles = getThemeStyles(theme);
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
     return (
-        <Modal animationType="slide" transparent={true} visible={true} onRequestClose={onClose}>
+        <Modal animationType="none" transparent={true} visible={true} onRequestClose={onClose}>
             <View style={styles.modalContainer}>
-                <View style={styles.modalContent}>
+                <View style={[styles.modalContent, themeStyles.content]}>
                     <View style={styles.modalHeader}>
-                        <Text style={styles.subject}>Óra beállítások</Text>
+                        <Text style={[styles.subject,{color: theme === 'dark' ? '#333' : '#fff'}]}>Óra beállítások</Text>
                         <Pressable
                             onPress={onClose}
                             style={styles.closeButton}
                         >
-                            <Text style={styles.closeButtonText}>×</Text>
+                            <Text style={[styles.closeButtonText, {color: theme === 'dark' ? '#333' : '#fff'}]}>×</Text>
                         </Pressable>
                     </View>
                     <View style={styles.modalMain}>
                         <View style={styles.modalTop}>
                             <View style={[styles.textContainer, styles.card]}>
-                                <Text style={styles.subject}>{appointment.subject.name}</Text>
-                                <Text style={styles.date}>{formatTime(appointment.start)} - {formatTime(appointment.end)}</Text>
+                                <Text style={[styles.subject, {color: theme === 'dark' ? '#adadad' : '#666'}]}>{appointment.subject.name}</Text>
+                                <Text style={[styles.date, {color: theme === 'light' ? '#0066cc' : '#0CAFFF'}]}>{formatTime(appointment.start)} - {formatTime(appointment.end)}</Text>
                             </View>
                             <View style={[styles.cancelContainer, styles.card]}>
                                 {isEnabled ? <Text style={styles.cancelTextPostive}>Elmarad</Text> : <Text style={styles.cancelTextNegative}>Megtartva</Text>}
@@ -43,7 +47,7 @@ export const AppointmentModal = ({ appointment, onClose }: AppointmentModalProps
 
                             </View>
                         </View>
-                        <View style={styles.card}>
+                        <View style={[styles.card, themeStyles.content]}>
                             <DropdownComponent data={appointment.presentators} onSelect={() => { }} label="Előadó" searchPlaceholder="Előadó keresése..." placeholder={appointment.presentators.map(p => p.name).join(', ')} />
                             <DropdownComponent data={appointment.rooms} onSelect={() => { }} label="Terem" searchPlaceholder="Terem keresése..." placeholder={appointment.rooms.map(r => r.name).join(' - ')} />
                         </View>
@@ -63,7 +67,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalContent: {
-        backgroundColor: '#FFFFFF',
         borderRadius: 10,
         width: "80%",
         height: "55%",
@@ -100,17 +103,14 @@ const styles = StyleSheet.create({
     },
     closeButtonText: {
         fontSize: 24,
-        color: '#666666',
     },
     subject: {
         fontSize: 20,
         fontWeight: '600',
-        color: '#666666',
         textAlign: 'center',
     },
     date: {
         fontSize: 16,
-        color: '#666666',
         textAlign: 'center',
     },
     cancelContainer: {
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     cancelTextNegative: {
         fontSize: 16,
         fontWeight: '600',
-        color: 'green',
+        color: '#03C03C',
     },
     textContainer: {
         height: 100,
@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
     card: {
         padding: 16,
         borderRadius: 15,
-        backgroundColor: '#FFFFFF',
         shadowColor: "#000",
         shadowOffset: {
             width: 5,

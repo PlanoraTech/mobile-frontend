@@ -11,10 +11,12 @@ import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';
 import { AuthInput } from '@/components/AuthInput';
 import { validateEmail, validatePassword, validateName } from '@/utils/validation';
-import {styles} from '@/assets/styles/authStyles'
+import {createAuthStyles} from '@/assets/styles/authStyles'
 import { Link } from 'expo-router';
 
-export default function RegisterScreen() {
+export default function RegisterScreen() {  
+    
+    const styles = createAuthStyles();
     const { register } = useAuth();
     const [formData, setFormData] = useState({
         firstName: '',

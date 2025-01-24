@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BASE_URL } from '@/utils/baseUrl';
+import { BASE_URL } from '@/constants';
 import { Appointment, UseTimetableProps } from '@/types';
 
 export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetableProps) => {

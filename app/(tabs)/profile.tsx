@@ -9,7 +9,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeProvider';
-import { getThemeStyles, lightTheme } from '@/assets/styles/themes'; 
+import { getThemeStyles, lightTheme } from '@/assets/styles/themes';
 
 const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) => {
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
@@ -25,51 +25,49 @@ const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) =>
         <View style={[styles.container, themeStyles.background]}>
             <View style={[styles.content, themeStyles.content]}>
                 <View style={styles.nameContainer}>
-                    <Text style={[styles.name, themeStyles.text]}>
+                    <Text style={[styles.name, { color: theme === 'dark' ? '#fff' : '#333' }]}>
                         {isLoggedIn ? 'John Doe' : 'Vendég'}
                     </Text>
                     {isLoggedIn && (
                         <Pressable onPress={() => console.log('Edit name')}>
-                            <MaterialIcons 
-                                name="edit" 
-                                size={24} 
-                                color={themeStyles.secondaryText.color} 
+                            <MaterialIcons
+                                name="edit"
+                                size={24}
+                                color={theme === 'dark' ? '#adadad' : '#666'}
                             />
                         </Pressable>
                     )}
                 </View>
 
                 <View style={styles.section}>
-                    <Text style={[styles.label, themeStyles.text]}>Szerep</Text>
-                    <Text style={[styles.value, themeStyles.text]}>
+                    <Text style={[styles.label, { color: theme === 'dark' ? '#fff' : '#333' }]}>Szerep</Text>
+                    <Text style={[styles.value, { color: theme === 'dark' ? '#fff' : '#333' }]}>
                         {FelhasználóType === 'Előadó' ? 'Előadó' :
                             FelhasználóType === 'Felhasználó' ? 'Felhasználó' : 'Vendég'}
                     </Text>
                 </View>
 
                 <View style={styles.section}>
-                    <Text style={[styles.label, themeStyles.text]}>Téma</Text>
+                    <Text style={[styles.label, { color: theme === 'dark' ? '#fff' : '#333' }]}>Téma</Text>
                     <Switch
                         value={theme === 'dark'}
                         onValueChange={toggleTheme}
-                        trackColor={{ 
-                            false: lightTheme.switchTrack, 
-                            true: lightTheme.switchTrackActive 
+                        trackColor={{
+                            false: '#767577',
+                            true: '#81b0ff'
                         }}
-                        thumbColor={theme === 'dark' ? lightTheme.switchThumbActive : lightTheme.switchThumb}
                     />
                 </View>
 
                 <View style={styles.section}>
-                    <Text style={[styles.label, themeStyles.text]}>Értesítések</Text>
+                    <Text style={[styles.label, { color: theme === 'dark' ? '#fff' : '#333' }]}>Értesítések</Text>
                     <Switch
                         value={isNotificationsEnabled}
                         onValueChange={toggleNotifications}
-                        trackColor={{ 
-                            false: lightTheme.switchTrack, 
-                            true: lightTheme.switchTrackActive 
+                        trackColor={{
+                            false: '#767577',
+                            true: '#81b0ff'
                         }}
-                        thumbColor={isNotificationsEnabled ? lightTheme.switchThumbActive : lightTheme.switchThumb}
                     />
                 </View>
 
@@ -77,13 +75,13 @@ const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) =>
                     {!isLoggedIn ? (
                         <>
                             <Pressable
-                                style={[styles.authButton, styles.button, themeStyles.button]}
+                                style={[styles.authButton, styles.button, { backgroundColor: theme === 'dark' ? '#11137d' : '#007AFF' }]}
                                 onPress={() => router.push('/screens/login')}
                             >
                                 <Text style={styles.buttonText}>Bejelentkezés</Text>
                             </Pressable>
                             <Pressable
-                                style={[styles.authButton, styles.button, themeStyles.button]}
+                                style={[styles.authButton, styles.button, { backgroundColor: theme === 'dark' ? '#11137d' : '#007AFF' }]}
                                 onPress={() => router.push('/screens/register')}
                             >
                                 <Text style={styles.buttonText}>Regisztráció</Text>
@@ -91,7 +89,7 @@ const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) =>
                         </>
                     ) : (
                         <Pressable
-                            style={[styles.authButton, styles.logoutButton]}
+                            style={[styles.authButton, { backgroundColor: theme === 'dark' ? '#BA0021' : '#EF0107' }]}
                             onPress={() => console.log('Logout')}
                         >
                             <Text style={styles.buttonText}>Kijelentkezés</Text>
@@ -151,9 +149,6 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#2196F3',
-    },
-    logoutButton: {
-        backgroundColor: '#f44336',
     },
     buttonText: {
         color: '#fff',

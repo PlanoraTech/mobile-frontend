@@ -15,7 +15,7 @@ import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 
 export default function TimetableScreen() {
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
   const { inst } = useLocalSearchParams();
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
@@ -23,7 +23,7 @@ export default function TimetableScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState<string>("");
-  
+
   const daysListRef = useRef<FlatList>(null);
   const appointmentsListRef = useRef<FlatList>(null);
 
@@ -49,7 +49,7 @@ export default function TimetableScreen() {
     if (data.institution?.website) {
       try {
         await Linking.openURL(data.institution.website);
-      } catch (error) { 
+      } catch (error) {
         console.error('Hiba a weboldal megnyitása közben: ', error);
       }
     }
@@ -57,7 +57,7 @@ export default function TimetableScreen() {
 
   const handleDayChange = (index: number) => {
     if (appointmentsListRef.current) {
-      appointmentsListRef.current.scrollToOffset({ 
+      appointmentsListRef.current.scrollToOffset({
         offset: index * SCREEN_WIDTH,
         animated: true
       });
@@ -68,9 +68,9 @@ export default function TimetableScreen() {
     if (viewableItems && viewableItems.length > 0) {
       const newIndex = viewableItems[0].index;
       setCurrentDayIndex(newIndex);
-      
+
       if (daysListRef.current) {
-        daysListRef.current.scrollToIndex({ 
+        daysListRef.current.scrollToIndex({
           index: newIndex,
           animated: true,
           viewPosition: 0.5
@@ -85,17 +85,19 @@ export default function TimetableScreen() {
   if (!data.institution) return <ErrorMessage message="Nincs kiválasztott intézmény!" />;
 
   return (
-    <View style={[styles.container, themeStyles.background]}>  
+    <View style={[styles.container]}>
       <SafeAreaView style={[styles.header, themeStyles.content]}>
         <View style={styles.headerContent}>
-          <Text style={[styles.selectedTitle, themeStyles.text]}>
+          <Text style={[styles.selectedTitle, {
+            color: theme === 'dark' ? '#adadad' : '#333'
+          }]}>
             {selectedTitle || 'Válassz órarendet'}
           </Text>
           <Pressable
             style={styles.settingsButton}
             onPress={() => setModalVisible(true)}
           >
-            <Settings color={themeStyles.secondaryText.color } size={28} />
+            <Settings color={theme === 'dark' ? '#adadad' : '#666'} size={28} />
           </Pressable>
         </View>
       </SafeAreaView>
@@ -118,8 +120,8 @@ export default function TimetableScreen() {
           )}
         </>
       ) : (
-        <View style={styles.noSelectionContainer}>
-          <Text style={[styles.noSelectionText, themeStyles.secondaryText]}>
+        <View style={[styles.noSelectionContainer, themeStyles.content]}>
+          <Text style={[styles.noSelectionText, {color: theme === 'dark' ? '#adadad' : '#666'}]}>
             Válassz órarendet, előadót vagy termet a beállítások gombbal
           </Text>
         </View>
@@ -144,34 +146,35 @@ export default function TimetableScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-},
-header: {
-    borderBottomWidth: 1,
-},
-headerContent: {
+    backgroundColor: '#FAF9F6'
+  },
+  header: {
+    borderBottomWidth: 0,
+  },
+  headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-},
-selectedTitle: {
+  },
+  selectedTitle: {
     fontSize: 18,
     fontWeight: '600',
     flex: 1,
-},
-settingsButton: {
+  },
+  settingsButton: {
     padding: 8,
-},
-noSelectionContainer: {
+  },
+  noSelectionContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-},
-noSelectionText: {
+  },
+  noSelectionText: {
     fontSize: 16,
     fontWeight: '400',
     textAlign: 'center',
-},
+  },
 });

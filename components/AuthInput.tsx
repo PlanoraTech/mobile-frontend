@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeProvider';
 
 interface AuthInputProps {
     icon: keyof typeof Ionicons.glyphMap;
@@ -24,11 +25,17 @@ export const AuthInput = ({
     keyboardType = 'default',
     autoCapitalize = 'none',
     autoComplete,
-}: AuthInputProps) => (
-    <View style={styles.inputContainer}>
+}: AuthInputProps) => {
+    const { theme } = useTheme();
+
+    return <View style={[styles.inputContainer, { backgroundColor: theme === 'dark' ? '#343434' : '#f5f5f5' }]}>
         <Ionicons name={icon} size={24} color="#666" style={styles.icon} />
         <TextInput
-            style={[styles.input, secureTextEntry && styles.passwordInput]}
+            style={[
+                styles.input,
+                { color: theme === 'dark' ? '#adadad' : '#333' },
+                secureTextEntry && styles.passwordInput,
+            ]}
             placeholder={placeholder}
             value={value}
             onChangeText={onChangeText}
@@ -47,13 +54,12 @@ export const AuthInput = ({
             </Pressable>
         )}
     </View>
-);
+};
 
 const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f5f5f5',
         borderRadius: 12,
         marginBottom: 16,
         paddingHorizontal: 16,
@@ -65,7 +71,6 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         fontSize: 16,
-        color: '#333',
     },
     passwordInput: {
         paddingRight: 50,

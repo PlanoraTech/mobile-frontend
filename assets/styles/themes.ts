@@ -1,10 +1,10 @@
 export const lightTheme = {
   background: '#f5f5f5',
-  contentBackground: '#f2f2f2',
+  contentBackground: '#FAF9F6',
+  border: '#333',
   text: '#333',
   secondaryText: '#666',
-  border: '#333',
-  primary: '#0c44fa',
+  primary: '#007AFF',
   secondary: '#f44336',
   switchTrack: '#767577',
   switchTrackActive: '#81b0ff',
@@ -15,9 +15,9 @@ export const lightTheme = {
 export const darkTheme = {
   background: '#121212',
   contentBackground: '#1a1a1a',
+  border: '#333',
   text: '#fff',
   secondaryText: '#adadad',
-  border: '#333',
   primary: '#11137d',
   secondary: '#f44336',
   switchTrack: '#767577',
@@ -58,7 +58,7 @@ export const getThemeStyles = (theme: 'light' | 'dark') => {
     },
     primaryText: {
       color: selectedTheme.primary
-    }
+    },
   };
 };
 

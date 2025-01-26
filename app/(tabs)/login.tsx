@@ -13,6 +13,7 @@ import { AuthInput } from '@/components/AuthInput';
 import { validateEmail, validatePassword } from '@/utils/validation';
 import { Link } from 'expo-router';
 import { createAuthStyles } from '@/assets/styles/authStyles';
+import ForgotPasswordModal from '@/components/ForgotPasswordModal';
 export default function LoginScreen() {
     const styles = createAuthStyles(); 
     const { login } = useAuth();
@@ -24,6 +25,7 @@ export default function LoginScreen() {
         email: '',
         password: '',
     });
+    const [isModalVisible, setIsModalVisible] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = () => {
@@ -70,9 +72,10 @@ export default function LoginScreen() {
                     toggleSecureEntry={() => setShowPassword(!showPassword)}
                 />
                 {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-
-                <Link style={styles.forgotPassword} href="/login">Elfelejtetted a jelszót?</Link>
-
+                <Pressable onPress={() => setIsModalVisible(true)}>
+                <Text style={styles.forgotPassword}>Elfelejtetted a jelszót?</Text>
+                </Pressable>
+                {isModalVisible &&<ForgotPasswordModal onClose={() => setIsModalVisible(false)} />}
                 <Pressable style={styles.authButton} onPress={handleLogin}>
                     <Text style={styles.authButtonText}>Bejelentkezés</Text>
                 </Pressable>

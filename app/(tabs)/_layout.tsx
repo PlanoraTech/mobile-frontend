@@ -10,8 +10,8 @@ export default function TabLayout() {
         headerTintColor: theme === 'dark' ? '#adadad' : '#333',
         tabBarInactiveTintColor: theme === 'dark' ? '#adadad' : '#333',
         tabBarStyle: {
-            backgroundColor: theme === 'dark' ? '#1a1a1a' : '#FAF9F6',
-            borderTopColor: theme === 'dark' ? '#333' : '#e0e0e0',
+            backgroundColor: theme === 'dark' ? '#1a1a1a' : '#fff',
+            borderTopWidth: 0,
         },
         headerShown: false,
     }), [theme]);
@@ -28,8 +28,13 @@ export default function TabLayout() {
             />
             <Tabs.Screen
                 name="profile"
+
                 options={{
                     title: 'Profil',
+                    tabBarStyle: {
+                        backgroundColor: theme === 'dark' ? '#121212' : '#f5f5f5',
+                        borderTopWidth: 0,
+                    },
                     tabBarIcon: ({ color, size }) => <MaterialIcons name="person" size={size} color={color} />,
                 }}
             />
@@ -43,8 +48,6 @@ export default function TabLayout() {
             <Tabs.Screen name="register" options={
                 {
                     href: null,
-
-                    
                 }
             } />
         </Tabs>

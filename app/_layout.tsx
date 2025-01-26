@@ -17,7 +17,6 @@ const StackNavigator = () => {
   );
 }
 export default function RootLayout() {
- // SystemUI.setBackgroundColorAsync("#000");
   return (
     <InstitutionProvider>
       <AuthProvider authAdapter={authAdapter}>

@@ -34,6 +34,7 @@ export const AuthInput = ({
             style={[
                 styles.input,
                 secureTextEntry && styles.passwordInput,
+                { color: theme === 'dark' ? '#fff' : '#333' },
             ]}
             placeholder={placeholder}
             value={value}

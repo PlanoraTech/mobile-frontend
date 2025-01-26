@@ -20,12 +20,12 @@ export const AppointmentModal = ({ appointment, onClose }: AppointmentModalProps
             <View style={styles.modalContainer}>
                 <View style={[styles.modalContent, themeStyles.content]}>
                     <View style={styles.modalHeader}>
-                        <Text style={[styles.subject,{color: theme === 'dark' ? '#333' : '#fff'}]}>Óra beállítások</Text>
+                        <Text style={[styles.subject,{color: theme === 'dark' ? '#fff' : '#333'}]}>Óra beállítások</Text>
                         <Pressable
                             onPress={onClose}
                             style={styles.closeButton}
                         >
-                            <Text style={[styles.closeButtonText, {color: theme === 'dark' ? '#333' : '#fff'}]}>×</Text>
+                            <Text style={[styles.closeButtonText, {color: theme === 'dark' ? '#fff' : '#333'}]}>×</Text>
                         </Pressable>
                     </View>
                     <View style={styles.modalMain}>

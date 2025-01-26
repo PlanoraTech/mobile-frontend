@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     View,
     Text,
@@ -15,7 +15,7 @@ const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) =>
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
     const { theme, toggleTheme } = useTheme();
 
-    const themeStyles = getThemeStyles(theme);
+    const themeStyles = useMemo(() => getThemeStyles(theme), [theme]);
 
     const toggleNotifications = () => {
         setIsNotificationsEnabled(previousState => !previousState);
@@ -76,13 +76,13 @@ const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) =>
                         <>
                             <Pressable
                                 style={[styles.authButton, styles.button, { backgroundColor: theme === 'dark' ? '#11137d' : '#007AFF' }]}
-                                onPress={() => router.push('/screens/login')}
+                                onPress={() => router.push('/login')}
                             >
                                 <Text style={styles.buttonText}>Bejelentkezés</Text>
                             </Pressable>
                             <Pressable
                                 style={[styles.authButton, styles.button, { backgroundColor: theme === 'dark' ? '#11137d' : '#007AFF' }]}
-                                onPress={() => router.push('/screens/register')}
+                                onPress={() => router.push('/register')}
                             >
                                 <Text style={styles.buttonText}>Regisztráció</Text>
                             </Pressable>

@@ -33,11 +33,11 @@ export const AuthInput = ({
         <TextInput
             style={[
                 styles.input,
-                { color: theme === 'dark' ? '#adadad' : '#333' },
                 secureTextEntry && styles.passwordInput,
             ]}
             placeholder={placeholder}
             value={value}
+            placeholderTextColor={theme === 'dark' ? '#adadad' : '#666'}
             onChangeText={onChangeText}
             secureTextEntry={secureTextEntry}
             keyboardType={keyboardType}

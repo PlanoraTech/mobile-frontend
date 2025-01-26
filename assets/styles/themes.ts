@@ -1,64 +1,88 @@
-export const lightTheme = {
+
+interface ThemeColors {
+  background: string;
+  contentBackground: string;
+  border: string;
+  text: {
+    primary: string;
+    secondary: string;
+  };
+  button: {
+    primary: string;
+    secondary: string;
+  };
+  switch: {
+    track: string;
+    trackActive: string;
+    thumb: string;
+    thumbActive: string;
+  };
+}
+
+export type ThemeMode = 'light' | 'dark';
+
+export const lightTheme: ThemeColors = {
   background: '#f5f5f5',
   contentBackground: '#FAF9F6',
-  border: '#333',
-  text: '#333',
-  secondaryText: '#666',
-  primary: '#007AFF',
-  secondary: '#f44336',
-  switchTrack: '#767577',
-  switchTrackActive: '#81b0ff',
-  switchThumb: '#f4f3f4',
-  switchThumbActive: '#f5dd4b'
+  border: '#e0e0e0',
+  text: {
+    primary: '#333',
+    secondary: '#666'
+  },
+  button: {
+    primary: '#007AFF',
+    secondary: '#f44336'
+  },
+  switch: {
+    track: '#767577',
+    trackActive: '#81b0ff',
+    thumb: '#f4f3f4',
+    thumbActive: '#f5dd4b'
+  }
 };
 
-export const darkTheme = {
+export const darkTheme: ThemeColors = {
   background: '#121212',
-  contentBackground: '#1a1a1a',
+  contentBackground: '#1a1a1a', 
   border: '#333',
-  text: '#fff',
-  secondaryText: '#adadad',
-  primary: '#11137d',
-  secondary: '#f44336',
-  switchTrack: '#767577',
-  switchTrackActive: '#81b0ff',
-  switchThumb: '#f4f3f4',
-  switchThumbActive: '#f5dd4b'
+  text: {
+    primary: '#fff',
+    secondary: '#adadad'
+  },
+  button: {
+    primary: '#11137d',
+    secondary: '#f44336'
+  },
+  switch: {
+    track: '#767577',
+    trackActive: '#81b0ff', 
+    thumb: '#f4f3f4',
+    thumbActive: '#f5dd4b'
+  }
 };
 
-export type Theme = typeof lightTheme;
-
-export const getThemeStyles = (theme: 'light' | 'dark') => {
-  const selectedTheme = theme === 'light' ? lightTheme : darkTheme;
-
+export const getThemeStyles = (theme: ThemeMode) => {
+  const colors = theme === 'light' ? lightTheme : darkTheme;
+  
   return {
     background: {
-      backgroundColor: selectedTheme.background,
+      backgroundColor: colors.background,
     },
     content: {
-      backgroundColor: selectedTheme.contentBackground,
-      borderColor: selectedTheme.border,
+      backgroundColor: colors.contentBackground,
+      borderColor: colors.border,
     },
     text: {
-      color: selectedTheme.text,
+      color: colors.text.primary,
     },
-    secondaryText: {
-      color: selectedTheme.secondaryText,
+    textSecondary: {
+      color: colors.text.secondary, 
     },
     button: {
-      backgroundColor: selectedTheme.primary,
+      backgroundColor: colors.button.primary,
     },
-    tabBar: {
-      backgroundColor: selectedTheme.contentBackground,
-      borderTopColor: selectedTheme.border,
-    },
-    tabHeader: {
-      backgroundColor: selectedTheme.contentBackground,
-      borderBottomColor: selectedTheme.border,
-    },
-    primaryText: {
-      color: selectedTheme.primary
-    },
+    buttonSecondary: {
+      backgroundColor: colors.button.secondary,
+    }
   };
 };
-

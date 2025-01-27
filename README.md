@@ -1,50 +1,65 @@
-# Welcome to your Expo app 👋
+# Expo App Setup Guide
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This guide will walk you through setting up and running the Expo app locally.
 
-## Get started
+## Prerequisites
 
-1. Install dependencies
+1. **Node.js and npm**: Ensure that Node.js and npm are installed on your machine. You can download them [here](https://nodejs.org/).
+2. **Expo Go App**: Install the **Expo Go** app on your mobile device:
+   - [Google Play Store (Android)](https://play.google.com/store/apps/details?id=host.exp.exponent)
+   - [Apple App Store (iOS)](https://apps.apple.com/app/expo-go/id982107779)
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## Steps to Run the App
 
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+### 1. Clone the Repository
+Clone the project repository to your local machine:
 ```bash
-npm run reset-project
+git clone <repository-url>
+cd <project-directory>
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Install Dependencies
+Install the required dependencies:
+```bash
+npm install
+```
 
-## Learn more
+### 3. Configure the Base URL
+Set the `baseURL` in `constants.ts` to your **local Wi-Fi IP address** (the IP address your phone and computer share on the same network).
 
-To learn more about developing your project with Expo, look at the following resources:
+To find your Wi-Fi IP:
+- On macOS/Linux, run `ifconfig` or `ipconfig`.
+- On Windows, run `ipconfig`.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Example configuration in `constants.ts`:
+```ts
+export const baseURL = "http://192.168.x.x";
+```
 
-## Join the community
+### 4. Start the Expo Development Server
+Start the Expo development server by running:
+```bash
+npx expo start
+```
 
-Join our community of developers creating universal apps.
+### 5. Connect to the App on Your Mobile Device
+1. Ensure your mobile device is connected to the same Wi-Fi network as your computer.
+2. Open the **Expo Go** app on your phone.
+3. Scan the QR code displayed in the terminal or on the Expo DevTools webpage.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## Troubleshooting
+
+- **QR Code Not Working**: Ensure your computer and phone are on the same network.
+- **App Not Loading**: Verify that the `baseURL` in `constants.ts` is correctly set to your local Wi-Fi IP.
+- **Dependencies Issue**: Run `npm install` again to ensure all dependencies are installed properly.
+
+---
+
+## Additional Resources
+
+- [Expo Documentation](https://docs.expo.dev/)
+- [Troubleshooting Expo Go](https://docs.expo.dev/workflow/common-development-errors/)

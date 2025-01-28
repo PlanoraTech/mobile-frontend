@@ -9,13 +9,14 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeProvider';
-import { getThemeStyles, lightTheme } from '@/assets/styles/themes';
+import { getThemeStyles } from '@/assets/styles/themes';
+import { StatusBar } from 'expo-status-bar';
 
 const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) => {
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
     const { theme, toggleTheme } = useTheme();
 
-    const themeStyles = useMemo(() => getThemeStyles(theme), [theme]);
+    const themeStyles = getThemeStyles(theme);
 
     const toggleNotifications = () => {
         setIsNotificationsEnabled(previousState => !previousState);
@@ -23,6 +24,7 @@ const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) =>
 
     return (
         <View style={[styles.container, themeStyles.background]}>
+            <StatusBar backgroundColor={themeStyles.background.backgroundColor} />
             <View style={[styles.content, themeStyles.content]}>
                 <View style={styles.nameContainer}>
                     <Text style={[styles.name, { color: theme === 'dark' ? '#fff' : '#333' }]}>

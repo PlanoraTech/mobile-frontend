@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Modal,
     View,
@@ -6,7 +6,10 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
-    FlatList
+    FlatList,
+    Platform,
+    KeyboardAvoidingView,
+    Keyboard
 } from 'react-native';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import DropdownComponent from '@/components/Dropdown';
@@ -14,20 +17,24 @@ import { Institution } from '@/types';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 import { TimetableButton } from './timetableButton';
+import { router } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 
 
 
 interface SettingsModalProps {
     visible: boolean;
     onClose: () => void;
-    institution: Institution;
+    institution?: Institution | null;
     onWebsitePress: () => void;
     loading: {
         timetables: boolean;
         presentators: boolean;
         rooms: boolean;
     };
+    institutions: any[];
     data: {
+        institution: Institution | null;
         timetables: any[];
         presentators: any[];
         rooms: any[];
@@ -38,8 +45,7 @@ interface SettingsModalProps {
 export const SettingsModal = ({
     visible,
     onClose,
-    institution,
-    onWebsitePress,
+    institutions,
     loading,
     data,
     onSelect
@@ -50,14 +56,20 @@ export const SettingsModal = ({
     const [currentBtnIndex, setCurrentBtnIndex] = useState(0);
 
     return (
+
         <Modal
-            animationType="none"
+            animationType='slide'
+            
             transparent={true}
             visible={visible}
             onRequestClose={onClose}
-        >
+            >
+            
+            <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
             <View style={styles.modalContainer}>
+
                 <View style={[styles.modalContent, themeStyle.content]}>
+
                     <View style={styles.modalHeader}>
                         <Text style={[styles.modalTitle, themeStyle.text]}>Órarend beállítások</Text>
                         <Pressable
@@ -69,17 +81,15 @@ export const SettingsModal = ({
                     </View>
 
                     <ScrollView style={styles.modalScrollView}>
-
+                    
                         <DropdownComponent
-                            data={data.timetables}
-                            placeholder={institution.name}
+                            data={institutions}
+                            placeholder={data.institution?.name || "Intézmény kiválasztása"}
                             label="Intézmény"
                             searchPlaceholder="Intézmény keresése..."
-                            onSelect={(item) => onSelect(item, 'institution')}
-                            customStyles={{}}
-
-
-                        />
+                            onSelect={(item) => router.replace(`?inst=${item.id}` as any)}
+                            dropDirection='bottom'
+                            />
                         <View style={styles.dropdownContainer}>
                             <FlatList
                                 style={styles.choiceList}
@@ -87,25 +97,25 @@ export const SettingsModal = ({
                                 data={["Órarend", "Előadó", "Terem"]}
                                 renderItem={({ item, index }) => (
                                     <TimetableButton
-                                        choice={item}
-                                        isActive={index === currentBtnIndex}
-                                        onPress={() => { setCurrentBtnIndex(index) }} />
+                                    choice={item}
+                                    isActive={index === currentBtnIndex}
+                                    onPress={() => { setCurrentBtnIndex(index) }} />
                                 )}
-                            />
+                                />
                             {currentBtnIndex === 0 && (
                                 <View style={styles.card}>
                                     {loading.timetables ? (
                                         <LoadingSpinner />
                                     ) : (
                                         <DropdownComponent
-                                            data={data.timetables}
-                                            dropDirection='bottom'
-                                            placeholder="Válassz órarendet"
-                                            label="Órarend"
+                                        data={data.timetables}
+                                        dropDirection='bottom'
+                                        placeholder="Válassz órarendet"
+                                        label="Órarend"
                                             searchPlaceholder="Órarend keresése..."
                                             onSelect={(item) => onSelect(item, 'timetable')}
-                                        />
-                                    )}
+                                            />
+                                        )}
                                 </View>
                             )}
 
@@ -121,8 +131,8 @@ export const SettingsModal = ({
                                             label="Előadó"
                                             searchPlaceholder="Előadó keresése..."
                                             onSelect={(item) => onSelect(item, 'presentators')}
-                                        />
-                                    )}
+                                            />
+                                        )}
                                 </View>
                             )}
 
@@ -138,14 +148,17 @@ export const SettingsModal = ({
                                             label="Terem"
                                             searchPlaceholder="Terem keresése..."
                                             onSelect={(item) => onSelect(item, 'rooms')}
-                                        />
-                                    )}
+                                            />
+                                        )}
                                 </View>
                             )}
                         </View>
                     </ScrollView>
+                
                 </View>
+           
             </View>
+
         </Modal>
     );
 };
@@ -153,13 +166,13 @@ export const SettingsModal = ({
 const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    
     },
     modalContent: {
         borderRadius: 10,
-        width: "80%",
+        width: "100%",
         shadowColor: "black",
         shadowOffset: {
             width: 0,
@@ -195,7 +208,7 @@ const styles = StyleSheet.create({
         color: '#333333',
     },
     modalScrollView: {
-        flex: 1,
+        
     },
     card: {
         padding: 16,
@@ -220,3 +233,4 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     }
 });
+

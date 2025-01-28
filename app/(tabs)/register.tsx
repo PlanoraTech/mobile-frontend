@@ -5,7 +5,6 @@ import {
     Pressable,
     KeyboardAvoidingView,
     Platform,
-    ScrollView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';

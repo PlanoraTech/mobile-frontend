@@ -9,6 +9,7 @@ export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetablePro
 
   useEffect(() => {
     const fetchTimetable = async () => {
+      console.log(`selectedView: ${selectedView}`)
       if (!selectedView || !selectedId) return;
       
       setLoading(true);
@@ -24,6 +25,7 @@ export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetablePro
         const response = await fetch(`${BASE_URL}/${inst}${endpoint}`);
         console.log(`url: ${BASE_URL}/${inst}${endpoint}`)
         if (!response.ok) {
+          console.log('endpoint' + endpoint)
           throw new Error('Hiba az órarend betöltése során.');
         }
         

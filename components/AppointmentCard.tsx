@@ -15,7 +15,7 @@ export const AppointmentCard = ({ appointment}: AppointmentCardProps) => {
   const themeStyles = getThemeStyles(theme);
     const [isModalVisible, setIsModalVisible] = useState(false);
     return <Pressable onPress={()=>setIsModalVisible(true)} style={[styles.appointmentCard, themeStyles.content, appointment.isCancelled && styles.cancelledCard]}>
-      <Text style={[styles.subjectName, themeStyles.secondaryText]}>{appointment.subject.name}</Text>
+      <Text style={[styles.subjectName, themeStyles.textSecondary]}>{appointment.subject.name}</Text>
       <Text style={[styles.timeText]}>
         {formatTime(appointment.start)} - {formatTime(appointment.end)}
       </Text>
@@ -28,7 +28,7 @@ export const AppointmentCard = ({ appointment}: AppointmentCardProps) => {
       {appointment.isCancelled && (
         <Text style={styles.cancelledText}>ELMARAD</Text>
       )}
-      {isModalVisible && <AppointmentModal appointment={appointment} onClose={() => setIsModalVisible(false)} />}
+      <AppointmentModal isVisible={isModalVisible} appointment={appointment} onClose={() => setIsModalVisible(false)} />
     </Pressable>
   };
   

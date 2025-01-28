@@ -11,10 +11,10 @@ export const useInstitutionData = (institutionId: string | string[]) => {
     });
     
     const [loading, setLoading] = useState<LoadingState>({
-        institution: true,
-        timetables: true,
-        presentators: true,
-        rooms: true
+        institution: false,
+        timetables: false,
+        presentators: false,
+        rooms: false
     });
     
     const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export const useInstitutionData = (institutionId: string | string[]) => {
                 fetchData('/presentators', 'presentators', 'presentators'),
                 fetchData('/rooms', 'rooms', 'rooms')
             ]);
-        }
+        } 
     }, [institutionId]);
 
     return { data, loading, error };

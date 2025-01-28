@@ -16,15 +16,19 @@ export default function TabLayout() {
         headerShown: false,
     }), [theme]);
 
-
     return (
-        <Tabs screenOptions={screenOptions}>
+        <Tabs 
+        screenOptions={screenOptions}
+        
+        >
             <Tabs.Screen
-                name="timetable"
+                name="index"
                 options={{
                     title: 'Órarend',
                     tabBarIcon: ({ color, size }) => <MaterialIcons name="schedule" size={size} color={color} />,
+                    //tabBarHideOnKeyboard: true,
                 }}
+            
             />
             <Tabs.Screen
                 name="profile"
@@ -42,7 +46,7 @@ export default function TabLayout() {
             <Tabs.Screen name="login" options={
                 {
                     href: null,
-
+                    animation: 'fade'
                 }
             } />
             <Tabs.Screen name="register" options={
@@ -50,6 +54,7 @@ export default function TabLayout() {
                     href: null,
                 }
             } />
+           {/* <Tabs.Screen name="testtab"></Tabs.Screen> */}
         </Tabs>
     );
 }

@@ -3,18 +3,20 @@ import { useTimetable } from "@/hooks/useTimetable";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TimetableView } from "@/components/TimeTableView";
-import { SCREEN_WIDTH, TITLE_TRANSLATIONS } from "@/constants";
+import { BASE_URL, SCREEN_WIDTH, TITLE_TRANSLATIONS } from "@/constants";
 import { saveId } from "@/utils/saveId";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, Linking, Pressable, SafeAreaView, View, Text, StyleSheet } from "react-native";
+import { FlatList, Linking, Pressable, SafeAreaView, View, Text, StyleSheet, Platform } from "react-native";
 import { Settings } from 'lucide-react-native';
 import { SettingsModal } from "@/components/SettingsModal";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
+import { StatusBar } from "expo-status-bar";
 
 export default function TimetableScreen() {
+  
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
   const { inst } = useLocalSearchParams();
@@ -23,7 +25,7 @@ export default function TimetableScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState<string>("");
-
+  const [institutions, setInstitutions] = useState<any[]>([]);
   const daysListRef = useRef<FlatList>(null);
   const appointmentsListRef = useRef<FlatList>(null);
 
@@ -33,15 +35,32 @@ export default function TimetableScreen() {
   useEffect(() => {
     if (!inst) {
       AsyncStorage.getItem('institution').then((id) => {
-        (id !== null) && router.navigate(`/institution?inst=${id}` as any);
+        (id !== null) && router.replace(`/?inst=${id}` as any);
       });
     }
   }, [inst]);
 
+  useEffect(() => {
+    fetchInstitutions();
+  }, []);
+
+  const fetchInstitutions = async () => {
+    try {
+      const response = await fetch(BASE_URL);
+      if (!response.ok) {
+        throw new Error('Hiba az intézmények betöltése során.');
+      }
+      const data = await response.json();
+      setInstitutions(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const handleSelection = (id: string, endpoint: string) => {
-    setSelectedView(endpoint);
     setSelectedId(id);
     saveId(endpoint, id);
+    setSelectedView(endpoint);
     setModalVisible(false);
   };
 
@@ -79,13 +98,12 @@ export default function TimetableScreen() {
     }
   }).current;
 
-  if (!inst) return <ErrorMessage message="Nincs kiválasztott intézmény!" />;
   if (institutionError) return <ErrorMessage message={institutionError} />;
   if (institutionLoading.institution) return <LoadingSpinner />;
-  if (!data.institution) return <ErrorMessage message="Nincs kiválasztott intézmény!" />;
 
   return (
-    <View style={[styles.container]}>
+    <View style={[styles.container, Platform.OS === 'ios' ? { paddingTop: 0 } : {paddingTop: 24}]}>
+      <StatusBar backgroundColor={themeStyles.background.backgroundColor} />
       <SafeAreaView style={[styles.header, themeStyles.content]}>
         <View style={styles.headerContent}>
           <Text style={[styles.selectedTitle, {
@@ -124,13 +142,14 @@ export default function TimetableScreen() {
           <Text style={[styles.noSelectionText, {color: theme === 'dark' ? '#adadad' : '#666'}]}>
             Válassz órarendet, előadót vagy termet a beállítások gombbal
           </Text>
+
         </View>
       )}
 
       <SettingsModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        institution={data.institution}
+        institutions={institutions}
         onWebsitePress={handleWebsitePress}
         loading={institutionLoading}
         data={data}

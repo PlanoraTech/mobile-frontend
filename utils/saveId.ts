@@ -6,4 +6,4 @@ export const saveId = async (key: string, id: string) => {
   } catch (error) {
     console.error('Hiba az id elmentése közben: ', error);
   }
-  };
+};

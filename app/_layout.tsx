@@ -21,7 +21,6 @@ export default function RootLayout() {
     <InstitutionProvider>
       <AuthProvider authAdapter={authAdapter}>
         <ThemeProvider>
-          
          <StackNavigator />
           
         </ThemeProvider>

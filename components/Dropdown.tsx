@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { DropdownData } from '@/types';
 import { useTheme } from '@/contexts/ThemeProvider';
@@ -11,11 +11,6 @@ interface DropdownProps {
   searchPlaceholder: string;
   label: string;
   onSelect: (item: any) => void;
-  customStyles?: any;
-  customPlaceholderStyle?: any,
-  customInputSearchStyle?: any,
-  customSelectedTextStyle?: any
-  customItemTextStyle?: any
   dropDirection?: 'auto' | 'top' | 'bottom';
 }
 
@@ -23,35 +18,17 @@ const DropdownComponent = ({
   data,
   placeholder = 'Válassz elemet',
   searchPlaceholder = 'Keresés...',
-  label,
   onSelect,
-  customStyles,
-  customPlaceholderStyle,
-  customSelectedTextStyle,
-  customInputSearchStyle,
-  customItemTextStyle,
   dropDirection
 }: DropdownProps) => {
   const { theme } = useTheme();
   const themeStyle = getThemeStyles(theme);
   const [value, setValue] = useState<string | null>(null);
   const [isFocus, setIsFocus] = useState(false);
-
-  const renderLabel = () => {
-    if (value || isFocus) {
-      return (
-        <Text style={[styles.label, isFocus && { color: 'blue' }]}>
-
-        </Text>
-      );
-    }
-    return null;
-  };
   return (
     <View style={[styles.container, themeStyle.content]}>
-      {renderLabel()}
       <Dropdown
-
+        keyboardAvoiding = {true}
         style={[themeStyle.content, styles.dropdown, isFocus && { borderColor: themeStyle.text.color }]}
         placeholderStyle={[styles.placeholderStyle, themeStyle.text]}
         selectedTextStyle={[styles.selectedTextStyle, themeStyle.text]}
@@ -59,13 +36,13 @@ const DropdownComponent = ({
         itemTextStyle={[styles.itemTextStyle, themeStyle.text]}
         itemContainerStyle={[styles.itemContainerStyle, themeStyle.content]}
         containerStyle={[styles.listContainer, themeStyle.content]}
-        searchPlaceholderTextColor={themeStyle.secondaryText.color}
+        searchPlaceholderTextColor={themeStyle.textSecondary.color}
         data={data}
-        search
         maxHeight={225}
         labelField="name"
         valueField="id"
         placeholder={placeholder}
+        search
         searchPlaceholder={searchPlaceholder}
         value={value}
         onFocus={() => setIsFocus(true)}
@@ -79,8 +56,7 @@ const DropdownComponent = ({
             onSelect(item);
           }
         }}
-        renderLeftIcon={() => null}
-        renderRightIcon={() => null}
+
       />
     </View>
   );

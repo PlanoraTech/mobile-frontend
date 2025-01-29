@@ -1,7 +1,6 @@
 export interface User {
-    id: number,
-    credentials: Credentials,
-    accessToken: string
+    credentials?: Credentials,
+    token?: string
 }
 
 export interface Credentials {
@@ -10,8 +9,8 @@ export interface Credentials {
 }
 
 export interface RegisterData {
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
     email: string;
     password: string;
 }

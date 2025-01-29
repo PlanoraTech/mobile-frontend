@@ -1,33 +1,30 @@
 
-import { Credentials, RegisterData} from '@/types/User';
+import { Credentials, RegisterData } from '@/types/User';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export class JWTAuthAdapter {
-    constructor(private apiUrl: string = 'localhost:3000') {}
+    constructor(private apiUrl: string = 'http://192.168.11.153:3000') { }
 
     async register(data: RegisterData) {
         try {
-            const response = await fetch(`${this.apiUrl}/auth/register`, {
+            const response = await fetch(`${this.apiUrl}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Registration failed');
             }
-    
+
             const responseData = await response.json();
-            
+
             await AsyncStorage.setItem('auth_tokens', JSON.stringify({
                 accessToken: responseData.accessToken,
-                refreshToken: responseData.refreshToken,
             }));
-    
-            return responseData;
         } catch (error) {
             console.error('Registration error:', error);
             throw error;
@@ -36,25 +33,21 @@ export class JWTAuthAdapter {
 
     async login(credentials: Credentials) {
         try {
-            const response = await fetch(`${this.apiUrl}/auth/login`, {
+            const response = await fetch(`${this.apiUrl}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(credentials),
             });
-
             if (!response.ok) {
                 throw new Error('Sikertelen bejelentkezés');
             }
 
             const data = await response.json();
             await AsyncStorage.setItem('auth_tokens', JSON.stringify({
-                accessToken: data.accessToken,
-                refreshToken: data.refreshToken,
+                token: data.token,
             }));
-
-            return data;
         } catch (error) {
             console.error('Hiba a bejelentkezés során: ', error);
             throw error;
@@ -63,25 +56,27 @@ export class JWTAuthAdapter {
 
     async logout() {
         await AsyncStorage.removeItem('auth_tokens');
+        console.log('Kijelentkezve');
     }
 
     async getCurrentUser() {
         try {
-            const tokens = await AsyncStorage.getItem('auth_tokens');
-            if (!tokens) return null;
-
-            const { accessToken } = JSON.parse(tokens);
-            const response = await fetch(`${this.apiUrl}/auth/me`, {
+            const token = await AsyncStorage.getItem('auth_tokens');
+            if (!token) return null;
+            const response = await fetch(`${this.apiUrl}/login`, {
+                method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
                 },
+                body: token,
             });
 
             if (!response.ok) {
+                console.log(response);
                 throw new Error('Nem sikerült betölteni a jelenlegi felhasználót');
             }
             const user = await response.json();
-            user.accessToken = accessToken;
+            user.token = token;
             return user
         } catch (error) {
             console.error('Hiba a felhasználó betöltése során: ', error);
@@ -89,8 +84,8 @@ export class JWTAuthAdapter {
         }
     }
 
-    
 
+    /*
     async refreshToken() {
         try {
             const tokens = await AsyncStorage.getItem('auth_tokens');
@@ -117,4 +112,5 @@ export class JWTAuthAdapter {
             throw error;
         }
     }
+        */
 }

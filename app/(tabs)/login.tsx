@@ -31,7 +31,7 @@ export default function LoginScreen() {
     const handleLogin = () => {
         const newErrors = {
             email: !formData.email ? 'Email címet megadni kötelező!' :
-                !validateEmail(formData.email) ? 'Érvényes Emailt adj meg!' : '',
+                !validateEmail(formData.email) ? 'Érvényes emailt adj meg!' : '',
             password: !formData.password ? 'Jelszót megadni kötelező!' :
                 !validatePassword(formData.password) ? 'A jelszónak minimum 6 betűből kell állnia!' : '',
         };

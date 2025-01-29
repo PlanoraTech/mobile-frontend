@@ -19,7 +19,7 @@ export function AuthProvider({ children, authAdapter }: { children: React.ReactN
     useEffect(() => {
         loadUser();
     }, []);
-
+    
     const loadUser = async () => {
         try {
             const currentUser = await authAdapter.getCurrentUser();
@@ -30,17 +30,15 @@ export function AuthProvider({ children, authAdapter }: { children: React.ReactN
             setLoading(false);
         }
     };
-
+    
     const register = async (data: RegisterData) => {
-        const result = await authAdapter.register(data);
+        await authAdapter.register(data);
         await loadUser();
-        return result;
     };
 
     const login = async (credentials: Credentials) => {
-        const result = await authAdapter.login(credentials);
+        await authAdapter.login(credentials);
         await loadUser();
-        return result;
     };
 
     const logout = async () => {

@@ -6,16 +6,16 @@ import {
     Switch,
     StyleSheet,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 import { StatusBar } from 'expo-status-bar';
+import { useAuth } from '@/contexts/AuthProvider';
 
-const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) => {
+const ProfileScreen = ({ FelhasználóType = 'vendég' }) => {
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
     const { theme, toggleTheme } = useTheme();
-
+    const { user, logout } = useAuth();
     const themeStyles = getThemeStyles(theme);
 
     const toggleNotifications = () => {
@@ -26,20 +26,22 @@ const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) =>
         <View style={[styles.container, themeStyles.background]}>
             <StatusBar backgroundColor={themeStyles.background.backgroundColor} />
             <View style={[styles.content, themeStyles.content]}>
+                {/*
                 <View style={styles.nameContainer}>
-                    <Text style={[styles.name, { color: theme === 'dark' ? '#fff' : '#333' }]}>
-                        {isLoggedIn ? 'John Doe' : 'Vendég'}
+                <Text style={[styles.name, { color: theme === 'dark' ? '#fff' : '#333' }]}>
+                        {user?.token ? 'John Doe' : 'Vendég'}
                     </Text>
-                    {isLoggedIn && (
+                    {user?.token && (
                         <Pressable onPress={() => console.log('Edit name')}>
                             <MaterialIcons
-                                name="edit"
-                                size={24}
-                                color={theme === 'dark' ? '#adadad' : '#666'}
+                            name="edit"
+                            size={24}
+                            color={theme === 'dark' ? '#adadad' : '#666'}
                             />
-                        </Pressable>
-                    )}
-                </View>
+                            </Pressable>
+                            )}
+                            </View>
+                            */}
 
                 <View style={styles.section}>
                     <Text style={[styles.label, { color: theme === 'dark' ? '#fff' : '#333' }]}>Szerep</Text>
@@ -74,7 +76,7 @@ const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) =>
                 </View>
 
                 <View style={styles.authSection}>
-                    {!isLoggedIn ? (
+                    {!user?.token ? (
                         <>
                             <Pressable
                                 style={[styles.authButton, styles.button, { backgroundColor: theme === 'dark' ? '#11137d' : '#007AFF' }]}
@@ -92,7 +94,7 @@ const ProfileScreen = ({ isLoggedIn = false, FelhasználóType = 'vendég' }) =>
                     ) : (
                         <Pressable
                             style={[styles.authButton, { backgroundColor: theme === 'dark' ? '#BA0021' : '#EF0107' }]}
-                            onPress={() => console.log('Logout')}
+                            onPress={logout}
                         >
                             <Text style={styles.buttonText}>Kijelentkezés</Text>
                         </Pressable>

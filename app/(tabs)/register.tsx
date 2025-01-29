@@ -25,8 +25,8 @@ export default function RegisterScreen() {
         confirmPassword: '',
     });
     const [errors, setErrors] = useState({
-        firstName: '',
-        lastName: '',
+       // firstName: '',
+        //lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -36,10 +36,12 @@ export default function RegisterScreen() {
 
     const handleRegister = () => {
         const newErrors = {
+            /*
             firstName: !formData.firstName ? 'Keresztnevet megadni kötelező!' :
                       !validateName(formData.firstName) ? 'A keresznév minimum 2 betű!' : '',
             lastName: !formData.lastName ? 'Vezetéknevet megadni kötelező!' :
                      !validateName(formData.lastName) ? 'A vezetéknév minimum 2 betű!' : '',
+                     */
             email: !formData.email ? 'Email címet megadni kötelező!' :
                   !validateEmail(formData.email) ? 'Érvényes Email címet adj meg!' : '',
             password: !formData.password ? 'Jelszót megadni kötelező!' :
@@ -71,7 +73,7 @@ export default function RegisterScreen() {
                     value={formData.firstName}
                     onChangeText={(text) => setFormData(prev => ({ ...prev, firstName: text }))}
                 />
-                {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
+                {/*errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>*/}
 
                 <AuthInput
                     icon="person-outline"
@@ -79,7 +81,7 @@ export default function RegisterScreen() {
                     value={formData.lastName}
                     onChangeText={(text) => setFormData(prev => ({ ...prev, lastName: text }))}
                 />
-                {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
+                {/*errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>*/}
 
                 <AuthInput
                     icon="mail-outline"

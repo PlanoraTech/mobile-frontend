@@ -1,7 +1,7 @@
 import { DAYS, SCREEN_WIDTH } from "@/constants";
 import { Appointment } from "@/types";
 import React from "react";
-import { FlatList, View, StyleSheet, ScrollView } from "react-native";
+import { FlatList, View, StyleSheet, ScrollView, Text } from "react-native";
 import { AppointmentCard } from "@/components/AppointmentCard";
 import { DayTab } from "./DayTab";
 import { useTheme } from "@/contexts/ThemeProvider";
@@ -33,18 +33,23 @@ export const TimetableView = ({
       .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
     return (
-      <ScrollView style={styles.dayPage}>
-        <FlatList
-          data={dayAppointments}
-          keyExtractor={(appointment) => appointment.id}
-          renderItem={({ item }) => (
-            <AppointmentCard
-              appointment={item}
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-        />
-      </ScrollView>
+      dayAppointments.length === 0 ? (
+        <View style={[styles.notFoundContainer, themeStyle.content]}>
+          <Text style={[themeStyle.textSecondary, styles.notFoundText]}>Ezen a napon nincs előadás</Text>
+        </View>
+      ) :
+        <ScrollView style={styles.dayPage}>
+          <FlatList
+            data={dayAppointments}
+            keyExtractor={(appointment) => appointment.id}
+            renderItem={({ item }) => (
+              <AppointmentCard
+                appointment={item}
+              />
+            )}
+            showsVerticalScrollIndicator={false}
+          />
+        </ScrollView>
     );
   };
 
@@ -109,5 +114,22 @@ const styles = StyleSheet.create({
   dayPage: {
     width: SCREEN_WIDTH,
     padding: 10,
+  },
+  noSelectionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notFoundText: {
+    fontSize: 16,
+    fontWeight: '400',
+    textAlign: 'center',
+  },
+  notFoundContainer: {
+    flex: 1,
+    width: SCREEN_WIDTH,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
 });

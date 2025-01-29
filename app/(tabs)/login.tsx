@@ -11,7 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';
 import { AuthInput } from '@/components/AuthInput';
 import { validateEmail, validatePassword } from '@/utils/validation';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { createAuthStyles } from '@/assets/styles/authStyles';
 import ForgotPasswordModal from '@/components/ForgotPasswordModal';
 export default function LoginScreen() {
@@ -28,7 +28,7 @@ export default function LoginScreen() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         const newErrors = {
             email: !formData.email ? 'Email címet megadni kötelező!' :
                 !validateEmail(formData.email) ? 'Érvényes emailt adj meg!' : '',
@@ -39,7 +39,10 @@ export default function LoginScreen() {
         setErrors(newErrors);
 
         if (!Object.values(newErrors).some(error => error)) {
-            login(formData);
+            const success = await login(formData);
+            if (success) {
+                router.canGoBack() ? router.back() : router.replace('/tabs' as any);
+            }
         }
     };
 

@@ -1,6 +1,9 @@
+
 export interface User {
     credentials?: Credentials,
     token?: string
+    institutions?: string[]
+    role: string
 }
 
 export interface Credentials {
@@ -14,3 +17,8 @@ export interface RegisterData {
     email: string;
     password: string;
 }
+
+export interface AuthResponse {
+    token: string;
+    user: User;
+  }

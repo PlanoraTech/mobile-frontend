@@ -42,7 +42,7 @@ export default function TimetableScreen() {
 
   useEffect(() => {
     fetchInstitutions();
-    fetchSavedTimetable();
+    fetchSavedTimetable(); 
   }, []);
 
   const fetchSavedTimetable = async () => {

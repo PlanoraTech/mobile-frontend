@@ -11,8 +11,9 @@ import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';
+import { ROLE_TRANSLATIONS } from '@/constants';
 
-const ProfileScreen = ({ FelhasználóType = 'vendég' }) => {
+const ProfileScreen = () => {
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
     const { theme, toggleTheme } = useTheme();
     const { user, logout } = useAuth();
@@ -46,8 +47,7 @@ const ProfileScreen = ({ FelhasználóType = 'vendég' }) => {
                 <View style={styles.section}>
                     <Text style={[styles.label, { color: theme === 'dark' ? '#fff' : '#333' }]}>Szerep</Text>
                     <Text style={[styles.value, { color: theme === 'dark' ? '#fff' : '#333' }]}>
-                        {FelhasználóType === 'Előadó' ? 'Előadó' :
-                            FelhasználóType === 'Felhasználó' ? 'Felhasználó' : 'Vendég'}
+                        {user?.role ? ROLE_TRANSLATIONS[user.role] : 'Vendég'}
                     </Text>
                 </View>
 

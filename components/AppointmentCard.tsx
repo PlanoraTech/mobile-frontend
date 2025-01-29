@@ -9,12 +9,13 @@ import { getThemeStyles } from "@/assets/styles/themes";
 interface AppointmentCardProps {
     appointment: Appointment;
   }
-  
+
 export const AppointmentCard = ({ appointment}: AppointmentCardProps) => {
   const {theme} = useTheme();
   const themeStyles = getThemeStyles(theme);
     const [isModalVisible, setIsModalVisible] = useState(false);
     return <Pressable onPress={()=>setIsModalVisible(true)} style={[styles.appointmentCard, themeStyles.content, appointment.isCancelled && styles.cancelledCard]}>
+      
       <Text style={[styles.subjectName, themeStyles.textSecondary]}>{appointment.subject.name}</Text>
       <Text style={[styles.timeText]}>
         {formatTime(appointment.start)} - {formatTime(appointment.end)}

@@ -13,13 +13,14 @@ import {
 } from 'react-native';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import DropdownComponent from '@/components/Dropdown';
-import { Institution } from '@/types';
+import { DropdownData, Institution } from '@/types';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 import { TimetableButton } from './timetableButton';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { saveId } from '@/utils/saveId';
+import { useAuth } from '@/contexts/AuthProvider';
 
 
 
@@ -33,7 +34,7 @@ interface SettingsModalProps {
         presentators: boolean;
         rooms: boolean;
     };
-    institutions: any[];
+    institutions: DropdownData[];
     data: {
         institution: Institution | null;
         timetables: any[];
@@ -55,11 +56,21 @@ export const SettingsModal = ({
     const { theme } = useTheme();
     const themeStyle = getThemeStyles(theme);
     const [currentBtnIndex, setCurrentBtnIndex] = useState(0);
+    const { user } = useAuth();
+    const handleInstSelect = (item: DropdownData) => {
+        if (item.access === 'PRIVATE' && !user?.token) {
+            onClose();
+            router.replace('/login' as any);
+            return;
+        }
+        saveId('institution', item.id);
+        router.replace(`/?inst=${item.id}` as any);
+    }
 
     return (
 
         <Modal
-            animationType='slide'
+            animationType='fade'
             
             transparent={true}
             visible={visible}
@@ -88,10 +99,7 @@ export const SettingsModal = ({
                             placeholder={data.institution?.name || "Intézmény kiválasztása"}
                             label="Intézmény"
                             searchPlaceholder="Intézmény keresése..."
-                            onSelect={(item) => {
-                                saveId('institution', item.id)
-                                router.replace(`?inst=${item.id}` as any)
-                            }}
+                            onSelect={(item: DropdownData) => {handleInstSelect(item)}}
                             dropDirection='bottom'
                             />
                         <View style={styles.dropdownContainer}>

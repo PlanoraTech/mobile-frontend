@@ -1,22 +1,23 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { Credentials, RegisterData, User } from '@/types/User';
-import { JWTAuthAdapter } from './JWTAuthAdapter';
-
+import { StandardAuthAdapter } from './StandardAuthAdapter';
+import * as SecureStore from 'expo-secure-store';
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    login: (credentials: Credentials) => Promise<any>;
+    login: (credentials: Credentials) => Promise<boolean>;
     logout: () => Promise<void>;
     register: (data: RegisterData) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children, authAdapter }: { children: React.ReactNode, authAdapter: JWTAuthAdapter }) {
-    const [user, setUser] = useState(null);
+export function AuthProvider({ children, authAdapter }: { children: React.ReactNode, authAdapter: StandardAuthAdapter }) {
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+
         loadUser();
     }, []);
     
@@ -39,6 +40,7 @@ export function AuthProvider({ children, authAdapter }: { children: React.ReactN
     const login = async (credentials: Credentials) => {
         await authAdapter.login(credentials);
         await loadUser();
+        return true;
     };
 
     const logout = async () => {

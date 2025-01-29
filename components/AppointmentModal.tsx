@@ -5,6 +5,7 @@ import DropdownComponent from "./Dropdown";
 import { useState } from "react";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { useTheme } from "@/contexts/ThemeProvider";
+import { useAuth } from "@/contexts/AuthProvider";
 
 interface AppointmentModalProps {
     appointment: Appointment;
@@ -13,12 +14,16 @@ interface AppointmentModalProps {
 }
 export const AppointmentModal = ({ isVisible, appointment, onClose }: AppointmentModalProps) => {
     const { theme } = useTheme();
+    const {user} = useAuth();
     const themeStyles = getThemeStyles(theme);
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+    if (user?.role !== 'PRESENTATOR') {
+        return null;
+    }
     return (
 
-
+        
         <Modal animationType="fade" transparent={true} visible={isVisible} onRequestClose={onClose}>
             <View style={styles.modalContainer}>
 

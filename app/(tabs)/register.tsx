@@ -67,21 +67,6 @@ export default function RegisterScreen() {
                 <Text style={styles.title}>Fiók létrehozása</Text>
                 <Text style={styles.subtitle}>Hozz létre egy fiókot a privát intézmények eléréséhez</Text>
 
-                <AuthInput
-                    icon="person-outline"
-                    placeholder="Keresztnév"
-                    value={formData.firstName}
-                    onChangeText={(text) => setFormData(prev => ({ ...prev, firstName: text }))}
-                />
-                {/*errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>*/}
-
-                <AuthInput
-                    icon="person-outline"
-                    placeholder="Vezetéknév"
-                    value={formData.lastName}
-                    onChangeText={(text) => setFormData(prev => ({ ...prev, lastName: text }))}
-                />
-                {/*errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>*/}
 
                 <AuthInput
                     icon="mail-outline"

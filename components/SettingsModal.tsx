@@ -19,6 +19,7 @@ import { getThemeStyles } from '@/assets/styles/themes';
 import { TimetableButton } from './timetableButton';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { saveId } from '@/utils/saveId';
 
 
 
@@ -87,7 +88,10 @@ export const SettingsModal = ({
                             placeholder={data.institution?.name || "Intézmény kiválasztása"}
                             label="Intézmény"
                             searchPlaceholder="Intézmény keresése..."
-                            onSelect={(item) => router.replace(`?inst=${item.id}` as any)}
+                            onSelect={(item) => {
+                                saveId('institution', item.id)
+                                router.replace(`?inst=${item.id}` as any)
+                            }}
                             dropDirection='bottom'
                             />
                         <View style={styles.dropdownContainer}>

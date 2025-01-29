@@ -42,7 +42,33 @@ export default function TimetableScreen() {
 
   useEffect(() => {
     fetchInstitutions();
+    fetchSavedTimetable();
   }, []);
+
+  const fetchSavedTimetable = async () => {
+    const savedTimetable = await AsyncStorage.getItem('timetable');
+    if (savedTimetable) {
+      const { id, endpoint } = JSON.parse(savedTimetable);
+      if (id) {
+        setSelectedId(id);
+        setSelectedView(endpoint);
+      }
+    }
+  }
+
+  useEffect(() => {
+    const updateTitle = async () => {
+      if (data?.rooms && selectedId && selectedView) {
+        const selectedName = data.rooms.find((item: any) => item.id === selectedId)?.name
+        || data.presentators.find((item: any) => item.id === selectedId)?.name
+        || data.timetables.find((item: any) => item.id === selectedId)?.name;
+        if (selectedName) {
+          setSelectedTitle(`${TITLE_TRANSLATIONS[selectedView]} - ${selectedName}`);
+        }
+      }
+    };
+    updateTitle();
+  }, [data, selectedId, selectedView]);
 
   const fetchInstitutions = async () => {
     try {
@@ -59,7 +85,7 @@ export default function TimetableScreen() {
 
   const handleSelection = (id: string, endpoint: string) => {
     setSelectedId(id);
-    saveId(endpoint, id);
+    AsyncStorage.setItem('timetable', JSON.stringify({id: id, endpoint: endpoint}));
     setSelectedView(endpoint);
     setModalVisible(false);
   };
@@ -154,7 +180,6 @@ export default function TimetableScreen() {
         loading={institutionLoading}
         data={data}
         onSelect={(item, type) => {
-          setSelectedTitle(`${TITLE_TRANSLATIONS[type]} - ${item.name}`);
           handleSelection(item.id, type.toLowerCase());
         }}
       />

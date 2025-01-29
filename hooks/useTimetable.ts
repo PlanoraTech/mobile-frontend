@@ -18,7 +18,6 @@ export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetablePro
           timetable: `/timetables/${selectedId}/appointments`,
           presentators: `/presentators/${selectedId}/appointments`,
           rooms: `/rooms/${selectedId}/appointments`,
-          groups: `/groups/${selectedId}/appointments`
         };
         console.log(`selectedView: ${selectedView}`)
         const endpoint = endpoints[selectedView as keyof typeof endpoints];

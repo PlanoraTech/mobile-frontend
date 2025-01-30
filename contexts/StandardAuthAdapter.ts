@@ -8,7 +8,7 @@ const STORAGE_KEYS = {
 export class StandardAuthAdapter {
     private readonly apiUrl: string;
 
-    constructor(apiUrl: string = 'http://192.168.1.3:3000') {
+    constructor(apiUrl: string = 'http:/192.168.1.3:3000') {
         this.apiUrl = apiUrl;
     }
 

@@ -14,7 +14,7 @@ interface AppointmentModalProps {
 }
 export const AppointmentModal = ({ isVisible, appointment, onClose }: AppointmentModalProps) => {
     const { theme } = useTheme();
-    const {user} = useAuth();
+    const { user } = useAuth();
     const themeStyles = getThemeStyles(theme);
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
@@ -23,7 +23,7 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
     }
     return (
 
-        
+
         <Modal animationType="fade" transparent={true} visible={isVisible} onRequestClose={onClose}>
             <View style={styles.modalContainer}>
 
@@ -58,8 +58,8 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                             </View>
                         </View>
                         <View style={[styles.card, themeStyles.content]}>
-                            <DropdownComponent data={[{id: "asd", name: "asd"},{id: "asd", name: "asd"},{id: "asd", name: "asd"},{id: "asd", name: "asd"}]} onSelect={() => { }} label="Előadó" searchPlaceholder="Előadó keresése..." placeholder={appointment.presentators.map(p => p.name).join(', ')} />
-                            <DropdownComponent data={[{id: "asd", name: "asd"},{id: "asd", name: "asd"},{id: "asd", name: "asd"},{id: "asd", name: "asd"}]} onSelect={() => { }} label="Terem" searchPlaceholder="Terem keresése..." placeholder={appointment.rooms.map(r => r.name).join(' - ')} />
+                            <DropdownComponent data={[{ id: "asd", name: "asd" }, { id: "asd", name: "asd" }, { id: "asd", name: "asd" }, { id: "asd", name: "asd" }]} onSelect={() => { }} label="Előadó" searchPlaceholder="Előadó keresése..." placeholder={appointment.presentators.map(p => p.name).join(', ')} />
+                            <DropdownComponent data={[{ id: "asd", name: "asd" }, { id: "asd", name: "asd" }, { id: "asd", name: "asd" }, { id: "asd", name: "asd" }]} onSelect={() => { }} label="Terem" searchPlaceholder="Terem keresése..." placeholder={appointment.rooms.map(r => r.name).join(' - ')} />
                         </View>
                     </View>
 

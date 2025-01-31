@@ -8,6 +8,7 @@ import { WeekNavigation } from "./WeekNavigation";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { EventCard } from "./EventCard";
+import { AddEventCard } from "./AddEventCard";
 
 interface TimetableViewProps {
   appointments: Appointment[];
@@ -119,13 +120,14 @@ export const TimetableView = ({
           <ScrollView>
             <FlatList
               data={dayEvents}
-              keyExtractor={(event) => event.id}
+              keyExtractor={(event) => event.id!}
               renderItem={({ item }) => (
                 <EventCard event={item} />
               )}
               showsVerticalScrollIndicator={false}
               scrollEnabled={false}
             />
+            <AddEventCard currentDayDate={currentDayDate}/>
           </ScrollView>
         )}
       </View>

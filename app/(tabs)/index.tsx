@@ -64,7 +64,7 @@ export default function TimetableScreen() {
           || data.presentators.find((item: any) => item.id === selectedId)?.name
           || data.timetables.find((item: any) => item.id === selectedId)?.name;
         if (selectedName) {
-          setSelectedTitle(`${TITLE_TRANSLATIONS[selectedView]} - ${selectedName}`);
+          setSelectedTitle(`${selectedName}`);
         }
       }
     };
@@ -125,7 +125,7 @@ export default function TimetableScreen() {
     }
   }).current;
 
-  if (institutionError) return <ErrorMessage message={institutionError} />;
+
   if (institutionLoading.institution) return <LoadingSpinner />;
 
   return (
@@ -133,12 +133,17 @@ export default function TimetableScreen() {
       <StatusBar backgroundColor={themeStyles.background.backgroundColor} />
       <SafeAreaView style={[styles.header, themeStyles.content]}>
         <View style={styles.headerContent}>
-          <Text style={[styles.selectedTitle, {
-            color: theme === 'dark' ? '#adadad' : '#333'
-          }]}>
-            {selectedTitle || 'Válassz órarendet'}
-          </Text>
-          <ViewToggle onViewChange={() =>  setShowEvents(!showEvents)} />
+
+
+            <Text style={[styles.selectedTitle, {
+              color: theme === 'dark' ? '#adadad' : '#333'
+            }]}>
+              {selectedTitle || 'Válassz órarendet'}
+            </Text>
+
+            {selectedView === 'timetable' && <View style={styles.toggleCenterContainer}> <ViewToggle  onViewChange={() => setShowEvents(!showEvents)} /> </View>}
+     
+
           <Pressable
             style={styles.settingsButton}
             onPress={() => setModalVisible(true)}
@@ -147,8 +152,9 @@ export default function TimetableScreen() {
           </Pressable>
         </View>
       </SafeAreaView>
-
-      {selectedId ? (
+      {institutionError ? (
+        <ErrorMessage message={institutionError} />
+      ) : selectedId ? (
         <>
           {loading ? (
             <LoadingSpinner />
@@ -172,7 +178,6 @@ export default function TimetableScreen() {
           <Text style={[styles.noSelectionText, { color: theme === 'dark' ? '#adadad' : '#666' }]}>
             Válassz órarendet, előadót vagy termet a beállítások gombbal
           </Text>
-
         </View>
       )}
 
@@ -201,18 +206,28 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
+  toggleCenterContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+  },
   selectedTitle: {
     fontSize: 18,
     fontWeight: '600',
-    flex: 1,
+
+    
   },
   settingsButton: {
     padding: 8,
+    alignSelf: 'flex-end'
   },
   noSelectionContainer: {
     flex: 1,

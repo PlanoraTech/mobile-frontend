@@ -18,6 +18,7 @@ export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetablePro
     if (!selectedView || !selectedId) return;
     
     setLoading(true);
+    setError(null);
     try {
       const endpoints = {
         timetable: `/timetables/${selectedId}/appointments`,

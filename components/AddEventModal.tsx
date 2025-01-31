@@ -1,23 +1,17 @@
 import { getThemeStyles } from "@/assets/styles/themes";
 import { useTheme } from "@/contexts/ThemeProvider";
-import { DayEvent } from "@/types";
 import { useState } from "react";
 import { Modal, Pressable, Text, TextInput, View, StyleSheet } from "react-native";
 
-interface EventModalProps {
+interface AddEventModalProps {
     isVisible: boolean;
-    event: DayEvent;
+    dayDate: Date;
     onClose: () => void;
 }
-
-export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
+export const AddEventModal = ({ isVisible, dayDate, onClose }: AddEventModalProps) => {
     const { theme } = useTheme();
     const themeStyles = getThemeStyles(theme);
-    const [newTitle, setNewTitle] = useState(event.title);
-    const handleClose = () => {
-        setNewTitle(event.title);
-        onClose();
-    }
+    const [newTitle, setNewTitle] = useState("");
     return (
         <Modal
             visible={isVisible}
@@ -29,11 +23,11 @@ export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
             <View style={[styles.modalContent, themeStyles.content]}>
                 <View style={[styles.modalHeader, {borderBottomColor: theme === 'dark' ? '#333' : '#fff'}]} >
                     <Text style={[styles.modalTitle, themeStyles.text]}>
-                        Esemény szerkesztése
+                        Esemény létrehozása
                     </Text>
-                    <Pressable onPress={handleClose} style={[styles.closeButton]}>
+                    <Pressable onPress={onClose} style={[styles.closeButton]}>
                         <Text style={[styles.closeButtonText, themeStyles.text]}>x</Text>
-                    </Pressable>    
+                    </Pressable>
                 </View>
                 <TextInput
                     style={[
@@ -47,11 +41,8 @@ export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
                     autoCapitalize="sentences"
                 />
                 <View style={styles.ButtonsContainer}>
-                    <Pressable style={[styles.deleteButton,{backgroundColor: theme === 'dark' ? '#BA0021':'#EF0107' }]}>
-                        <Text style={styles.buttonText}>Esemény törlése</Text>
-                    </Pressable>
                     <Pressable style={[styles.saveButton, themeStyles.button]}>
-                        <Text style={styles.buttonText}>Mentés</Text>
+                        <Text style={styles.saveButtonText}>Hozzáadás</Text>
                     </Pressable>
                 </View>
 
@@ -98,22 +89,15 @@ const styles = StyleSheet.create({
     },
     ButtonsContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
     },
-    deleteButton: {
-        padding: 10,
-        borderRadius: 8,
 
-    },
-    deleteButtonText: {
-        color: '#fff',
-    },
     saveButton: {
         padding: 10,
         borderRadius: 8,
         backgroundColor: '#007aff',
     },
-    buttonText: {
+    saveButtonText: {
         color: '#fff',
         fontWeight: '600',
     },

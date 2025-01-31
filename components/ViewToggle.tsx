@@ -24,7 +24,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
         onViewChange(!isAppointments);
     };
 
-    const buttonWidth = SCREEN_WIDTH * 0.4;
+    const buttonWidth = SCREEN_WIDTH * 0.3;
     const slideX = slideAnim.interpolate({
         inputRange: [0, 1],
         outputRange: [0, buttonWidth / 2],
@@ -54,7 +54,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
                             isAppointments ? styles.activeText : styles.inactiveText,
                         ]}
                     >
-                        Óra
+                        Órák
                     </Text>
                     <Text
                         style={[
@@ -62,7 +62,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
                             !isAppointments ? styles.activeText : styles.inactiveText,
                         ]}
                     >
-                        Esemény
+                        Események
                     </Text>
                 </View>
             </TouchableOpacity>
@@ -74,10 +74,10 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: 16 ,
     },
     toggleContainer: {
-        height: 40,
+        height: 30,
         borderRadius: 20,
         overflow: 'hidden',
     },
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     toggleText: {
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: '600',
         flex: 1,
         textAlign: 'center',

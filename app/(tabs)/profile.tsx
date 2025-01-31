@@ -12,13 +12,13 @@ import { getThemeStyles } from '@/assets/styles/themes';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';
 import { ROLE_TRANSLATIONS } from '@/constants';
-
+import ModifyPassword from '@/components/ModifyPassword';
 const ProfileScreen = () => {
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
     const { theme, toggleTheme } = useTheme();
     const { user, logout } = useAuth();
     const themeStyles = getThemeStyles(theme);
-
+    const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
     const toggleNotifications = () => {
         setIsNotificationsEnabled(previousState => !previousState);
     };
@@ -27,30 +27,12 @@ const ProfileScreen = () => {
         <View style={[styles.container, themeStyles.background]}>
             <StatusBar backgroundColor={themeStyles.background.backgroundColor} />
             <View style={[styles.content, themeStyles.content]}>
-                {/*
-                <View style={styles.nameContainer}>
-                <Text style={[styles.name, { color: theme === 'dark' ? '#fff' : '#333' }]}>
-                        {user?.token ? 'John Doe' : 'Vendég'}
-                    </Text>
-                    {user?.token && (
-                        <Pressable onPress={() => console.log('Edit name')}>
-                            <MaterialIcons
-                            name="edit"
-                            size={24}
-                            color={theme === 'dark' ? '#adadad' : '#666'}
-                            />
-                            </Pressable>
-                            )}
-                            </View>
-                            */}
-
                 <View style={styles.section}>
                     <Text style={[styles.label, themeStyles.text]}>Szerep</Text>
                     <Text style={[styles.value, themeStyles.text]}>
                         {user?.role ? ROLE_TRANSLATIONS[user.role] : 'Vendég'}
                     </Text>
                 </View>
-
 
                 <View style={styles.section}>
                     <Text style={[styles.label, themeStyles.text]}>Téma</Text>
@@ -78,8 +60,7 @@ const ProfileScreen = () => {
                         }}
                     />
                 </View>
-
-
+               
                 <View style={styles.authSection}>
                     {!user?.token ? (
                         <>
@@ -98,6 +79,13 @@ const ProfileScreen = () => {
                             </Pressable>
                         </>
                     ) : (
+                        <>
+                        <Pressable style={[styles.authButton, themeStyles.button]} onPress={() => setIsPasswordModalVisible(true)}>
+                            <Text style={styles.buttonText}>Jelszó módosítása</Text>
+                        </Pressable>
+
+
+                        {isPasswordModalVisible && <ModifyPassword onClose={() => setIsPasswordModalVisible(false)} />}
                         <Pressable
                             style={[styles.authButton, themeStyles.buttonSecondary]}
                             onPress={logout}
@@ -105,9 +93,11 @@ const ProfileScreen = () => {
                             <Text style={styles.buttonText}>Kijelentkezés</Text>
 
                         </Pressable>
+                        </>
                     )}
                 </View>
             </View>
+
         </View>
     );
 };

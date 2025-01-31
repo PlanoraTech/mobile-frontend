@@ -2,7 +2,7 @@ import { getThemeStyles } from "@/assets/styles/themes";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { useState } from "react";
 import { Modal, Pressable, Text, TextInput, View, StyleSheet } from "react-native";
-
+import { StatusBar } from "expo-status-bar";
 interface AddEventModalProps {
     isVisible: boolean;
     dayDate: Date;
@@ -19,6 +19,7 @@ export const AddEventModal = ({ isVisible, dayDate, onClose }: AddEventModalProp
             onRequestClose={onClose}
             animationType="fade"
         >
+            <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
             <View style={[styles.modalContainer, ]}>
             <View style={[styles.modalContent, themeStyles.content]}>
                 <View style={[styles.modalHeader, themeStyles.border]} >
@@ -56,7 +57,7 @@ export const AddEventModal = ({ isVisible, dayDate, onClose }: AddEventModalProp
 const styles = StyleSheet.create({
      modalContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
         justifyContent: 'center',   
         alignItems: 'center',
     },

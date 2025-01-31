@@ -3,10 +3,12 @@ import { AuthInput } from "./AuthInput";
 import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "@/contexts/ThemeProvider";
-
+import { getThemeStyles } from "@/assets/styles/themes";
+import { StatusBar } from "expo-status-bar";
 interface ForgotPasswordModalProps {
     onClose: () => void;
 }
+
 
 export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProps) {
     const { theme } = useTheme();
@@ -14,26 +16,31 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
         email: '',
     });
 
-    const isDarkTheme = theme === 'dark';
+    const themeStyles = getThemeStyles(theme);
 
     return (
         <Modal
             animationType="fade"
+
             transparent={true}
             visible={true}
             onRequestClose={onClose}
         >
+            <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
             <View style={styles.modalContainer}>
-                <View style={[styles.modalContent, { backgroundColor: isDarkTheme ? '#1c1c1c' : '#ffffff' }]}>
+                <View style={[styles.modalContent, themeStyles.content]}>
                     <View style={styles.modalHeader}>
-                        <Text style={[styles.headerText, { color: isDarkTheme ? '#ffffff' : '#1c1c1c' }]}>
+
+                        <Text style={[styles.headerText, themeStyles.textSecondary]}>
                             Elfelejtett Jelszó
+
                         </Text>
                         <Pressable onPress={onClose} style={styles.closeButton}>
-                            <Text style={[styles.closeButtonText, { color: isDarkTheme ? '#ffffff' : '#1c1c1c' }]}>×</Text>
+                            <Text style={[styles.closeButtonText, themeStyles.textSecondary]}>×</Text>
                         </Pressable>
                     </View>
                     <View>
+
                         <AuthInput
                             icon="mail-outline"
                             placeholder="Email"
@@ -42,7 +49,7 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                             keyboardType="email-address"
                             autoComplete="email"
                         />
-                        <Pressable onPress={onClose} style={styles.submitButton}>
+                        <Pressable onPress={onClose} style={[styles.submitButton, themeStyles.button]}>
                             <Text style={styles.submitButtonText}>Küldés</Text>
                         </Pressable>
                     </View>
@@ -55,7 +62,7 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
 const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -91,7 +98,6 @@ const styles = StyleSheet.create({
     },
     submitButton: {
         marginTop: 20,
-        backgroundColor: '#4CAF50',
         paddingVertical: 12,
         borderRadius: 8,
         alignItems: 'center',

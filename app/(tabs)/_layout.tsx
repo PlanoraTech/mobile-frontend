@@ -1,24 +1,22 @@
 import { useTheme } from '@/contexts/ThemeProvider';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { useMemo } from 'react';
 
 export default function TabLayout() {
     const { theme } = useTheme();
-    const screenOptions = useMemo(() => ({
-        tabBarActiveTintColor: '#007AFF',
-        headerTintColor: theme === 'dark' ? '#adadad' : '#333',
-        tabBarInactiveTintColor: theme === 'dark' ? '#adadad' : '#333',
-        tabBarStyle: {
-            backgroundColor: theme === 'dark' ? '#1a1a1a' : '#fff',
-            borderTopWidth: 0,
-        },
-        headerShown: false,
-    }), [theme]);
 
     return (
         <Tabs 
-        screenOptions={screenOptions}
+        screenOptions={{
+            tabBarActiveTintColor: '#007AFF',
+            headerTintColor: theme === 'dark' ? '#adadad' : '#333',
+            tabBarInactiveTintColor: theme === 'dark' ? '#adadad' : '#333',
+            tabBarStyle: {
+                backgroundColor: theme === 'dark' ? '#1a1a1a' : '#fff',
+                borderTopWidth: 0,
+            },
+            headerShown: false,
+        }}
         
         >
             <Tabs.Screen
@@ -26,8 +24,10 @@ export default function TabLayout() {
                 options={{
                     title: 'Órarend',
                     tabBarIcon: ({ color, size }) => <MaterialIcons name="schedule" size={size} color={color} />,
-                    //tabBarHideOnKeyboard: true,
+
+                    animation: 'shift'
                 }}
+                
             
             />
             <Tabs.Screen
@@ -40,18 +40,21 @@ export default function TabLayout() {
                         borderTopWidth: 0,
                     },
                     tabBarIcon: ({ color, size }) => <MaterialIcons name="person" size={size} color={color} />,
+                    animation: 'shift'
                 }}
             />
 
             <Tabs.Screen name="login" options={
                 {
                     href: null,
-                    animation: 'fade'
+                    animation: 'shift'
                 }
             } />
             <Tabs.Screen name="register" options={
                 {
                     href: null,
+                    animation: 'shift'
+                    
                 }
             } />
          

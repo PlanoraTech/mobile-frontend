@@ -27,30 +27,33 @@ export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
         >
             <View style={[styles.modalContainer, ]}>
             <View style={[styles.modalContent, themeStyles.content]}>
-                <View style={[styles.modalHeader, {borderBottomColor: theme === 'dark' ? '#333' : '#fff'}]} >
-                    <Text style={[styles.modalTitle, themeStyles.text]}>
+                <View style={[styles.modalHeader, themeStyles.border]} >
+                    <Text style={[styles.modalTitle, themeStyles.textSecondary]}>
                         Esemény szerkesztése
                     </Text>
+
                     <Pressable onPress={handleClose} style={[styles.closeButton]}>
-                        <Text style={[styles.closeButtonText, themeStyles.text]}>x</Text>
+                        <Text style={[styles.closeButtonText, themeStyles.textSecondary]}>×</Text>
                     </Pressable>    
                 </View>
                 <TextInput
                     style={[
                         styles.input,
-                        { backgroundColor: theme === 'dark' ? '#343434' : '#e0e0e0' },
-                        { color: theme === 'dark' ? '#fff' : '#333' },
+                        themeStyles.inputBackground,
+                        themeStyles.text,
                     ]}
                     multiline={true}
+
                     value={newTitle}
                     onChangeText={(text) => setNewTitle(text)}
                     autoCapitalize="sentences"
                 />
                 <View style={styles.ButtonsContainer}>
-                    <Pressable style={[styles.deleteButton,{backgroundColor: theme === 'dark' ? '#BA0021':'#EF0107' }]}>
+                    <Pressable style={[styles.deleteButton, themeStyles.buttonSecondary]}>
                         <Text style={styles.buttonText}>Esemény törlése</Text>
                     </Pressable>
                     <Pressable style={[styles.saveButton, themeStyles.button]}>
+
                         <Text style={styles.buttonText}>Mentés</Text>
                     </Pressable>
                 </View>
@@ -70,7 +73,6 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         width: '80%',
-        backgroundColor: '#fff',
         borderRadius: 8,
         padding: 15,
     },
@@ -89,7 +91,8 @@ const styles = StyleSheet.create({
         padding: 5,
     },
     closeButtonText: {
-        fontSize: 20,
+        fontSize: 18,
+        fontWeight: '600',
     },
     input: {
         padding: 10,
@@ -111,7 +114,7 @@ const styles = StyleSheet.create({
     saveButton: {
         padding: 10,
         borderRadius: 8,
-        backgroundColor: '#007aff',
+        
     },
     buttonText: {
         color: '#fff',

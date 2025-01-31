@@ -140,7 +140,7 @@ export const TimetableView = ({
         currentDate={currentDate}
         onWeekChange={handleWeekChange}
       />
-      <View style={styles.daysListContainer}>
+   
         <FlatList
           ref={daysListRef}
           data={DAYS}
@@ -159,7 +159,7 @@ export const TimetableView = ({
             />
           )}
         />
-      </View>
+   
       { showedList === 'appointments' ? (
 
         <FlatList
@@ -211,11 +211,6 @@ export const TimetableView = ({
 const styles = StyleSheet.create({
   timetableContainer: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  daysListContainer: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   daysList: {
     maxHeight: 60,
@@ -234,20 +229,6 @@ const styles = StyleSheet.create({
   activeDayTab: {
     borderBottomWidth: 2,
     borderBottomColor: '#0066cc',
-  },
-  dayText: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  dateText: {
-    fontSize: 12,
-  },
-  activeDayText: {
-    color: '#0066cc',
-  },
-  activeDateText: {
-    color: '#0066cc',
   },
   dayPage: {
     width: SCREEN_WIDTH,

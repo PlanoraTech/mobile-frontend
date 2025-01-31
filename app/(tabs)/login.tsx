@@ -41,7 +41,7 @@ export default function LoginScreen() {
         if (!Object.values(newErrors).some(error => error)) {
             const success = await login(formData);
             if (success) {
-                router.canGoBack() ? router.back() : router.replace('/tabs' as any);
+                router.replace('/profile');
             }
         }
     };

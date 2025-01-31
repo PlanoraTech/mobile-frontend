@@ -22,36 +22,40 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
         return null;
     }
     return (
-
-
         <Modal animationType="fade" transparent={true} visible={isVisible} onRequestClose={onClose}>
             <View style={styles.modalContainer}>
 
                 <View style={[styles.modalContent, themeStyles.content]}>
 
                     <View style={styles.modalHeader}>
-                        <Text style={[styles.subject, { color: theme === 'dark' ? '#fff' : '#333' }]}>Óra beállítások</Text>
+                        <Text style={[styles.subject, themeStyles.text]}>Óra beállítások</Text>
                         <Pressable
                             onPress={onClose}
+
                             style={styles.closeButton}
                         >
-                            <Text style={[styles.closeButtonText, { color: theme === 'dark' ? '#fff' : '#333' }]}>×</Text>
+                            <Text style={[styles.closeButtonText, themeStyles.text]}>×</Text>
                         </Pressable>
                     </View>
                     <View style={styles.modalMain}>
+
                         <View style={styles.modalTop}>
                             <View style={[styles.textContainer, styles.card]}>
-                                <Text style={[styles.subject, { color: theme === 'dark' ? '#adadad' : '#666' }]}>{appointment.subject.name}</Text>
-                                <Text style={[styles.date, { color: theme === 'light' ? '#0066cc' : '#0CAFFF' }]}>{formatTime(appointment.start)} - {formatTime(appointment.end)}</Text>
+                                <Text style={[styles.subject, themeStyles.textSecondary]}>{appointment.subject.name}</Text>
+                                <Text style={styles.date}>{formatTime(appointment.start)} - {formatTime(appointment.end)}</Text>
                             </View>
+
                             <View style={[styles.cancelContainer, styles.card]}>
                                 {isEnabled ? <Text style={styles.cancelTextPostive}>Elmarad</Text> : <Text style={styles.cancelTextNegative}>Megtartva</Text>}
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#81b0ff' }}
-                                    thumbColor={isEnabled ? '#0066cc' : '#f4f3f4'}
+                                    trackColor={{
+                                        false: themeStyles.switch.track,
+                                        true: themeStyles.switch.trackActive
+                                    }}
                                     ios_backgroundColor="#3e3e3e"
                                     onValueChange={toggleSwitch}
                                     value={isEnabled}
+
                                 />
 
 
@@ -64,8 +68,6 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                     </View>
 
                 </View>
-
-
             </View>
         </Modal>
     )
@@ -95,7 +97,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E5E5',
     },
     modalTop: {
         flexDirection: 'row',
@@ -121,7 +122,11 @@ const styles = StyleSheet.create({
     date: {
         fontSize: 16,
         textAlign: 'center',
+        fontWeight: '600',
+        color: '#0066cc',
     },
+
+
     cancelContainer: {
         flex: 1,
         flexDirection: 'column',

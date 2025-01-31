@@ -1,5 +1,9 @@
 import { SCREEN_WIDTH } from "@/constants";
 import { Pressable, Text, StyleSheet } from "react-native";
+import { useTheme } from "@/contexts/ThemeProvider";
+import { getThemeStyles } from "@/assets/styles/themes";
+
+
 
 interface TtButtonProps {
     choice: string;
@@ -7,13 +11,19 @@ interface TtButtonProps {
     onPress: () => void;
 }
 
-export const TimetableButton = ({ choice, isActive, onPress }: TtButtonProps) => (
-    <Pressable style={[styles.timetableButton, isActive && styles.activeButton]} onPress={onPress}>
-        <Text style={[styles.buttonText, isActive && styles.activeButtonText]}>
-            {choice}
-        </Text>
-    </Pressable>
-);
+export const TimetableButton = ({ choice, isActive, onPress }: TtButtonProps) => {
+    const { theme } = useTheme();
+    const themeStyles = getThemeStyles(theme);
+    return (
+        <Pressable style={[styles.timetableButton, isActive && themeStyles.button]} onPress={onPress}>
+            <Text style={[styles.buttonText, themeStyles.textSecondary, isActive && styles.activeButtonText]}>
+                {choice}
+            </Text>
+        </Pressable>
+
+    );
+};
+
 
 const styles = StyleSheet.create({
     timetableButton: {
@@ -24,16 +34,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    activeButton: {
-        backgroundColor: '#0066cc',
-    },
     buttonText: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#666666',
+
     },
     activeButtonText: {
-        color: 'white',
+        color: '#fff',
         fontWeight: '700',
     },
 });

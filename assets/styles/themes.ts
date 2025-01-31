@@ -2,11 +2,13 @@
 interface ThemeColors {
   background: string;
   contentBackground: string;
+  inputBackground: string;
   border: string;
   text: {
     primary: string;
     secondary: string;
   };
+
   button: {
     primary: string;
     secondary: string;
@@ -24,6 +26,7 @@ export type ThemeMode = 'light' | 'dark';
 export const lightTheme: ThemeColors = {
   background: '#f5f5f5',
   contentBackground: '#FAF9F6',
+  inputBackground: '#e0e0e0',
   border: '#e0e0e0',
   text: {
     primary: '#333',
@@ -43,7 +46,8 @@ export const lightTheme: ThemeColors = {
 
 export const darkTheme: ThemeColors = {
   background: '#121212',
-  contentBackground: '#1a1a1a', 
+  contentBackground: '#1a1a1a',
+  inputBackground: '#343434' ,
   border: '#333',
   text: {
     primary: '#fff',
@@ -51,11 +55,11 @@ export const darkTheme: ThemeColors = {
   },
   button: {
     primary: '#11137d',
-    secondary: '#f44336'
+    secondary: '#BA0021'
   },
   switch: {
     track: '#767577',
-    trackActive: '#81b0ff', 
+    trackActive: '#007AFF', 
     thumb: '#f4f3f4',
     thumbActive: '#f5dd4b'
   }
@@ -70,7 +74,7 @@ export const getThemeStyles = (theme: ThemeMode) => {
     },
     content: {
       backgroundColor: colors.contentBackground,
-      borderColor: colors.border,
+      //borderColor: colors.border,
     },
     text: {
       color: colors.text.primary,
@@ -83,6 +87,18 @@ export const getThemeStyles = (theme: ThemeMode) => {
     },
     buttonSecondary: {
       backgroundColor: colors.button.secondary,
+    },
+    switch: {
+      track: colors.switch.track,
+      trackActive: colors.switch.trackActive,
+      thumb: colors.switch.thumb,
+      thumbActive: colors.switch.thumbActive
+    },
+    border: {
+      borderBottomColor: colors.border,
+    },
+    inputBackground: {
+      backgroundColor: colors.inputBackground,
     }
   };
 };

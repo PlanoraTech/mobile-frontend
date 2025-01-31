@@ -24,32 +24,33 @@ export const WeekNavigation = ({ currentDate, onWeekChange }: WeekNavigationProp
   };
 
   return (
-    <View style={[styles.weekNavigation, themeStyles.content]}>
+    <View style={[styles.weekNavigation, themeStyles.content, themeStyles.border]}>
       <Pressable 
         style={styles.navButton} 
         onPress={() => onWeekChange('prev')}
       >
-        <ChevronLeft color={theme === 'dark' ? '#adadad' : '#666'} size={24} />
-        <ChevronLeft color={theme === 'dark' ? '#adadad' : '#666'} size={24} style={styles.secondArrow} />
+        <ChevronLeft color={themeStyles.textSecondary.color} size={24} />
+        <ChevronLeft color={themeStyles.textSecondary.color} size={24} style={styles.secondArrow} />
       </Pressable>
       <Text style={[styles.weekText, themeStyles.textSecondary]}>
+
         {formatWeekRange(currentDate)}
       </Text>
       <Pressable 
         style={styles.navButton} 
         onPress={() => onWeekChange('next')}
       >
-        <ChevronRight color={theme === 'dark' ? '#adadad' : '#666'} size={24} />
-        <ChevronRight color={theme === 'dark' ? '#adadad' : '#666'} size={24} style={styles.secondArrow} />
+        <ChevronRight color={themeStyles.textSecondary.color} size={24} />
+        <ChevronRight color={themeStyles.textSecondary.color} size={24} style={styles.secondArrow} />
       </Pressable>
     </View>
+
   );
 };
 
 const styles = StyleSheet.create({
     timetableContainer: {
       flex: 1,
-      backgroundColor: '#f5f5f5',
     },
     weekNavigation: {
       flexDirection: 'row',
@@ -57,8 +58,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       paddingHorizontal: 16,
       paddingVertical: 8,
-      borderBottomWidth: 1,
-      borderBottomColor: '#e0e0e0',
+      borderBottomWidth: 0.5,
     },
     navButton: {
       flexDirection: 'row',

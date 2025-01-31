@@ -3,7 +3,7 @@ import { useTimetable } from "@/hooks/useTimetable";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TimetableView } from "@/components/TimeTableView";
-import { BASE_URL, SCREEN_WIDTH, TITLE_TRANSLATIONS } from "@/constants";
+import { BASE_URL, SCREEN_WIDTH } from "@/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -129,26 +129,33 @@ export default function TimetableScreen() {
   if (institutionLoading.institution) return <LoadingSpinner />;
 
   return (
-    <View style={[styles.container, Platform.OS === 'ios' ? { paddingTop: 0 } : { paddingTop: 24 }]}>
+    <View style={[styles.container, themeStyles.content, Platform.OS === 'ios' ? { paddingTop: 0 } : { paddingTop: 24 }]}>
       <StatusBar backgroundColor={themeStyles.background.backgroundColor} />
       <SafeAreaView style={[styles.header, themeStyles.content]}>
         <View style={styles.headerContent}>
 
 
-            <Text style={[styles.selectedTitle, {
-              color: theme === 'dark' ? '#adadad' : '#333'
-            }]}>
-              {selectedTitle || 'Válassz órarendet'}
-            </Text>
+          <Text style={[styles.selectedTitle, themeStyles.text]}
+            numberOfLines={1}
+            adjustsFontSizeToFit={true}
+          >
 
-            {selectedView === 'timetable' && <View style={styles.toggleCenterContainer}> <ViewToggle  onViewChange={() => setShowEvents(!showEvents)} /> </View>}
-     
+            {selectedTitle || 'Válassz órarendet'}
+          </Text>
+
+          {selectedView === 'timetable' && !error &&
+            <View style={styles.toggleCenterContainer}>
+              <ViewToggle onViewChange={() => setShowEvents(!showEvents)} />
+            </View>
+          }
+
+
 
           <Pressable
             style={styles.settingsButton}
             onPress={() => setModalVisible(true)}
           >
-            <Settings color={theme === 'dark' ? '#adadad' : '#666'} size={28} />
+            <Settings color={themeStyles.textSecondary.color} size={28} />
           </Pressable>
         </View>
       </SafeAreaView>
@@ -175,10 +182,11 @@ export default function TimetableScreen() {
         </>
       ) : (
         <View style={[styles.noSelectionContainer, themeStyles.content]}>
-          <Text style={[styles.noSelectionText, { color: theme === 'dark' ? '#adadad' : '#666' }]}>
+          <Text style={[styles.noSelectionText, themeStyles.textSecondary]}>
             Válassz órarendet, előadót vagy termet a beállítások gombbal
           </Text>
         </View>
+
       )}
 
       <SettingsModal
@@ -199,7 +207,7 @@ export default function TimetableScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAF9F6'
+
   },
   header: {
     borderBottomWidth: 0,
@@ -220,10 +228,10 @@ const styles = StyleSheet.create({
 
   },
   selectedTitle: {
-    fontSize: 18,
+
     fontWeight: '600',
 
-    
+
   },
   settingsButton: {
     padding: 8,

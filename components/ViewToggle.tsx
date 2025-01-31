@@ -33,14 +33,14 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
     return (
         <View style={styles.container}>
             <TouchableOpacity
-                style={[styles.toggleContainer, { width: buttonWidth }, { backgroundColor: theme === 'dark' ? '#333' : '#E5E5EA' }]}
+                style={[styles.toggleContainer, { width: buttonWidth },  themeStyles.content]}
                 activeOpacity={0.8}
                 onPress={toggleView}
             >
                 <Animated.View
                     style={[
                         styles.slider,
-                        {backgroundColor: theme === 'dark' ? '#1E1E1E' : '#333'},
+                        themeStyles.button,
                         {
                             transform: [{ translateX: slideX }],
                             width: buttonWidth / 2,
@@ -54,7 +54,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
                             isAppointments ? styles.activeText : styles.inactiveText,
                         ]}
                     >
-                        Órák
+                        Óra
                     </Text>
                     <Text
                         style={[
@@ -62,7 +62,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
                             !isAppointments ? styles.activeText : styles.inactiveText,
                         ]}
                     >
-                        Események
+                        Esemény
                     </Text>
                 </View>
             </TouchableOpacity>
@@ -78,13 +78,14 @@ const styles = StyleSheet.create({
     },
     toggleContainer: {
         height: 30,
-        borderRadius: 20,
+        borderRadius: 10,
         overflow: 'hidden',
+
     },
     slider: {
         position: 'absolute',
         height: '100%',
-        borderRadius: 20,
+        borderRadius: 10,
     },
     textContainer: {
         flexDirection: 'row',

@@ -19,6 +19,7 @@ export const DayTab = ({ day, date, isActive, onPress, width }: DayTabProps) => 
       onPress={onPress}
       style={[
         styles.dayTab,
+        themeStyle.border,
         { width },
         isActive && styles.activeDayTab,
         themeStyle.content,
@@ -43,26 +44,12 @@ export const DayTab = ({ day, date, isActive, onPress, width }: DayTabProps) => 
 };
 
 const styles = StyleSheet.create({
-  timetableContainer: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  daysListContainer: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  daysList: {
-    maxHeight: 60,
-  },
-  daysListContent: {
-    flexGrow: 1,
-  },
   dayTab: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 8,
     borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+
   },
   activeDayTab: {
     borderBottomColor: '#0066cc',
@@ -80,21 +67,5 @@ const styles = StyleSheet.create({
   },
   activeDateText: {
     color: '#0066cc',
-  },
-  dayPage: {
-    width: SCREEN_WIDTH,
-    padding: 10,
-  },
-  notFoundContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    minHeight: 200,
-  },
-  notFoundText: {
-    fontSize: 16,
-    fontWeight: '400',
-    textAlign: 'center',
   },
 });

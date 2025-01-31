@@ -11,7 +11,10 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native
 const authAdapter = new StandardAuthAdapter();
 const StackNavigator = () => {
   const { theme } = useTheme();
+
+  //needed for keyboard appearance
   theme === "dark" ? SystemUI.setBackgroundColorAsync("#121212") : SystemUI.setBackgroundColorAsync("#f5f5f5");
+  
   return (
     // needed for background during animation
     <ThemeProvider value={

@@ -1,49 +1,40 @@
 import { useTheme } from '@/contexts/ThemeProvider';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-
+import { getThemeStyles } from '@/assets/styles/themes';
 export default function TabLayout() {
     const { theme } = useTheme();
-
+    const themeStyles = getThemeStyles(theme);
     return (
         <Tabs 
         screenOptions={{
             tabBarActiveTintColor: '#007AFF',
-            headerTintColor: theme === 'dark' ? '#adadad' : '#333',
-            tabBarInactiveTintColor: theme === 'dark' ? '#adadad' : '#333',
+            headerTintColor: themeStyles.textSecondary.color,
+            tabBarInactiveTintColor: themeStyles.textSecondary.color,
             tabBarStyle: {
-                backgroundColor: theme === 'dark' ? '#1a1a1a' : '#fff',
+                backgroundColor: themeStyles.content.backgroundColor,
                 borderTopWidth: 0,
             },
             headerShown: false,
         }}
-        
         >
             <Tabs.Screen
                 name="index"
                 options={{
                     title: 'Órarend',
                     tabBarIcon: ({ color, size }) => <MaterialIcons name="schedule" size={size} color={color} />,
-
                     animation: 'shift'
                 }}
-                
-            
             />
             <Tabs.Screen
                 name="profile"
 
                 options={{
                     title: 'Profil',
-                    tabBarStyle: {
-                        backgroundColor: theme === 'dark' ? '#121212' : '#f5f5f5',
-                        borderTopWidth: 0,
-                    },
                     tabBarIcon: ({ color, size }) => <MaterialIcons name="person" size={size} color={color} />,
                     animation: 'shift'
                 }}
             />
-
             <Tabs.Screen name="login" options={
                 {
                     href: null,
@@ -54,7 +45,6 @@ export default function TabLayout() {
                 {
                     href: null,
                     animation: 'shift'
-                    
                 }
             } />
          

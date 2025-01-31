@@ -82,17 +82,18 @@ export const SettingsModal = ({
 
                 <View style={[styles.modalContent, themeStyle.content]}>
 
-                    <View style={styles.modalHeader}>
-                        <Text style={[styles.modalTitle, themeStyle.text]}>Órarend beállítások</Text>
+                    <View style={[styles.modalHeader, themeStyle.border]}>
+                        <Text style={[styles.modalTitle, themeStyle.textSecondary]}>Órarend beállítások</Text>
                         <Pressable
                             onPress={onClose}
                             style={styles.closeButton}
                         >
-                            <Text style={[styles.closeButtonText, { color: theme === 'dark' ? '#f5f5f5' : '#333333' }]}>×</Text>
+                            <Text style={[styles.closeButtonText, themeStyle.textSecondary]}>×</Text>
                         </Pressable>
                     </View>
 
-                    <ScrollView style={styles.modalScrollView}>
+
+                    <ScrollView >
                     
                         <DropdownComponent
                             data={institutions}
@@ -201,7 +202,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 4,
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E5E5',
+
     },
     modalTitle: {
         fontSize: 20,
@@ -212,15 +213,6 @@ const styles = StyleSheet.create({
     },
     closeButtonText: {
         fontSize: 24,
-    },
-    darkCloseButtonText: {
-        color: '#f5f5f5',
-    },
-    lightCloseButtonText: {
-        color: '#333333',
-    },
-    modalScrollView: {
-        
     },
     card: {
         padding: 16,
@@ -236,7 +228,6 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#333333',
         marginBottom: 8,
         marginTop: 16,
         paddingLeft: 16,

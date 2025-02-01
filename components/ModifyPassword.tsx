@@ -33,7 +33,8 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
             <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
             <View style={styles.modalContainer}>
                 <View style={[styles.modalContent, themeStyles.content]}>
-                    <View style={styles.modalHeader}>
+                    <View style={[styles.modalHeader, themeStyles.border]}>
+        
 
                         <Text style={[styles.headerText, themeStyles.textSecondary]}>
                             Jelszó módosítása
@@ -50,7 +51,7 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                             value={formData.oldPassword}
                             onChangeText={(text) => setFormData(prev => ({ ...prev, oldPassword: text }))}
                             keyboardType="default"
-
+                            secureTextEntry={true}
 
                         />
                         <AuthInput
@@ -60,6 +61,7 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                             onChangeText={(text) => setFormData(prev => ({ ...prev, newPassword: text }))}
                             keyboardType="default"
                             autoComplete="password"
+                            secureTextEntry={true}
                         />
                         <AuthInput
                             icon="lock-closed-outline"
@@ -67,7 +69,9 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                             value={formData.confirmPassword}
                             onChangeText={(text) => setFormData(prev => ({ ...prev, confirmPassword: text }))}
                             keyboardType="default"
+                            secureTextEntry={true}
                         />
+
 
                         <Pressable onPress={onClose} style={[styles.submitButton, themeStyles.button]}>
                             <Text style={styles.submitButtonText}>Módosítás</Text>
@@ -105,6 +109,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 20,
+        borderBottomWidth: 0.5
     },
     headerText: {
         fontSize: 20,

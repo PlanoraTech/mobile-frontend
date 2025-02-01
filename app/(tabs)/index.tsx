@@ -130,7 +130,7 @@ export default function TimetableScreen() {
 
   return (
     <View style={[styles.container, themeStyles.content, Platform.OS === 'ios' ? { paddingTop: 0 } : { paddingTop: 24 }]}>
-      <StatusBar backgroundColor={themeStyles.background.backgroundColor} />
+      <StatusBar backgroundColor={themeStyles.content.backgroundColor} />
       <SafeAreaView style={[styles.header, themeStyles.content]}>
         <View style={styles.headerContent}>
 
@@ -148,9 +148,6 @@ export default function TimetableScreen() {
               <ViewToggle onViewChange={() => setShowEvents(!showEvents)} />
             </View>
           }
-
-
-
           <Pressable
             style={styles.settingsButton}
             onPress={() => setModalVisible(true)}

@@ -146,7 +146,6 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                                     { id: "asd", name: "asd" }
                                 ]} 
                                 onSelect={() => { }} 
-                                label="Előadó" 
                                 searchPlaceholder="Előadó keresése..." 
                                 placeholder={appointment.presentators.map(p => p.name).join(', ')} 
                             />
@@ -158,7 +157,6 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                                     { id: "asd", name: "asd" }
                                 ]} 
                                 onSelect={() => { }} 
-                                label="Terem" 
                                 searchPlaceholder="Terem keresése..." 
                                 placeholder={appointment.rooms.map(r => r.name).join(' - ')} 
                             />

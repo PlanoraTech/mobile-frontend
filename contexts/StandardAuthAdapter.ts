@@ -1,7 +1,7 @@
 import { Credentials, RegisterData, User, AuthResponse } from '@/types/User';
 import * as SecureStore from 'expo-secure-store';
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
     AUTH_TOKEN: 'auth_tokens'
 } as const;
 
@@ -75,7 +75,7 @@ export class StandardAuthAdapter {
         try {
             const token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
             if (!token) return null;
-
+            console.log("token: "+token);
             const response = await this.makeRequest<any>('/login', 'POST', { token: token });
             return {...response.user, token};
             

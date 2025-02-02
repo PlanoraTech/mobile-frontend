@@ -12,13 +12,14 @@ export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetablePro
 
     fetchEvents();
     fetchTimetable();
-  }, [selectedView, selectedId, inst]);
+  }, [selectedView, selectedId]);
   const fetchTimetable = async () => {
     
     if (!selectedView || !selectedId) return;
-    
+  
     setLoading(true);
     setError(null);
+
     try {
       const endpoints = {
         timetable: `/timetables/${selectedId}/appointments`,
@@ -30,11 +31,13 @@ export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetablePro
       const response = await fetch(`${BASE_URL}/${inst}${endpoint}`);
 
       if (!response.ok) {
-    
+        console.log("response.status: "+response.status);
+        console.log("response.url: "+response.url);
         throw new Error('Hiba az órarend betöltése során.');
       }
       
       const data = await response.json();
+      console.log(response.url)
       setAppointments(data);
     } catch (error: any) {
       console.error(error.message);

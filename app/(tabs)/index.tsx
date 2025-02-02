@@ -17,6 +17,7 @@ import ViewToggle from "@/components/ViewToggle";
 
 export default function TimetableScreen() {
 
+
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
   const { inst } = useLocalSearchParams();
@@ -41,10 +42,14 @@ export default function TimetableScreen() {
     }
   }, [inst]);
 
+
   useEffect(() => {
     fetchInstitutions();
     fetchSavedTimetable();
   }, []);
+
+
+
 
   const fetchSavedTimetable = async () => {
     const savedTimetable = await AsyncStorage.getItem('timetable');

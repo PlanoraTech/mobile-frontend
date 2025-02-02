@@ -113,6 +113,13 @@ export const SettingsModal = ({
             router.replace('/login' as any);
             return;
         }
+        if (item.access ==='PRIVATE') {
+            if (!user?.institutions.some((inst) => inst.id === item.id)) {
+                handleClose();
+                router.replace('/login' as any);
+                return;
+            }
+        }
         saveId('institution', item.id);
         router.replace(`/?inst=${item.id}` as any);
     }
@@ -159,10 +166,8 @@ export const SettingsModal = ({
                         <DropdownComponent
                             data={institutions}
                             placeholder={data.institution?.name || "Intézmény kiválasztása"}
-                            label="Intézmény"
                             searchPlaceholder="Intézmény keresése..."
                             onSelect={(item: DropdownData) => {handleInstSelect(item)}}
-                            dropDirection='bottom'
                         />
                         <View style={styles.dropdownContainer}>
                             <FlatList
@@ -184,11 +189,11 @@ export const SettingsModal = ({
                                     ) : (
                                         <DropdownComponent
                                             data={data.timetables}
-                                            dropDirection='bottom'
+
                                             placeholder="Válassz órarendet"
-                                            label="Órarend"
                                             searchPlaceholder="Órarend keresése..."
                                             onSelect={(item) => onSelect(item, 'timetable')}
+
                                         />
                                     )}
                                 </View>
@@ -201,9 +206,7 @@ export const SettingsModal = ({
                                     ) : (
                                         <DropdownComponent
                                             data={data.presentators}
-                                            dropDirection='bottom'
                                             placeholder="Válassz előadót"
-                                            label="Előadó"
                                             searchPlaceholder="Előadó keresése..."
                                             onSelect={(item) => onSelect(item, 'presentators')}
                                         />
@@ -218,9 +221,9 @@ export const SettingsModal = ({
                                     ) : (
                                         <DropdownComponent
                                             data={data.rooms}
-                                            dropDirection='bottom'
                                             placeholder="Válassz termet"
-                                            label="Terem"
+                                            
+
                                             searchPlaceholder="Terem keresése..."
                                             onSelect={(item) => onSelect(item, 'rooms')}
                                         />

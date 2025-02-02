@@ -22,11 +22,5 @@ export const ROLE_TRANSLATIONS: Record<string, string> = {
 };
 
 
-//webváltó
-//export const BASE_URL = 'http://192.168.61.152:3000/institutions';
 
-//vwguest
-//export const BASE_URL = 'http://192.168.11.153:3000/institutions';
-
-//home
 export const BASE_URL = 'http://192.168.1.3:3000/institutions';

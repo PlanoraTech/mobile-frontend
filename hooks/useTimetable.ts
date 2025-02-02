@@ -1,45 +1,71 @@
 import { useState, useEffect } from 'react';
 import { BASE_URL } from '@/constants';
-import { Appointment, UseTimetableProps } from '@/types';
+import { Appointment, DayEvent, UseTimetableProps } from '@/types';
 
 export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetableProps) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [events, setEvents] = useState<DayEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchTimetable = async () => {
+
+    fetchEvents();
+    fetchTimetable();
+  }, [selectedView, selectedId]);
+  const fetchTimetable = async () => {
     
-      if (!selectedView || !selectedId) return;
+    if (!selectedView || !selectedId) return;
+  
+    setLoading(true);
+    setError(null);
+
+    try {
+      const endpoints = {
+        timetable: `/timetables/${selectedId}/appointments`,
+        presentators: `/presentators/${selectedId}/appointments`,
+        rooms: `/rooms/${selectedId}/appointments`,
+      };
+ 
+      const endpoint = endpoints[selectedView as keyof typeof endpoints];
+      const response = await fetch(`${BASE_URL}/${inst}${endpoint}`);
+
+      if (!response.ok) {
+        console.log("response.status: "+response.status);
+        console.log("response.url: "+response.url);
+        throw new Error('Hiba az órarend betöltése során.');
+      }
       
+      const data = await response.json();
+      console.log(response.url)
+      setAppointments(data);
+    } catch (error: any) {
+      console.error(error.message);
+      setError('Hiba az órarend betöltése során. Kérjük próbáld újra később.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEvents = async () => {
+    if (!selectedView || !selectedId) return;
+    if (selectedView === 'timetable') {
       setLoading(true);
       try {
-        const endpoints = {
-          timetable: `/timetables/${selectedId}/appointments`,
-          presentators: `/presentators/${selectedId}/appointments`,
-          rooms: `/rooms/${selectedId}/appointments`,
-        };
-   
-        const endpoint = endpoints[selectedView as keyof typeof endpoints];
-        const response = await fetch(`${BASE_URL}/${inst}${endpoint}`);
-
+        const response = await fetch(`${BASE_URL}/${inst}/timetables/${selectedId}`);
         if (!response.ok) {
-      
-          throw new Error('Hiba az órarend betöltése során.');
+          throw new Error('Hiba az események betöltése során.');
         }
-        
         const data = await response.json();
-        setAppointments(data);
+        setEvents(data.events);
+        console.log("events: "+data.events);
       } catch (error: any) {
         console.error(error.message);
-        setError('Hiba az órarend betöltése során. Kérjük próbáld újra később.');
+        setError('Hiba az események betöltése során. Kérjük próbáld újra később.');
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchTimetable();
-  }, [selectedView, selectedId, inst]);
-
-  return { appointments, loading, error };
+    }
+  };
+  return { appointments, events, loading, error };
 };

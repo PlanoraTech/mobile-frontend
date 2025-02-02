@@ -11,8 +11,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { AuthInput } from '@/components/AuthInput';
 import { validateEmail, validatePassword, validateName } from '@/utils/validation';
 import {createAuthStyles} from '@/assets/styles/authStyles'
-import { Link } from 'expo-router';
-
+import { Link, router } from 'expo-router';
 export default function RegisterScreen() {  
     
     const styles = createAuthStyles();
@@ -25,8 +24,6 @@ export default function RegisterScreen() {
         confirmPassword: '',
     });
     const [errors, setErrors] = useState({
-       // firstName: '',
-        //lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -36,12 +33,6 @@ export default function RegisterScreen() {
 
     const handleRegister = () => {
         const newErrors = {
-            /*
-            firstName: !formData.firstName ? 'Keresztnevet megadni kötelező!' :
-                      !validateName(formData.firstName) ? 'A keresznév minimum 2 betű!' : '',
-            lastName: !formData.lastName ? 'Vezetéknevet megadni kötelező!' :
-                     !validateName(formData.lastName) ? 'A vezetéknév minimum 2 betű!' : '',
-                     */
             email: !formData.email ? 'Email címet megadni kötelező!' :
                   !validateEmail(formData.email) ? 'Érvényes Email címet adj meg!' : '',
             password: !formData.password ? 'Jelszót megadni kötelező!' :
@@ -54,6 +45,7 @@ export default function RegisterScreen() {
 
         if (!Object.values(newErrors).some(error => error)) {
             register(formData);
+            router.replace('/profile');
         }
     };
 
@@ -66,7 +58,6 @@ export default function RegisterScreen() {
             <View style={styles.formContainer}>
                 <Text style={styles.title}>Fiók létrehozása</Text>
                 <Text style={styles.subtitle}>Hozz létre egy fiókot a privát intézmények eléréséhez</Text>
-
 
                 <AuthInput
                     icon="mail-outline"
@@ -97,7 +88,7 @@ export default function RegisterScreen() {
                     toggleSecureEntry={() => setShowConfirmPassword(!showConfirmPassword)}
                 />
                 {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
-
+            
                 <Pressable style={styles.authButton} onPress={handleRegister}>
                     <Text style={styles.authButtonText}>Regisztáció</Text>
                 </Pressable>

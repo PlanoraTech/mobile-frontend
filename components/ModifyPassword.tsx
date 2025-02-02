@@ -13,8 +13,12 @@ interface ForgotPasswordModalProps {
 export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProps) {
     const { theme } = useTheme();
     const [formData, setFormData] = useState({
-        email: '',
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: '',
     });
+
+
 
     const themeStyles = getThemeStyles(theme);
 
@@ -29,10 +33,11 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
             <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
             <View style={styles.modalContainer}>
                 <View style={[styles.modalContent, themeStyles.content]}>
-                    <View style={styles.modalHeader}>
+                    <View style={[styles.modalHeader, themeStyles.border]}>
+        
 
                         <Text style={[styles.headerText, themeStyles.textSecondary]}>
-                            Elfelejtett Jelszó
+                            Jelszó módosítása
 
                         </Text>
                         <Pressable onPress={onClose} style={styles.closeButton}>
@@ -40,17 +45,37 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                         </Pressable>
                     </View>
                     <View>
-
                         <AuthInput
-                            icon="mail-outline"
-                            placeholder="Email"
-                            value={formData.email}
-                            onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
-                            keyboardType="email-address"
-                            autoComplete="email"
+                            icon="lock-closed-outline"
+                            placeholder="Régi jelszó"
+                            value={formData.oldPassword}
+                            onChangeText={(text) => setFormData(prev => ({ ...prev, oldPassword: text }))}
+                            keyboardType="default"
+                            secureTextEntry={true}
+
                         />
+                        <AuthInput
+                            icon="lock-closed-outline"
+                            placeholder="Új jelszó"
+                            value={formData.newPassword}
+                            onChangeText={(text) => setFormData(prev => ({ ...prev, newPassword: text }))}
+                            keyboardType="default"
+                            autoComplete="password"
+                            secureTextEntry={true}
+                        />
+                        <AuthInput
+                            icon="lock-closed-outline"
+                            placeholder="Jelszó megerősítése"
+                            value={formData.confirmPassword}
+                            onChangeText={(text) => setFormData(prev => ({ ...prev, confirmPassword: text }))}
+                            keyboardType="default"
+                            secureTextEntry={true}
+                        />
+
+
                         <Pressable onPress={onClose} style={[styles.submitButton, themeStyles.button]}>
-                            <Text style={styles.submitButtonText}>Küldés</Text>
+                            <Text style={styles.submitButtonText}>Módosítás</Text>
+
                         </Pressable>
                     </View>
                 </View>
@@ -84,6 +109,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 20,
+        borderBottomWidth: 0.5
     },
     headerText: {
         fontSize: 20,

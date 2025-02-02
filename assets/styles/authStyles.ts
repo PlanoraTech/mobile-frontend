@@ -1,14 +1,17 @@
 import { useTheme } from '@/contexts/ThemeProvider';
 import { StyleSheet } from 'react-native';
-
+import { getThemeStyles } from './themes';
 export const createAuthStyles = () => {
     const {theme} = useTheme();
+    const themeStyles = getThemeStyles(theme);
+
     return StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: theme === 'light' ? '#fff' : '#1a1a1a',
+            backgroundColor: themeStyles.content.backgroundColor,
             justifyContent: 'center',
             paddingHorizontal: 20,
+
         },
         formContainer: {
             width: '100%',
@@ -16,13 +19,16 @@ export const createAuthStyles = () => {
         title: {
             fontSize: 32,
             fontWeight: 'bold',
-            color: theme === 'light' ? '#333' : '#fff',
+            ...themeStyles.text,
             marginBottom: 8,
+
+
         },
         subtitle: {
             fontSize: 16,
-            color:  theme === 'light' ? '#666' : '#999',
+            ...themeStyles.textSecondary,
             marginBottom: 32,
+
         },
         errorText: {
             color: '#ff3b30',
@@ -38,12 +44,13 @@ export const createAuthStyles = () => {
             fontSize: 14,
         },
         authButton: {
-            backgroundColor: theme === 'light' ? '#007AFF' : '#11137d',
+            ...themeStyles.button,
             borderRadius: 12,
             height: 56,
             justifyContent: 'center',
             alignItems: 'center',
             marginBottom: 24,
+
         },
         authButtonText: {
             color: '#fff',
@@ -56,9 +63,10 @@ export const createAuthStyles = () => {
             alignItems: 'center',
         },
         switchAuthText: {
-            color: theme === 'light' ? '#666' : '#999',
+            ...themeStyles.textSecondary,
             fontSize: 14,
         },
+
         switchAuthLink: {
             color: '#007AFF',
             fontSize: 14,

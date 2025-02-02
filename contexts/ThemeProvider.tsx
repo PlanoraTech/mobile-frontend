@@ -12,7 +12,7 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {}
 });
 
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+export const ThemeProviderLocal = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = useState<ThemeMode>('light');
 
   useEffect(() => {

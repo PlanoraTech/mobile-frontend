@@ -1,5 +1,7 @@
 import { useTheme } from "@/contexts/ThemeProvider";
+import { getThemeStyles } from "@/assets/styles/themes";
 import { View, Text, StyleSheet} from "react-native";
+
 
 interface ErrorMessageProps {
     message: string;
@@ -7,9 +9,11 @@ interface ErrorMessageProps {
 
 export const ErrorMessage = ({message}: ErrorMessageProps) => {
     const {theme} = useTheme();
-    return <View style={[styles.centerContainer, {backgroundColor: theme === 'dark' ? '#1a1a1a' : '#f5f5f5'}]}>
+    const themeStyles = getThemeStyles(theme);
+    return <View style={[styles.centerContainer, themeStyles.content]}>
         <Text style={styles.error}>{message}</Text>
     </View>
+
 };
 
 const styles = StyleSheet.create({
@@ -17,9 +21,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+
     },
     error: {
         color: 'red',
-        fontSize: 18
+        textAlign: 'center',
+        fontSize: 16
     },
 });

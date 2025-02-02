@@ -3,8 +3,7 @@ import { useTimetable } from "@/hooks/useTimetable";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TimetableView } from "@/components/TimeTableView";
-import { BASE_URL, SCREEN_WIDTH, TITLE_TRANSLATIONS } from "@/constants";
-import { saveId } from "@/utils/saveId";
+import { BASE_URL, SCREEN_WIDTH } from "@/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -14,9 +13,11 @@ import { SettingsModal } from "@/components/SettingsModal";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { StatusBar } from "expo-status-bar";
+import ViewToggle from "@/components/ViewToggle";
 
 export default function TimetableScreen() {
-  
+
+
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
   const { inst } = useLocalSearchParams();
@@ -26,11 +27,12 @@ export default function TimetableScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState<string>("");
   const [institutions, setInstitutions] = useState<any[]>([]);
+  const [showEvents, setShowEvents] = useState(false);
   const daysListRef = useRef<FlatList>(null);
   const appointmentsListRef = useRef<FlatList>(null);
 
   const { data, loading: institutionLoading, error: institutionError } = useInstitutionData(inst);
-  const { appointments, loading, error } = useTimetable({ inst, selectedView, selectedId });
+  const { appointments, events, loading, error } = useTimetable({ inst, selectedView, selectedId });
 
   useEffect(() => {
     if (!inst) {
@@ -40,10 +42,14 @@ export default function TimetableScreen() {
     }
   }, [inst]);
 
+
   useEffect(() => {
     fetchInstitutions();
-    fetchSavedTimetable(); 
+    fetchSavedTimetable();
   }, []);
+
+
+
 
   const fetchSavedTimetable = async () => {
     const savedTimetable = await AsyncStorage.getItem('timetable');
@@ -60,10 +66,10 @@ export default function TimetableScreen() {
     const updateTitle = async () => {
       if (data?.rooms && selectedId && selectedView) {
         const selectedName = data.rooms.find((item: any) => item.id === selectedId)?.name
-        || data.presentators.find((item: any) => item.id === selectedId)?.name
-        || data.timetables.find((item: any) => item.id === selectedId)?.name;
+          || data.presentators.find((item: any) => item.id === selectedId)?.name
+          || data.timetables.find((item: any) => item.id === selectedId)?.name;
         if (selectedName) {
-          setSelectedTitle(`${TITLE_TRANSLATIONS[selectedView]} - ${selectedName}`);
+          setSelectedTitle(`${selectedName}`);
         }
       }
     };
@@ -85,7 +91,7 @@ export default function TimetableScreen() {
 
   const handleSelection = (id: string, endpoint: string) => {
     setSelectedId(id);
-    AsyncStorage.setItem('timetable', JSON.stringify({id: id, endpoint: endpoint}));
+    AsyncStorage.setItem('timetable', JSON.stringify({ id: id, endpoint: endpoint }));
     setSelectedView(endpoint);
     setModalVisible(false);
   };
@@ -124,29 +130,40 @@ export default function TimetableScreen() {
     }
   }).current;
 
-  if (institutionError) return <ErrorMessage message={institutionError} />;
+
   if (institutionLoading.institution) return <LoadingSpinner />;
 
   return (
-    <View style={[styles.container, Platform.OS === 'ios' ? { paddingTop: 0 } : {paddingTop: 24}]}>
-      <StatusBar backgroundColor={themeStyles.background.backgroundColor} />
+    <View style={[styles.container, themeStyles.content, Platform.OS === 'ios' ? { paddingTop: 0 } : { paddingTop: 24 }]}>
+      <StatusBar backgroundColor={themeStyles.content.backgroundColor} />
       <SafeAreaView style={[styles.header, themeStyles.content]}>
         <View style={styles.headerContent}>
-          <Text style={[styles.selectedTitle, {
-            color: theme === 'dark' ? '#adadad' : '#333'
-          }]}>
+
+
+          <Text style={[styles.selectedTitle, themeStyles.text]}
+            numberOfLines={1}
+            adjustsFontSizeToFit={true}
+          >
+
             {selectedTitle || 'Válassz órarendet'}
           </Text>
+
+          {selectedView === 'timetable' && !error &&
+            <View style={styles.toggleCenterContainer}>
+              <ViewToggle onViewChange={() => setShowEvents(!showEvents)} />
+            </View>
+          }
           <Pressable
             style={styles.settingsButton}
             onPress={() => setModalVisible(true)}
           >
-            <Settings color={theme === 'dark' ? '#adadad' : '#666'} size={28} />
+            <Settings color={themeStyles.textSecondary.color} size={28} />
           </Pressable>
         </View>
       </SafeAreaView>
-
-      {selectedId ? (
+      {institutionError ? (
+        <ErrorMessage message={institutionError} />
+      ) : selectedId ? (
         <>
           {loading ? (
             <LoadingSpinner />
@@ -155,21 +172,23 @@ export default function TimetableScreen() {
           ) : (
             <TimetableView
               appointments={appointments}
+              events={events}
               currentDayIndex={currentDayIndex}
               onDayChange={handleDayChange}
               daysListRef={daysListRef}
               appointmentsListRef={appointmentsListRef}
               handleViewableItemsChanged={handleViewableItemsChanged}
+              showedList={showEvents ? 'events' : 'appointments'}
             />
           )}
         </>
       ) : (
         <View style={[styles.noSelectionContainer, themeStyles.content]}>
-          <Text style={[styles.noSelectionText, {color: theme === 'dark' ? '#adadad' : '#666'}]}>
+          <Text style={[styles.noSelectionText, themeStyles.textSecondary]}>
             Válassz órarendet, előadót vagy termet a beállítások gombbal
           </Text>
-
         </View>
+
       )}
 
       <SettingsModal
@@ -190,7 +209,7 @@ export default function TimetableScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAF9F6'
+
   },
   header: {
     borderBottomWidth: 0,
@@ -202,13 +221,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
+  toggleCenterContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+  },
   selectedTitle: {
-    fontSize: 18,
+
     fontWeight: '600',
-    flex: 1,
+
+
   },
   settingsButton: {
     padding: 8,
+    alignSelf: 'flex-end'
   },
   noSelectionContainer: {
     flex: 1,

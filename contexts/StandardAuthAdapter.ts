@@ -1,14 +1,14 @@
 import { Credentials, RegisterData, User, AuthResponse } from '@/types/User';
 import * as SecureStore from 'expo-secure-store';
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
     AUTH_TOKEN: 'auth_tokens'
 } as const;
 
 export class StandardAuthAdapter {
     private readonly apiUrl: string;
 
-    constructor(apiUrl: string = 'http://192.168.1.3:3000') {
+    constructor(apiUrl: string = 'http:/192.168.1.3:3000') {
         this.apiUrl = apiUrl;
     }
 
@@ -75,7 +75,7 @@ export class StandardAuthAdapter {
         try {
             const token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
             if (!token) return null;
-
+            console.log("token: "+token);
             const response = await this.makeRequest<any>('/login', 'POST', { token: token });
             return {...response.user, token};
             

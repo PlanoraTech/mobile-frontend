@@ -66,3 +66,9 @@ export interface UseTimetableProps {
   selectedView: string | null;
   selectedId: string | null;
 }
+
+export interface DayEvent {
+  id: string;
+  title: string;
+  date: Date;
+}

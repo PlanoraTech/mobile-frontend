@@ -1,10 +1,12 @@
 import { DAYS, SCREEN_WIDTH } from "@/constants";
-import { Appointment, DayEvent } from "@/types";
-import React, { useState, useEffect } from "react";
-import { FlatList, View, StyleSheet, ScrollView, Text, PanResponder, Animated } from "react-native";
+import { Appointment } from "@/components/AppointmentCard";
+import { DayEvent } from "@/components/EventModal";
+import React, { useState} from "react";
+import { FlatList, View, StyleSheet, ScrollView, Text } from "react-native";
 import { AppointmentCard } from "@/components/AppointmentCard";
 import { DayTab } from "./DayTab";
 import { WeekNavigation } from "./WeekNavigation";
+
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { EventCard } from "./EventCard";

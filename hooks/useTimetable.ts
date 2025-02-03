@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
 import { BASE_URL } from '@/constants';
-import { Appointment, DayEvent, UseTimetableProps } from '@/types';
+import { DayEvent } from '@/components/EventModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
+import { Appointment } from '@/components/AppointmentCard';
+
+
+
+  
+interface UseTimetableProps {
+  selectedView: string | null;
+  selectedId: string | null;
+}
+
 
 export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) => {
   const { user } = useAuth();

@@ -20,10 +20,11 @@ export default function TimetableScreen() {
 
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
-  const { institutionId, setInstitutionId } = useInstitutionId();
+  const { institutionId } = useInstitutionId();
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
   const [selectedView, setSelectedView] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
   const [modalVisible, setModalVisible] = useState(false);
 
   const [selectedTitle, setSelectedTitle] = useState<string>("");
@@ -32,19 +33,14 @@ export default function TimetableScreen() {
   const daysListRef = useRef<FlatList>(null);
   const appointmentsListRef = useRef<FlatList>(null);
 
-  const { data, loading: institutionLoading, error: institutionError } = useInstitutionData(institutionId);
-  const { appointments, events, loading, error } = useTimetable({ institutionId, selectedView, selectedId });
+  const { data, loading: institutionLoading, error: institutionError } = useInstitutionData();
+  const { appointments, events, loading, error } = useTimetable({ selectedView, selectedId });
 
 
   useEffect(() => {
     setSelectedId(null);
     setSelectedView(null);
     setSelectedTitle("Válassz órarendet");
-    if (!institutionId) {
-      AsyncStorage.getItem('institution').then((id) => {
-        (id !== null) && setInstitutionId(id);
-      });
-    }
   }, [institutionId]);
 
 
@@ -98,16 +94,6 @@ export default function TimetableScreen() {
     setSelectedId(id);
     setSelectedView(endpoint);
     setModalVisible(false);
-  };
-
-  const handleWebsitePress = async () => {
-    if (data.institution?.website) {
-      try {
-        await Linking.openURL(data.institution.website);
-      } catch (error) {
-        console.error('Hiba a weboldal megnyitása közben: ', error);
-      }
-    }
   };
 
   const handleDayChange = (index: number) => {
@@ -199,12 +185,12 @@ export default function TimetableScreen() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         institutions={institutions}
-        onWebsitePress={handleWebsitePress}
         loading={institutionLoading}
         data={data}
         onSelect={(item, type) => {
           handleSelection(item.id, type.toLowerCase());
         }}
+
       />
     </View>
   );

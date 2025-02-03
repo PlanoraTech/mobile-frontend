@@ -1,4 +1,4 @@
-import { Appointment } from "@/types";
+import { Appointment } from "@/components/AppointmentCard";
 import { formatTime } from "@/utils/formatTime";
 import { Modal, View, Text, StyleSheet, Pressable, Switch, Animated } from "react-native"
 import DropdownComponent from "./Dropdown";

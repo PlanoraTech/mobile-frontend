@@ -20,7 +20,13 @@ export const ROLE_TRANSLATIONS: Record<string, string> = {
   'PRESENTATOR': 'Előadó',
   'USER': 'Felhasználó',
 };
-
+export enum DayOfWeek {
+  Monday = 'Monday',
+  Tuesday = 'Tuesday',
+  Wednesday = 'Wednesday',
+  Thursday = 'Thursday',
+  Friday = 'Friday'
+}
 
 
 export const BASE_URL = 'http://192.168.1.3:3000/institutions';

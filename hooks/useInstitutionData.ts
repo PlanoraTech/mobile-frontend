@@ -1,11 +1,30 @@
-import { InstitutionData, LoadingState } from '@/types';
+
 import { BASE_URL } from '@/constants';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthProvider';
+import { DropdownItem } from '@/components/Dropdown';
+import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 
-export const useInstitutionData = (institutionId: string | string[]) => {
+
+export interface InstitutionData {
+    institution: DropdownItem | null;
+    timetables: DropdownItem[];
+    presentators: DropdownItem[];
+    rooms: DropdownItem[];
+}
+
+interface LoadingState {
+    institution: boolean;
+    timetables: boolean;
+    presentators: boolean;
+    rooms: boolean;
+}
+
+export const useInstitutionData = () => {
     const { user } = useAuth();
+    const { institutionId } = useInstitutionId();
     const [data, setData] = useState<InstitutionData>({
+
         institution: null,
         timetables: [],
         presentators: [],
@@ -25,17 +44,17 @@ export const useInstitutionData = (institutionId: string | string[]) => {
         try {
             setError(null);
             setLoading(prev => ({ ...prev, [loadingKey]: true }));
-            
-                const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}/?token=${user?.token}`);
-                if (response.status === 403) {
-                    throw new Error(`Nincs jogosultságod az intézmény adatainak lekéréséhez!`);
-                }
-                if (!response.ok) {
-                    throw new Error(`Nem sikerült lekérni az intézmény adatait!`);
-                }
-                const result = await response.json();
-                setData(prev => ({ ...prev, [dataKey]: result }));
-            
+
+            const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}/?token=${user?.token}`);
+            if (response.status === 403) {
+                throw new Error(`Nincs jogosultságod az intézmény adatainak lekéréséhez!`);
+            }
+            if (!response.ok) {
+                throw new Error(`Nem sikerült lekérni az intézmény adatait!`);
+            }
+            const result = await response.json();
+            setData(prev => ({ ...prev, [dataKey]: result }));
+
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Valami hiba történt...');
         } finally {

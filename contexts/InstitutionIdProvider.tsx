@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type InstitutionIdContextType = {
     institutionId: string;
@@ -12,6 +13,12 @@ export const InstitutionIdContext = createContext<InstitutionIdContextType>({
 
 export const InstitutionIdProvider = ({ children }: { children: React.ReactNode }) => {
     const [institutionId, setInstitutionId] = useState('');
+    useEffect(() => {
+        AsyncStorage.getItem('institution').then((id: string | null) => {
+            (id !== null) && setInstitutionId(id);
+        });
+    }, []);
+
 
     return (
         <InstitutionIdContext.Provider value={{ institutionId, setInstitutionId }}>

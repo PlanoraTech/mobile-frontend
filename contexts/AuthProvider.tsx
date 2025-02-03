@@ -1,14 +1,17 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { Credentials, RegisterData, User } from '@/types/User';
 import { StandardAuthAdapter } from './StandardAuthAdapter';
-import { ActivityIndicator } from 'react-native';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { AuthData, User } from '@/contexts/StandardAuthAdapter';
+
+
+
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    login: (credentials: Credentials) => Promise<boolean>;
+    login: (credentials: AuthData) => Promise<boolean>;
     logout: () => Promise<void>;
-    register: (data: RegisterData) => Promise<any>;
+    register: (data: AuthData) => Promise<any>;
+
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -33,16 +36,17 @@ export function AuthProvider({ children, authAdapter }: { children: React.ReactN
         }
     };
     
-    const register = async (data: RegisterData) => {
+    const register = async (data: AuthData) => {
         await authAdapter.register(data);
         await loadUser();
     };
 
-    const login = async (credentials: Credentials) => {
+    const login = async (credentials: AuthData) => {
         await authAdapter.login(credentials);
         await loadUser();
         return true;
     };
+
 
     const logout = async () => {
         await authAdapter.logout();

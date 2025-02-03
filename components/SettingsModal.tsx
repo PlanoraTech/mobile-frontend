@@ -10,34 +10,34 @@ import {
     Animated
 } from 'react-native';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import DropdownComponent from '@/components/Dropdown';
-import { DropdownData, Institution } from '@/types';
+import DropdownComponent, { DropdownItem } from '@/components/Dropdown';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 import { TimetableButton } from './timetableButton';
 import { router } from 'expo-router';
 import { saveId } from '@/utils/saveId';
+
+
 import { useAuth } from '@/contexts/AuthProvider';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 interface SettingsModalProps {
     visible: boolean;
     onClose: () => void;
-    institution?: Institution | null;
-    onWebsitePress: () => void;
     loading: {
         timetables: boolean;
         presentators: boolean;
         rooms: boolean;
     };
-    institutions: DropdownData[];
+    institutions: DropdownItem[];
     data: {
-        institution: Institution | null;
-        timetables: any[];
-        presentators: any[];
-        rooms: any[];
+        institution: DropdownItem | null;
+        timetables: DropdownItem[];
+        presentators: DropdownItem[];
+        rooms: DropdownItem[];
     };
-    onSelect: (item: any, type: string) => void;
+    onSelect: (item: DropdownItem, type: string) => void;
 }
+
 
 
 export const SettingsModal = ({
@@ -107,14 +107,15 @@ export const SettingsModal = ({
         });
     };
 
-    const handleInstSelect = (item: DropdownData) => {
+    const handleInstSelect = (item: DropdownItem) => {
         if (item.access === 'PRIVATE' && !user?.token) {
             handleClose();
             router.replace('/login' as any);
             return;
+
         }
         if (item.access ==='PRIVATE') {
-            if (!user?.institutions.some((inst) => inst.id === item.id)) {
+            if (!user?.institutions.some((instId: string) => instId === item.id)) {
                 handleClose();
                 router.replace('/login' as any);
                 return;
@@ -124,7 +125,9 @@ export const SettingsModal = ({
         setInstitutionId(item.id);
     }
 
-    const orderedInstitutions = [...institutions].sort((a, b) => user?.institutions.some((inst) => inst.id === a.id) ? -1 : 1);
+    const orderedInstitutions = [...institutions].sort((a, b) => user?.institutions.some((instId: string) => instId === a.id) ? -1 : 1);
+
+
 
     return (
         <Modal
@@ -168,7 +171,7 @@ export const SettingsModal = ({
                             data={orderedInstitutions}
                             placeholder={data.institution?.name || "Intézmény kiválasztása"}
                             searchPlaceholder="Intézmény keresése..."
-                            onSelect={(item: DropdownData) => {handleInstSelect(item)}}
+                            onSelect={(item: DropdownItem) => {handleInstSelect(item)}}
                         />
                         <View style={styles.dropdownContainer}>
                             <FlatList

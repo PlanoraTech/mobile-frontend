@@ -1,13 +1,27 @@
-import { Appointment, DropdownData } from "@/types";
+
 import { useState } from "react";
 import { Text, StyleSheet, Pressable } from "react-native";
 import { AppointmentModal } from "./AppointmentModal";
 import { formatTime } from "@/utils/formatTime";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
-
+import { DropdownItem } from "./Dropdown";
+import { DayOfWeek } from "@/constants";
 interface AppointmentCardProps {
     appointment: Appointment;
+  }
+
+
+  export interface Appointment {
+    id: string;
+    subject: DropdownItem;
+    presentators: DropdownItem[];
+    rooms: DropdownItem[];
+    dayOfWeek: DayOfWeek;
+    start: string;
+    end: string;
+    isCancelled: boolean;
+
   }
 
 export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {

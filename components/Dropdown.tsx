@@ -17,19 +17,22 @@ import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 
 
-interface DropdownData {
+export interface DropdownItem {
   id: string;
   name: string;
+  access?: string;
 }
 
 
+
 interface CustomDropdownProps {
-  data: DropdownData[];
+  data: DropdownItem[];
   placeholder?: string;
   searchPlaceholder?: string;
-  onSelect?: (item: DropdownData) => void;
+  onSelect?: (item: DropdownItem) => void;
   style?: any;
   placeholderStyle?: any;
+
   selectedTextStyle?: any;
   inputSearchStyle?: any;
   itemTextStyle?: any;
@@ -85,12 +88,13 @@ export const DropdownComponent = ({
     }
   }, [visible, data]);
 
-  const onItemPress = useCallback((item: DropdownData) => {
+  const onItemPress = useCallback((item: DropdownItem) => {
     setValue(item.id);
     setVisible(false);
     setIsFocus(false);
     onSelect?.(item);
   }, [onSelect]);
+
 
   const handleSearch = useCallback((text: string) => {
     setSearchText(text);
@@ -102,7 +106,7 @@ export const DropdownComponent = ({
 
   const selectedItem = data.find(item => item.id === value);
 
-  const renderItem = ({ item }: { item: DropdownData }) => (
+  const renderItem = ({ item }: { item: DropdownItem }) => (
     <Pressable
       style={[styles.item]}
       onPress={() => onItemPress(item)}

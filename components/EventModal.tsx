@@ -1,15 +1,22 @@
 import { getThemeStyles } from "@/assets/styles/themes";
 import { useTheme } from "@/contexts/ThemeProvider";
-import { DayEvent } from "@/types";
 import { useState } from "react";
 import { Modal, Pressable, Text, TextInput, View, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
+
 
 interface EventModalProps {
     isVisible: boolean;
     event: DayEvent;
     onClose: () => void;
 }
+
+
+export interface DayEvent {
+    id: string;
+    title: string;
+    date: Date;
+  }
 
 export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
     const { theme } = useTheme();

@@ -124,6 +124,8 @@ export const SettingsModal = ({
         router.replace(`/?inst=${item.id}` as any);
     }
 
+    const orderedInstitutions = [...institutions].sort((a, b) => user?.institutions.some((inst) => inst.id === a.id) ? -1 : 1);
+
     return (
         <Modal
             animationType="none"
@@ -164,7 +166,7 @@ export const SettingsModal = ({
 
                     <ScrollView>
                         <DropdownComponent
-                            data={institutions}
+                            data={orderedInstitutions}
                             placeholder={data.institution?.name || "Intézmény kiválasztása"}
                             searchPlaceholder="Intézmény keresése..."
                             onSelect={(item: DropdownData) => {handleInstSelect(item)}}

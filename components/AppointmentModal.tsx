@@ -141,24 +141,25 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                             <DropdownComponent 
                                 data={[
                                     { id: "asd", name: "asd" },
-                                    { id: "asd", name: "asd" },
-                                    { id: "asd", name: "asd" },
-                                    { id: "asd", name: "asd" }
+                                    { id: "das", name: "asd" },
+                                    { id: "sad", name: "asd" },
+                                    { id: "dsa", name: "asd" }
                                 ]} 
                                 onSelect={() => { }} 
                                 searchPlaceholder="Előadó keresése..." 
-                                placeholder={appointment.presentators.map(p => p.name).join(', ')} 
+                                placeholder={appointment.presentators.map(p =>  p.name).join(', ')} 
                             />
                             <DropdownComponent 
                                 data={[
-                                    { id: "asd", name: "asd" },
-                                    { id: "asd", name: "asd" },
-                                    { id: "asd", name: "asd" },
-                                    { id: "asd", name: "asd" }
+                                    { id: "assd", name: "asd" },
+                                    { id: "das", name: "asd" },
+                                    { id: "sad", name: "asd" },
+                                    { id: "dsa", name: "asd" }
                                 ]} 
                                 onSelect={() => { }} 
                                 searchPlaceholder="Terem keresése..." 
                                 placeholder={appointment.rooms.map(r => r.name).join(' - ')} 
+                                maxHeight={95}
                             />
                         </View>
                     </View>

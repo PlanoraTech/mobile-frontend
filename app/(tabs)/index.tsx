@@ -35,6 +35,9 @@ export default function TimetableScreen() {
   const { appointments, events, loading, error } = useTimetable({ inst, selectedView, selectedId });
 
   useEffect(() => {
+    setSelectedId(null);
+    setSelectedView(null);
+    setSelectedTitle("Válassz órarendet");
     if (!inst) {
       AsyncStorage.getItem('institution').then((id) => {
         (id !== null) && router.replace(`/?inst=${id}` as any);
@@ -58,7 +61,7 @@ export default function TimetableScreen() {
       if (id) {
         setSelectedId(id);
         setSelectedView(endpoint);
-      }
+      } 
     }
   }
 
@@ -68,9 +71,9 @@ export default function TimetableScreen() {
         const selectedName = data.rooms.find((item: any) => item.id === selectedId)?.name
           || data.presentators.find((item: any) => item.id === selectedId)?.name
           || data.timetables.find((item: any) => item.id === selectedId)?.name;
-        if (selectedName) {
-          setSelectedTitle(`${selectedName}`);
-        }
+        
+          setSelectedTitle(`${selectedName || 'Válassz órarendet'}`);
+        
       }
     };
     updateTitle();
@@ -91,7 +94,6 @@ export default function TimetableScreen() {
 
   const handleSelection = (id: string, endpoint: string) => {
     setSelectedId(id);
-    AsyncStorage.setItem('timetable', JSON.stringify({ id: id, endpoint: endpoint }));
     setSelectedView(endpoint);
     setModalVisible(false);
   };

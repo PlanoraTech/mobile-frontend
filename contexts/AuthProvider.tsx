@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { Credentials, RegisterData, User } from '@/types/User';
 import { StandardAuthAdapter } from './StandardAuthAdapter';
+import { ActivityIndicator } from 'react-native';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 interface AuthContextType {
     user: User | null;
     loading: boolean;
@@ -46,6 +48,9 @@ export function AuthProvider({ children, authAdapter }: { children: React.ReactN
         await authAdapter.logout();
         setUser(null);
     };
+    if (loading) {
+        return <LoadingSpinner />;
+    }
 
     return (
         <AuthContext.Provider value={{ user, loading, login, logout, register }}>

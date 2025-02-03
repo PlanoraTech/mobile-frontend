@@ -16,7 +16,6 @@ import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 import { TimetableButton } from './timetableButton';
 import { router } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { saveId } from '@/utils/saveId';
 import { useAuth } from '@/contexts/AuthProvider';
 interface SettingsModalProps {
@@ -133,7 +132,6 @@ export const SettingsModal = ({
             visible={modalVisible}
             onRequestClose={handleClose}
         >
-            <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
             <Animated.View 
                 style={[
                     styles.modalContainer,

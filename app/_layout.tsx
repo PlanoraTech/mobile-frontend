@@ -46,14 +46,13 @@ export default function RootLayout() {
   return (
 
 
-      <InstitutionProvider>
         <AuthProvider authAdapter={authAdapter}>
           <ThemeProviderLocal>
             <StackNavigator />
 
           </ThemeProviderLocal>
         </AuthProvider>
-      </InstitutionProvider>
+
  
 
   );

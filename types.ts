@@ -62,7 +62,7 @@ export enum DayOfWeek {
 
   
 export interface UseTimetableProps {
-  inst: string | string[];
+  institutionId: string | null;
   selectedView: string | null;
   selectedId: string | null;
 }

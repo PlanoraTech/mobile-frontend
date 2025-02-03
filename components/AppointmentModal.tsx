@@ -6,6 +6,8 @@ import { useState, useEffect, useRef } from "react";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { useAuth } from "@/contexts/AuthProvider";
+import { BASE_URL } from "@/constants";
+import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
 
 interface AppointmentModalProps {
     appointment: Appointment;
@@ -19,12 +21,12 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
     const themeStyles = getThemeStyles(theme);
     const [isEnabled, setIsEnabled] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    
+    const [presentators, setPresentators] = useState([]);
+    const [rooms, setRooms] = useState([]);
     const slideAnim = useRef(new Animated.Value(-1000)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
-
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-
+    const { institutionId } = useInstitutionId();
     useEffect(() => {
         if (isVisible) {
             setModalVisible(true);
@@ -58,6 +60,34 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
             });
         }
     }, [isVisible]);
+
+    useEffect(() => {
+        fetchPresentators();
+        fetchRooms();
+    }, []);
+
+    const fetchPresentators = async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/${institutionId}/presentators`);
+            const presentatorsData = await response.json();
+            setPresentators(presentatorsData);
+
+        } catch (error) {
+            console.error(error);
+        }
+
+    }
+
+
+    const fetchRooms = async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/${institutionId}/rooms`);
+            const roomsData = await response.json();
+            setRooms(roomsData);
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     const handleClose = () => {
         Animated.parallel([
@@ -139,27 +169,19 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                         </View>
                         <View style={[styles.card, themeStyles.content]}>
                             <DropdownComponent 
-                                data={[
-                                    { id: "asd", name: "asd" },
-                                    { id: "das", name: "asd" },
-                                    { id: "sad", name: "asd" },
-                                    { id: "dsa", name: "asd" }
-                                ]} 
+                                key="presentators-dropdown"
+                                data={presentators} 
                                 onSelect={() => { }} 
                                 searchPlaceholder="Előadó keresése..." 
+
                                 placeholder={appointment.presentators.map(p =>  p.name).join(', ')} 
                             />
                             <DropdownComponent 
-                                data={[
-                                    { id: "assd", name: "asd" },
-                                    { id: "das", name: "asd" },
-                                    { id: "sad", name: "asd" },
-                                    { id: "dsa", name: "asd" }
-                                ]} 
+                                data={rooms} 
                                 onSelect={() => { }} 
+
                                 searchPlaceholder="Terem keresése..." 
                                 placeholder={appointment.rooms.map(r => r.name).join(' - ')} 
-                                maxHeight={95}
                             />
                         </View>
                     </View>

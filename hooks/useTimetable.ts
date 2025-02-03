@@ -3,13 +3,16 @@ import { BASE_URL } from '@/constants';
 import { Appointment, DayEvent, UseTimetableProps } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthProvider';
+import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 
-export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetableProps) => {
+export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) => {
   const { user } = useAuth();
+  const { institutionId } = useInstitutionId();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [events, setEvents] = useState<DayEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
     fetchEvents();
@@ -43,7 +46,7 @@ export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetablePro
  
       const endpoint = endpoints[selectedView as keyof typeof endpoints];
       console.log("user token in timetable: "+user?.token);
-      const response = await fetch(`${BASE_URL}/${inst}${endpoint}/?token=${user?.token}`);
+      const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}/?token=${user?.token}`);
 
       if (!response.ok) {
         throw new Error('Hiba az órarend betöltése során.');
@@ -64,7 +67,7 @@ export const useTimetable = ({ inst, selectedView, selectedId }: UseTimetablePro
     if (selectedView === 'timetable') {
       setLoading(true);
       try {
-        const response = await fetch(`${BASE_URL}/${inst}/timetables/${selectedId}/?token=${user?.token}`);
+        const response = await fetch(`${BASE_URL}/${institutionId}/timetables/${selectedId}/?token=${user?.token}`);
         if (!response.ok) {
           throw new Error('Hiba az események betöltése során.');
         }

@@ -9,7 +9,7 @@ import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { EventCard } from "./EventCard";
 import { AddEventCard } from "./AddEventCard";
-
+import { useAuth } from "@/contexts/AuthProvider";
 interface TimetableViewProps {
   appointments: Appointment[];
   currentDayIndex: number;
@@ -33,8 +33,10 @@ export const TimetableView = ({
   handleViewableItemsChanged
 }: TimetableViewProps) => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const themeStyle = getThemeStyles(theme);
   const [currentDate, setCurrentDate] = useState(new Date());
+
 
   const isSameDayUTC = (date1: Date, date2: Date) => {
     return (
@@ -53,7 +55,7 @@ export const TimetableView = ({
   const getCurrentWeekDates = () => {
     const dates = [];
     const monday = new Date(currentDate);
-    
+
     monday.setDate(currentDate.getDate() - currentDate.getDay() + 1);
     for (let i = 0; i < 7; i++) {
       const date = new Date(monday);
@@ -64,14 +66,14 @@ export const TimetableView = ({
   };
 
   const weekDates = getCurrentWeekDates();
- 
+
   const renderDayPage = ({ index }: { index: number }) => {
     const currentDayDate = weekDates[index];
     const dayAppointments = appointments.filter(appointment => {
       const appointmentDate = new Date(appointment.start);
       return isSameDayUTC(appointmentDate, currentDayDate);
     }).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-  
+
 
     return (
       <View
@@ -100,7 +102,7 @@ export const TimetableView = ({
     );
   };
   const renderEventpage = ({ index }: { index: number }) => {
-    const currentDayDate = weekDates[index]; 
+    const currentDayDate = weekDates[index];
     const dayEvents = events.filter(event => {
       const eventDate = new Date(event.date);
       return isSameDayUTC(eventDate, currentDayDate);
@@ -108,28 +110,36 @@ export const TimetableView = ({
     return (
       <View
         style={styles.dayPage}
-        
+
       >
         {dayEvents.length === 0 ? (
-          <View style={[styles.notFoundContainer, themeStyle.content]}>
-            <Text style={[themeStyle.textSecondary, styles.notFoundText]}>
-              Erre a napra nincs esemény megadva
-            </Text>
-          </View>
-        ) : (
-          <ScrollView>
-            <FlatList
-              data={dayEvents}
-              keyExtractor={(event) => event.id!}
-              renderItem={({ item }) => (
-                <EventCard event={item} />
-              )}
-              showsVerticalScrollIndicator={false}
-              scrollEnabled={false}
-            />
-            <AddEventCard currentDayDate={currentDayDate}/>
-          </ScrollView>
-        )}
+
+          user?.role === 'PRESENTATOR' ? (
+            <AddEventCard currentDayDate={currentDayDate} />
+          ) : (
+            <View style={[styles.notFoundContainer, themeStyle.content]}>
+              <Text style={[themeStyle.textSecondary, styles.notFoundText]}>
+                Erre a napra nincs esemény megadva
+
+              </Text>
+            </View>
+          )
+        )
+          : (
+            <ScrollView>
+              <FlatList
+                data={dayEvents}
+                keyExtractor={(event) => event.id!}
+                renderItem={({ item }) => (
+                  <EventCard event={item} />
+                )}
+                showsVerticalScrollIndicator={false}
+                scrollEnabled={false}
+              />
+              {user?.role === 'PRESENTATOR' && <AddEventCard currentDayDate={currentDayDate} />}
+            </ScrollView>
+
+          )}
       </View>
     );
   };
@@ -140,67 +150,67 @@ export const TimetableView = ({
         currentDate={currentDate}
         onWeekChange={handleWeekChange}
       />
-   
-        <FlatList
-          ref={daysListRef}
-          data={DAYS}
-          keyExtractor={(item) => item}
-          horizontal
-          style={[styles.daysList, themeStyle.content]}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.daysListContent}
-          renderItem={({ item, index }) => (
-            <DayTab
-              day={item}
-              date={weekDates[index].toLocaleDateString('hu-HU', { day: 'numeric', month: 'short' })}
-              isActive={index === currentDayIndex}
-              onPress={() => onDayChange(index)}
-              width={SCREEN_WIDTH / 5}
-            />
-          )}
-        />
-   
-      { showedList === 'appointments' ? (
 
-        <FlatList
-        ref={appointmentsListRef}
+      <FlatList
+        ref={daysListRef}
         data={DAYS}
         keyExtractor={(item) => item}
         horizontal
-        pagingEnabled
-        bounces={false}
+        style={[styles.daysList, themeStyle.content]}
         showsHorizontalScrollIndicator={false}
-        onViewableItemsChanged={handleViewableItemsChanged}
-        viewabilityConfig={{
-          viewAreaCoveragePercentThreshold: 50,
-          minimumViewTime: 0,
-        }}
-        getItemLayout={(data, index) => ({
-          length: SCREEN_WIDTH,
-          offset: SCREEN_WIDTH * index,
-          index,
-        })}
-        renderItem={renderDayPage}
+        contentContainerStyle={styles.daysListContent}
+        renderItem={({ item, index }) => (
+          <DayTab
+            day={item}
+            date={weekDates[index].toLocaleDateString('hu-HU', { day: 'numeric', month: 'short' })}
+            isActive={index === currentDayIndex}
+            onPress={() => onDayChange(index)}
+            width={SCREEN_WIDTH / 5}
+          />
+        )}
+      />
+
+      {showedList === 'appointments' ? (
+
+        <FlatList
+          ref={appointmentsListRef}
+          data={DAYS}
+          keyExtractor={(item) => item}
+          horizontal
+          pagingEnabled
+          bounces={false}
+          showsHorizontalScrollIndicator={false}
+          onViewableItemsChanged={handleViewableItemsChanged}
+          viewabilityConfig={{
+            viewAreaCoveragePercentThreshold: 50,
+            minimumViewTime: 0,
+          }}
+          getItemLayout={(data, index) => ({
+            length: SCREEN_WIDTH,
+            offset: SCREEN_WIDTH * index,
+            index,
+          })}
+          renderItem={renderDayPage}
         />) : (
-      <FlatList
-      ref={appointmentsListRef}
-      data={DAYS}
-        keyExtractor={(item) => item}
-        horizontal
-        pagingEnabled
-        bounces={false}
-        showsHorizontalScrollIndicator={false}
-        onViewableItemsChanged={handleViewableItemsChanged}
-        viewabilityConfig={{
-          viewAreaCoveragePercentThreshold: 50,
-          minimumViewTime: 0,
-        }}
-        getItemLayout={(data, index) => ({
-          length: SCREEN_WIDTH,
-          offset: SCREEN_WIDTH * index,
-          index,
-        })}
-        renderItem={renderEventpage}
+        <FlatList
+          ref={appointmentsListRef}
+          data={DAYS}
+          keyExtractor={(item) => item}
+          horizontal
+          pagingEnabled
+          bounces={false}
+          showsHorizontalScrollIndicator={false}
+          onViewableItemsChanged={handleViewableItemsChanged}
+          viewabilityConfig={{
+            viewAreaCoveragePercentThreshold: 50,
+            minimumViewTime: 0,
+          }}
+          getItemLayout={(data, index) => ({
+            length: SCREEN_WIDTH,
+            offset: SCREEN_WIDTH * index,
+            index,
+          })}
+          renderItem={renderEventpage}
         />
 
       )}

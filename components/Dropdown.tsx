@@ -57,26 +57,30 @@ export const DropdownComponent = ({
   const [position, setPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const DropdownButtonRef = useRef<View>(null);
   const [isFocus, setIsFocus] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+
     setFilteredData(data);
   }, [data]);
 
   const measureDropdown = () => {
+
     DropdownButtonRef.current?.measureInWindow((x, y, width, height) => {
       setPosition({ x, y, width, height });
     });
+    console.log("measured ----")
   };
-  
+
 
   const toggleDropdown = useCallback(() => {
     measureDropdown();
-    setVisible(!visible);
-    if (!visible) {
-      setIsFocus(true);
-      setSearchText('');
-      setFilteredData(data);
-    } else {
+      setVisible(!visible);
+      if (!visible) {
+        setIsFocus(true);
+        setSearchText('');
+        setFilteredData(data);
+      } else {
       setIsFocus(false);
     }
   }, [visible, data]);
@@ -137,13 +141,11 @@ export const DropdownComponent = ({
               <TouchableWithoutFeedback>
                 <View style={[styles.dropdown, modalStyle, themeStyles.content]}>
                   <TextInput
-                    style={[styles.searchInput]}
+                    style={[styles.searchInput, themeStyles.text]}
                     placeholder={searchPlaceholder}
                     placeholderTextColor={themeStyles.text.color}
                     value={searchText}
                     onChangeText={handleSearch}
-
-
                   />
 
                   <FlatList
@@ -170,7 +172,7 @@ export const DropdownComponent = ({
 
         style={[
           styles.button,
-          isFocus && { borderColor: themeStyles.text.color}
+          isFocus && { borderColor: themeStyles.text.color }
         ]}
       >
 

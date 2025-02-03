@@ -18,6 +18,7 @@ import { TimetableButton } from './timetableButton';
 import { router } from 'expo-router';
 import { saveId } from '@/utils/saveId';
 import { useAuth } from '@/contexts/AuthProvider';
+import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 interface SettingsModalProps {
     visible: boolean;
     onClose: () => void;
@@ -54,7 +55,7 @@ export const SettingsModal = ({
     const slideAnim = useRef(new Animated.Value(-1000)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const [modalVisible, setModalVisible] = useState(false);
-
+    const { setInstitutionId } = useInstitutionId();
     useEffect(() => {
         if (visible) {
             setModalVisible(true);
@@ -120,7 +121,7 @@ export const SettingsModal = ({
             }
         }
         saveId('institution', item.id);
-        router.replace(`/?inst=${item.id}` as any);
+        setInstitutionId(item.id);
     }
 
     const orderedInstitutions = [...institutions].sort((a, b) => user?.institutions.some((inst) => inst.id === a.id) ? -1 : 1);

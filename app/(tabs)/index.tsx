@@ -5,45 +5,47 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TimetableView } from "@/components/TimeTableView";
 import { BASE_URL, SCREEN_WIDTH } from "@/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Linking, Pressable, SafeAreaView, View, Text, StyleSheet, Platform } from "react-native";
 import { Settings } from 'lucide-react-native';
 import { SettingsModal } from "@/components/SettingsModal";
+
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { StatusBar } from "expo-status-bar";
 import ViewToggle from "@/components/ViewToggle";
-
+import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
 export default function TimetableScreen() {
 
 
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
-  const { inst } = useLocalSearchParams();
+  const { institutionId, setInstitutionId } = useInstitutionId();
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
   const [selectedView, setSelectedView] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+
   const [selectedTitle, setSelectedTitle] = useState<string>("");
   const [institutions, setInstitutions] = useState<any[]>([]);
   const [showEvents, setShowEvents] = useState(false);
   const daysListRef = useRef<FlatList>(null);
   const appointmentsListRef = useRef<FlatList>(null);
 
-  const { data, loading: institutionLoading, error: institutionError } = useInstitutionData(inst);
-  const { appointments, events, loading, error } = useTimetable({ inst, selectedView, selectedId });
+  const { data, loading: institutionLoading, error: institutionError } = useInstitutionData(institutionId);
+  const { appointments, events, loading, error } = useTimetable({ institutionId, selectedView, selectedId });
+
 
   useEffect(() => {
     setSelectedId(null);
     setSelectedView(null);
     setSelectedTitle("Válassz órarendet");
-    if (!inst) {
+    if (!institutionId) {
       AsyncStorage.getItem('institution').then((id) => {
-        (id !== null) && router.replace(`/?inst=${id}` as any);
+        (id !== null) && setInstitutionId(id);
       });
     }
-  }, [inst]);
+  }, [institutionId]);
 
 
   useEffect(() => {

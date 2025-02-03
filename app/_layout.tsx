@@ -1,10 +1,11 @@
 import { AuthProvider } from "@/contexts/AuthProvider";
 import { Stack } from "expo-router";
 import { StandardAuthAdapter } from "@/contexts/StandardAuthAdapter";
-import { InstitutionProvider } from "@/contexts/InstitutionProvider";
+import { InstitutionIdProvider } from "@/contexts/InstitutionIdProvider";
 import { ThemeProviderLocal, useTheme } from "@/contexts/ThemeProvider";
 import * as SystemUI from "expo-system-ui";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+
 
 
 
@@ -33,12 +34,16 @@ const StackNavigator = () => {
       }
     }>
 
+    <InstitutionIdProvider>
     <Stack>
       <Stack.Screen name="(tabs)" options={{
         headerShown: false,
       }} />
+
     </Stack>
+    </InstitutionIdProvider>
     </ThemeProvider>
+
 
   )
 }

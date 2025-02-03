@@ -1,4 +1,4 @@
-import { Appointment } from "@/types";
+import { Appointment, DropdownData } from "@/types";
 import { useState } from "react";
 import { Text, StyleSheet, Pressable } from "react-native";
 import { AppointmentModal } from "./AppointmentModal";
@@ -10,7 +10,7 @@ interface AppointmentCardProps {
     appointment: Appointment;
   }
 
-export const AppointmentCard = ({ appointment}: AppointmentCardProps) => {
+export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const {theme} = useTheme();
   const themeStyles = getThemeStyles(theme);
     const [isModalVisible, setIsModalVisible] = useState(false);

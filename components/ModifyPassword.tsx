@@ -34,7 +34,7 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
             <View style={styles.modalContainer}>
                 <View style={[styles.modalContent, themeStyles.content]}>
                     <View style={[styles.modalHeader, themeStyles.border]}>
-        
+
 
                         <Text style={[styles.headerText, themeStyles.textSecondary]}>
                             Jelszó módosítása

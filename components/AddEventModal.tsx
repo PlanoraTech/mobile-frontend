@@ -3,6 +3,7 @@ import { useTheme } from "@/contexts/ThemeProvider";
 import { useState } from "react";
 import { Modal, Pressable, Text, TextInput, View, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
+
 interface AddEventModalProps {
     isVisible: boolean;
     dayDate: Date;

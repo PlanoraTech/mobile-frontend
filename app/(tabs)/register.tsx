@@ -10,10 +10,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';
 import { AuthInput } from '@/components/AuthInput';
 import { validateEmail, validatePassword, validateName } from '@/utils/validation';
-import {createAuthStyles} from '@/assets/styles/authStyles'
+import { createAuthStyles } from '@/assets/styles/authStyles'
 import { Link, router } from 'expo-router';
-export default function RegisterScreen() {  
-    
+export default function RegisterScreen() {
+
     const styles = createAuthStyles();
     const { register } = useAuth();
     const [formData, setFormData] = useState({
@@ -34,11 +34,11 @@ export default function RegisterScreen() {
     const handleRegister = () => {
         const newErrors = {
             email: !formData.email ? 'Email címet megadni kötelező!' :
-                  !validateEmail(formData.email) ? 'Érvényes Email címet adj meg!' : '',
+                !validateEmail(formData.email) ? 'Érvényes Email címet adj meg!' : '',
             password: !formData.password ? 'Jelszót megadni kötelező!' :
-                     !validatePassword(formData.password) ? 'A jelszó minimum 6 betű!' : '',
+                !validatePassword(formData.password) ? 'A jelszó minimum 6 betű!' : '',
             confirmPassword: !formData.confirmPassword ? 'Kérlek, erősítsd meg a jelszavad!' :
-                           formData.password !== formData.confirmPassword ? 'A jelszavak nem egyeznek!' : '',
+                formData.password !== formData.confirmPassword ? 'A jelszavak nem egyeznek!' : '',
         };
 
         setErrors(newErrors);
@@ -54,10 +54,11 @@ export default function RegisterScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            <StatusBar style="auto" />
             <View style={styles.formContainer}>
                 <Text style={styles.title}>Fiók létrehozása</Text>
+
                 <Text style={styles.subtitle}>Hozz létre egy fiókot a privát intézmények eléréséhez</Text>
+
 
                 <AuthInput
                     icon="mail-outline"
@@ -88,7 +89,7 @@ export default function RegisterScreen() {
                     toggleSecureEntry={() => setShowConfirmPassword(!showConfirmPassword)}
                 />
                 {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
-            
+
                 <Pressable style={styles.authButton} onPress={handleRegister}>
                     <Text style={styles.authButtonText}>Regisztáció</Text>
                 </Pressable>

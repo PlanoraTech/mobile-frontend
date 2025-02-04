@@ -1,17 +1,18 @@
 import { DAYS, SCREEN_WIDTH } from "@/constants";
 import { Appointment } from "@/components/AppointmentCard";
 import { DayEvent } from "@/components/EventModal";
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { FlatList, View, StyleSheet, ScrollView, Text } from "react-native";
 import { AppointmentCard } from "@/components/AppointmentCard";
 import { DayTab } from "./DayTab";
 import { WeekNavigation } from "./WeekNavigation";
-
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { EventCard } from "./EventCard";
 import { AddEventCard } from "./AddEventCard";
 import { useAuth } from "@/contexts/AuthProvider";
+import { getCurrentWeekDates, isSameDayUTC } from "@/utils/dateUtils";
+import { StatusBar } from "expo-status-bar";
 interface TimetableViewProps {
   appointments: Appointment[];
   currentDayIndex: number;
@@ -40,13 +41,6 @@ export const TimetableView = ({
   const [currentDate, setCurrentDate] = useState(new Date());
 
 
-  const isSameDayUTC = (date1: Date, date2: Date) => {
-    return (
-      date1.getUTCFullYear() === date2.getUTCFullYear() &&
-      date1.getUTCMonth() === date2.getUTCMonth() &&
-      date1.getUTCDate() === date2.getUTCDate()
-    );
-  };
 
   const handleWeekChange = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
@@ -54,20 +48,10 @@ export const TimetableView = ({
     setCurrentDate(newDate);
   };
 
-  const getCurrentWeekDates = () => {
-    const dates = [];
-    const monday = new Date(currentDate);
 
-    monday.setDate(currentDate.getDate() - currentDate.getDay() + 1);
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(monday);
-      date.setDate(monday.getDate() + i);
-      dates.push(date);
-    }
-    return dates;
-  };
 
-  const weekDates = getCurrentWeekDates();
+  const weekDates = getCurrentWeekDates(currentDate);
+
 
   const renderDayPage = ({ index }: { index: number }) => {
     const currentDayDate = weekDates[index];
@@ -84,6 +68,7 @@ export const TimetableView = ({
         {dayAppointments.length === 0 ? (
           <View style={[styles.notFoundContainer, themeStyle.content]}>
             <Text style={[themeStyle.textSecondary, styles.notFoundText]}>
+
               Ezen a napon nincs előadás
             </Text>
           </View>
@@ -103,12 +88,14 @@ export const TimetableView = ({
       </View>
     );
   };
+
   const renderEventpage = ({ index }: { index: number }) => {
     const currentDayDate = weekDates[index];
     const dayEvents = events.filter(event => {
       const eventDate = new Date(event.date);
       return isSameDayUTC(eventDate, currentDayDate);
     });
+
     return (
       <View
         style={styles.dayPage}

@@ -59,7 +59,8 @@ export default function TimetableScreen() {
       if (id) {
         setSelectedId(id);
         setSelectedView(endpoint);
-      } 
+        console.log('there is saved timetable');
+      }
     }
   }
 
@@ -69,9 +70,9 @@ export default function TimetableScreen() {
         const selectedName = data.rooms.find((item: any) => item.id === selectedId)?.name
           || data.presentators.find((item: any) => item.id === selectedId)?.name
           || data.timetables.find((item: any) => item.id === selectedId)?.name;
-        
-          setSelectedTitle(`${selectedName || 'Válassz órarendet'}`);
-        
+
+        setSelectedTitle(`${selectedName || 'Válassz órarendet'}`);
+
       }
     };
     updateTitle();

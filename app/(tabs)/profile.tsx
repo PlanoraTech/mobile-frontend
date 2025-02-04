@@ -24,11 +24,12 @@ const ProfileScreen = () => {
     };
 
     return (
-        <View style={[styles.container, themeStyles.background]}>
-            <StatusBar backgroundColor={themeStyles.background.backgroundColor} />
+        <View style={[styles.container, themeStyles.content]}>
+
             <View style={[styles.content, themeStyles.content]}>
                 <View style={styles.section}>
                     <Text style={[styles.label, themeStyles.text]}>Szerep</Text>
+
                     <Text style={[styles.value, themeStyles.text]}>
                         {user?.role ? ROLE_TRANSLATIONS[user.role] : 'Vendég'}
                     </Text>
@@ -41,8 +42,8 @@ const ProfileScreen = () => {
                         onValueChange={toggleTheme}
 
                         trackColor={{
-                          false: themeStyles.switch.track,
-                          true: themeStyles.switch.trackActive
+                            false: themeStyles.switch.track,
+                            true: themeStyles.switch.trackActive
                         }}
                     />
                 </View>
@@ -60,7 +61,7 @@ const ProfileScreen = () => {
                         }}
                     />
                 </View>
-               
+
                 <View style={styles.authSection}>
                     {!user?.token ? (
                         <>
@@ -80,19 +81,19 @@ const ProfileScreen = () => {
                         </>
                     ) : (
                         <>
-                        <Pressable style={[styles.authButton, themeStyles.button]} onPress={() => setIsPasswordModalVisible(true)}>
-                            <Text style={styles.buttonText}>Jelszó módosítása</Text>
-                        </Pressable>
+                            <Pressable style={[styles.authButton, themeStyles.button]} onPress={() => setIsPasswordModalVisible(true)}>
+                                <Text style={styles.buttonText}>Jelszó módosítása</Text>
+                            </Pressable>
 
 
-                        {isPasswordModalVisible && <ModifyPassword onClose={() => setIsPasswordModalVisible(false)} />}
-                        <Pressable
-                            style={[styles.authButton, themeStyles.buttonSecondary]}
-                            onPress={logout}
-                        >
-                            <Text style={styles.buttonText}>Kijelentkezés</Text>
+                            {isPasswordModalVisible && <ModifyPassword onClose={() => setIsPasswordModalVisible(false)} />}
+                            <Pressable
+                                style={[styles.authButton, themeStyles.buttonSecondary]}
+                                onPress={logout}
+                            >
+                                <Text style={styles.buttonText}>Kijelentkezés</Text>
 
-                        </Pressable>
+                            </Pressable>
                         </>
                     )}
                 </View>

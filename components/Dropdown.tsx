@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
+import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 
 
 export interface DropdownItem {
@@ -78,12 +79,14 @@ export const DropdownComponent = ({
 
   const toggleDropdown = useCallback(() => {
     measureDropdown();
-      setVisible(!visible);
-      if (!visible) {
-        setIsFocus(true);
-        setSearchText('');
-        setFilteredData(data);
-      } else {
+    setVisible(!visible);
+    if (!visible) {
+
+
+      setIsFocus(true);
+      setSearchText('');
+      setFilteredData(data);
+    } else {
       setIsFocus(false);
     }
   }, [visible, data]);
@@ -136,9 +139,11 @@ export const DropdownComponent = ({
         animationType='none'
         onRequestClose={toggleDropdown}
       >
+
         <TouchableWithoutFeedback onPress={toggleDropdown}>
           <View style={styles.overlay}>
             <KeyboardAvoidingView
+
               behavior={Platform.OS === 'ios' ? 'padding' : undefined}
               enabled
             >
@@ -214,7 +219,6 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   dropdown: {
     position: 'absolute',

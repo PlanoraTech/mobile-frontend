@@ -5,7 +5,6 @@ import {
     Pressable,
     KeyboardAvoidingView,
     Platform,
-    ScrollView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';
@@ -14,10 +13,14 @@ import { validateEmail, validatePassword } from '@/utils/validation';
 import { Link, router } from 'expo-router';
 import { createAuthStyles } from '@/assets/styles/authStyles';
 import ForgotPasswordModal from '@/components/ForgotPasswordModal';
+
+
 export default function LoginScreen() {
-    const styles = createAuthStyles(); 
+
+    const styles = createAuthStyles();
     const { login } = useAuth();
     const [formData, setFormData] = useState({
+
         email: '',
         password: '',
     });
@@ -51,10 +54,12 @@ export default function LoginScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            <StatusBar style="auto" />
             <View style={styles.formContainer}>
                 <Text style={styles.title}>Üdv újra!</Text>
                 <Text style={styles.subtitle}>Jelentkezz be a folytatáshoz</Text>
+
+
+
 
                 <AuthInput
                     icon="mail-outline"
@@ -76,9 +81,9 @@ export default function LoginScreen() {
                 />
                 {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
                 <Pressable onPress={() => setIsModalVisible(true)}>
-                <Text style={styles.forgotPassword}>Elfelejtetted a jelszót?</Text>
+                    <Text style={styles.forgotPassword}>Elfelejtetted a jelszót?</Text>
                 </Pressable>
-                {isModalVisible &&<ForgotPasswordModal onClose={() => setIsModalVisible(false)} />}
+                {isModalVisible && <ForgotPasswordModal onClose={() => setIsModalVisible(false)} />}
                 <Pressable style={styles.authButton} onPress={handleLogin}>
                     <Text style={styles.authButtonText}>Bejelentkezés</Text>
                 </Pressable>

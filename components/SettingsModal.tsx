@@ -16,10 +16,12 @@ import { getThemeStyles } from '@/assets/styles/themes';
 import { TimetableButton } from './timetableButton';
 import { router } from 'expo-router';
 import { saveId } from '@/utils/saveId';
+import { runCloseAnimation, runOpenAnimation } from '@/utils/animationUtils';
 
 
 import { useAuth } from '@/contexts/AuthProvider';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
+
 interface SettingsModalProps {
     visible: boolean;
     onClose: () => void;
@@ -56,53 +58,21 @@ export const SettingsModal = ({
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const [modalVisible, setModalVisible] = useState(false);
     const { setInstitutionId } = useInstitutionId();
+
     useEffect(() => {
         if (visible) {
             setModalVisible(true);
-            Animated.parallel([
-                Animated.spring(slideAnim, {
-                    toValue: 0,
-                    useNativeDriver: true,
-                    tension: 65,
-                    friction: 11
-                }),
-                Animated.timing(fadeAnim, {
-                    toValue: 1,
-                    duration: 200,
-                    useNativeDriver: true
-                })
-            ]).start();
+            runOpenAnimation(slideAnim, fadeAnim);
         } else {
-            Animated.parallel([
-                Animated.timing(slideAnim, {
-                    toValue: -1000,
-                    duration: 250,
-                    useNativeDriver: true
-                }),
-                Animated.timing(fadeAnim, {
-                    toValue: 0,
-                    duration: 250,
-                    useNativeDriver: true
-                })
-            ]).start(() => {
+            runCloseAnimation(slideAnim, fadeAnim, () => {
                 setModalVisible(false);
             });
         }
     }, [visible]);
 
     const handleClose = () => {
-        Animated.parallel([
-            Animated.timing(slideAnim, {
-                toValue: -1000,
-                duration: 250,
-                useNativeDriver: true
-            }),
-            Animated.timing(fadeAnim, {
-                toValue: 0,
-                duration: 250,
-                useNativeDriver: true
-            })
-        ]).start(() => {
+        runCloseAnimation(slideAnim, fadeAnim, () => {
+            setModalVisible(false);
             onClose();
         });
     };
@@ -114,7 +84,7 @@ export const SettingsModal = ({
             return;
 
         }
-        if (item.access ==='PRIVATE') {
+        if (item.access === 'PRIVATE') {
             if (!user?.institutions.some((instId: string) => instId === item.id)) {
                 handleClose();
                 router.replace('/login' as any);
@@ -136,7 +106,7 @@ export const SettingsModal = ({
             visible={modalVisible}
             onRequestClose={handleClose}
         >
-            <Animated.View 
+            <Animated.View
                 style={[
                     styles.modalContainer,
                     {
@@ -145,7 +115,7 @@ export const SettingsModal = ({
                     }
                 ]}
             >
-                <Animated.View 
+                <Animated.View
                     style={[
                         styles.modalContent,
                         themeStyle.content,
@@ -171,7 +141,7 @@ export const SettingsModal = ({
                             data={orderedInstitutions}
                             placeholder={data.institution?.name || "Intézmény kiválasztása"}
                             searchPlaceholder="Intézmény keresése..."
-                            onSelect={(item: DropdownItem) => {handleInstSelect(item)}}
+                            onSelect={(item: DropdownItem) => { handleInstSelect(item) }}
                         />
                         <View style={styles.dropdownContainer}>
                             <FlatList
@@ -226,7 +196,7 @@ export const SettingsModal = ({
                                         <DropdownComponent
                                             data={data.rooms}
                                             placeholder="Válassz termet"
-                                            
+
 
                                             searchPlaceholder="Terem keresése..."
                                             onSelect={(item) => onSelect(item, 'rooms')}

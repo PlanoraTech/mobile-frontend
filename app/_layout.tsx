@@ -15,7 +15,7 @@ const StackNavigator = () => {
 
   //needed for keyboard appearance
   theme === "dark" ? SystemUI.setBackgroundColorAsync("#121212") : SystemUI.setBackgroundColorAsync("#f5f5f5");
-  
+
   return (
     // needed for background during animation
     <ThemeProvider value={
@@ -34,14 +34,15 @@ const StackNavigator = () => {
       }
     }>
 
-    <InstitutionIdProvider>
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{
-        headerShown: false,
-      }} />
+      <InstitutionIdProvider>
+        <Stack>
 
-    </Stack>
-    </InstitutionIdProvider>
+          <Stack.Screen name="(tabs)" options={{
+            headerShown: false,
+          }} />
+
+        </Stack>
+      </InstitutionIdProvider>
     </ThemeProvider>
 
 
@@ -51,14 +52,14 @@ export default function RootLayout() {
   return (
 
 
-        <AuthProvider authAdapter={authAdapter}>
-          <ThemeProviderLocal>
-            <StackNavigator />
+    <AuthProvider authAdapter={authAdapter}>
+      <ThemeProviderLocal>
+        <StackNavigator />
 
-          </ThemeProviderLocal>
-        </AuthProvider>
+      </ThemeProviderLocal>
+    </AuthProvider>
 
- 
+
 
   );
 }

@@ -2,16 +2,19 @@ import { useTheme } from '@/contexts/ThemeProvider';
 import { StyleSheet } from 'react-native';
 import { getThemeStyles } from './themes';
 export const createAuthStyles = () => {
-    const {theme} = useTheme();
+    const { theme } = useTheme();
     const themeStyles = getThemeStyles(theme);
 
     return StyleSheet.create({
+        statusBar: {
+            ...themeStyles.background,
+        },
+
         container: {
             flex: 1,
-            backgroundColor: themeStyles.content.backgroundColor,
+            ...themeStyles.content,
             justifyContent: 'center',
             paddingHorizontal: 20,
-
         },
         formContainer: {
             width: '100%',
@@ -73,5 +76,5 @@ export const createAuthStyles = () => {
             fontWeight: '600',
         },
     });
-    
+
 };

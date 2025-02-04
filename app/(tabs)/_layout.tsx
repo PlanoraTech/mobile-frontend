@@ -6,17 +6,17 @@ export default function TabLayout() {
     const { theme } = useTheme();
     const themeStyles = getThemeStyles(theme);
     return (
-        <Tabs 
-        screenOptions={{
-            tabBarActiveTintColor: '#007AFF',
-            headerTintColor: themeStyles.textSecondary.color,
-            tabBarInactiveTintColor: themeStyles.textSecondary.color,
-            tabBarStyle: {
-                backgroundColor: themeStyles.content.backgroundColor,
-                borderTopWidth: 0,
-            },
-            headerShown: false,
-        }}
+        <Tabs
+            screenOptions={{
+                tabBarActiveTintColor: '#007AFF',
+                headerTintColor: themeStyles.textSecondary.color,
+                tabBarInactiveTintColor: themeStyles.textSecondary.color,
+                tabBarStyle: {
+                    backgroundColor: themeStyles.content.backgroundColor,
+                    borderTopWidth: 0,
+                },
+                headerShown: false,
+            }}
         >
             <Tabs.Screen
                 name="index"
@@ -47,7 +47,7 @@ export default function TabLayout() {
                     animation: 'shift'
                 }
             } />
-         
+
         </Tabs>
     );
 }

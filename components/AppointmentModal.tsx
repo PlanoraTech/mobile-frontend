@@ -1,13 +1,15 @@
 import { Appointment } from "@/components/AppointmentCard";
-import { formatTime } from "@/utils/formatTime";
+import { formatTime } from "@/utils/dateUtils";
 import { Modal, View, Text, StyleSheet, Pressable, Switch, Animated } from "react-native"
 import DropdownComponent from "./Dropdown";
 import { useState, useEffect, useRef } from "react";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { useTheme } from "@/contexts/ThemeProvider";
+
 import { useAuth } from "@/contexts/AuthProvider";
 import { BASE_URL } from "@/constants";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
+import { runCloseAnimation, runOpenAnimation } from "@/utils/animationUtils";
 
 interface AppointmentModalProps {
     appointment: Appointment;
@@ -27,39 +29,20 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
     const { institutionId } = useInstitutionId();
+
     useEffect(() => {
         if (isVisible) {
+            runOpenAnimation(slideAnim, fadeAnim);
             setModalVisible(true);
-            Animated.parallel([
-                Animated.spring(slideAnim, {
-                    toValue: 0,
-                    useNativeDriver: true,
-                    tension: 65,
-                    friction: 11
-                }),
-                Animated.timing(fadeAnim, {
-                    toValue: 1,
-                    duration: 200,
-                    useNativeDriver: true
-                })
-            ]).start();
         } else {
-            Animated.parallel([
-                Animated.timing(slideAnim, {
-                    toValue: -1000,
-                    duration: 250,
-                    useNativeDriver: true
-                }),
-                Animated.timing(fadeAnim, {
-                    toValue: 0,
-                    duration: 250,
-                    useNativeDriver: true
-                })
-            ]).start(() => {
+            runCloseAnimation(slideAnim, fadeAnim, () => {
                 setModalVisible(false);
             });
         }
     }, [isVisible]);
+
+
+
 
     useEffect(() => {
         fetchPresentators();
@@ -89,35 +72,21 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
         }
     }
 
-    const handleClose = () => {
-        Animated.parallel([
-            Animated.timing(slideAnim, {
-                toValue: -1000,
-                duration: 250,
-                useNativeDriver: true
-            }),
-            Animated.timing(fadeAnim, {
-                toValue: 0,
-                duration: 250,
-                useNativeDriver: true
-            })
-        ]).start(() => {
-            onClose();
-        });
-    };
+
 
     if (user?.role !== 'PRESENTATOR') {
         return null;
     }
 
     return (
-        <Modal 
-            animationType="none" 
-            transparent={true} 
+        <Modal
+            animationType="none"
+            transparent={true}
             visible={modalVisible}
-            onRequestClose={handleClose}
+            onRequestClose={onClose}
         >
-            <Animated.View 
+            <Animated.View
+
                 style={[
                     styles.modalContainer,
                     {
@@ -126,7 +95,7 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                     }
                 ]}
             >
-                <Animated.View 
+                <Animated.View
                     style={[
                         styles.modalContent,
                         themeStyles.content,
@@ -138,9 +107,10 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                     <View style={[styles.modalHeader, themeStyles.border]}>
                         <Text style={[styles.subject, themeStyles.text]}>Óra beállítások</Text>
                         <Pressable
-                            onPress={handleClose}
+                            onPress={onClose}
                             style={styles.closeButton}
                         >
+
                             <Text style={[styles.closeButtonText, themeStyles.text]}>×</Text>
                         </Pressable>
                     </View>
@@ -152,8 +122,8 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                             </View>
 
                             <View style={[styles.cancelContainer, styles.card]}>
-                                {isEnabled ? 
-                                    <Text style={styles.cancelTextPostive}>Elmarad</Text> : 
+                                {isEnabled ?
+                                    <Text style={styles.cancelTextPostive}>Elmarad</Text> :
                                     <Text style={styles.cancelTextNegative}>Megtartva</Text>
                                 }
                                 <Switch
@@ -168,20 +138,20 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                             </View>
                         </View>
                         <View style={[styles.card, themeStyles.content]}>
-                            <DropdownComponent 
+                            <DropdownComponent
                                 key="presentators-dropdown"
-                                data={presentators} 
-                                onSelect={() => { }} 
-                                searchPlaceholder="Előadó keresése..." 
+                                data={presentators}
+                                onSelect={() => { }}
+                                searchPlaceholder="Előadó keresése..."
 
-                                placeholder={appointment.presentators.map(p =>  p.name).join(', ')} 
+                                placeholder={appointment.presentators.map(p => p.name).join(', ')}
                             />
-                            <DropdownComponent 
-                                data={rooms} 
-                                onSelect={() => { }} 
+                            <DropdownComponent
+                                data={rooms}
+                                onSelect={() => { }}
 
-                                searchPlaceholder="Terem keresése..." 
-                                placeholder={appointment.rooms.map(r => r.name).join(' - ')} 
+                                searchPlaceholder="Terem keresése..."
+                                placeholder={appointment.rooms.map(r => r.name).join(' - ')}
                             />
                         </View>
                     </View>

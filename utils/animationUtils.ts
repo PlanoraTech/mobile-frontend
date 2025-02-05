@@ -1,4 +1,4 @@
-import { Animated } from 'react-native';
+import { Animated, Easing } from 'react-native';
 
 export const runCloseAnimation = (
     slideAnim: Animated.Value,
@@ -7,24 +7,21 @@ export const runCloseAnimation = (
 ) => {
     Animated.parallel([
         Animated.timing(slideAnim, {
-
-
             toValue: -1000,
-            duration: 250,
+            duration: 400,
+            easing: Easing.bezier(0.4, 0.0, 1, 1),
             useNativeDriver: true
         }),
         Animated.timing(fadeAnim, {
             toValue: 0,
-            duration: 250,
+            duration: 400,
+            easing: Easing.bezier(0.4, 0.0, 1, 1),
             useNativeDriver: true
         })
     ]).start(() => {
         onComplete();
     });
 };
-
-
-
 
 export const runOpenAnimation = (
     slideAnim: Animated.Value,
@@ -34,14 +31,40 @@ export const runOpenAnimation = (
         Animated.spring(slideAnim, {
             toValue: 0,
             useNativeDriver: true,
-            tension: 65,
-            friction: 11
+            bounciness: 2,
+            speed: 5,
+            restSpeedThreshold: 100,
+            restDisplacementThreshold: 40
+
         }),
         Animated.timing(fadeAnim, {
             toValue: 1,
-            duration: 200,
+            duration: 350,
+            easing: Easing.bezier(0.4, 0, 0.2, 1),
             useNativeDriver: true
         })
     ]).start();
 };
 
+export const runButtonAnimation = (
+    backgroundAnim: Animated.Value,
+    textColorAnim: Animated.Value,
+    isActive: boolean
+) => {
+
+
+    Animated.parallel([
+        Animated.spring(backgroundAnim, {
+
+            toValue: isActive ? 1 : 0,
+            useNativeDriver: false,
+            tension: 50,
+            friction: 7,
+        }),
+        Animated.timing(textColorAnim, {
+            toValue: isActive ? 1 : 0,
+            duration: 200,
+            useNativeDriver: false,
+        })
+    ]).start();
+};

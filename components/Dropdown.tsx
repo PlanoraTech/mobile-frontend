@@ -4,7 +4,6 @@ import {
   Text,
   Modal,
   StyleSheet,
-  TouchableWithoutFeedback,
   FlatList,
   TextInput,
   Dimensions,
@@ -15,7 +14,9 @@ import {
 } from 'react-native';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
-import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
+
+
+
 
 
 export interface DropdownItem {
@@ -34,6 +35,7 @@ interface CustomDropdownProps {
   style?: any;
   placeholderStyle?: any;
 
+
   selectedTextStyle?: any;
   inputSearchStyle?: any;
   itemTextStyle?: any;
@@ -49,7 +51,10 @@ export const DropdownComponent = ({
   searchPlaceholder = 'Search...',
   onSelect,
 
+
+
   maxHeight = 225,
+
 }: CustomDropdownProps) => {
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
@@ -73,7 +78,6 @@ export const DropdownComponent = ({
     DropdownButtonRef.current?.measureInWindow((x, y, width, height) => {
       setPosition({ x, y, width, height });
     });
-    console.log("measured ----")
   };
 
 
@@ -81,6 +85,7 @@ export const DropdownComponent = ({
     measureDropdown();
     setVisible(!visible);
     if (!visible) {
+
 
 
       setIsFocus(true);
@@ -107,7 +112,9 @@ export const DropdownComponent = ({
     setFilteredData(filtered);
   }, [data]);
 
-  const selectedItem = data.find(item => item.id === value);
+  const selectedItem = data.length > 0 ? data.find(item => item.id === value) : null;
+
+
 
   const renderItem = ({ item }: { item: DropdownItem }) => (
     <Pressable
@@ -140,42 +147,51 @@ export const DropdownComponent = ({
         onRequestClose={toggleDropdown}
       >
 
-        <TouchableWithoutFeedback onPress={toggleDropdown}>
-          <View style={styles.overlay}>
-            <KeyboardAvoidingView
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation();
+            toggleDropdown();
+          }}
+          style={styles.overlay}
+        >
+          <KeyboardAvoidingView
 
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-              enabled
-            >
-              <TouchableWithoutFeedback>
-                <View style={[styles.dropdown, modalStyle, themeStyles.content]}>
-                  <TextInput
-                    style={[styles.searchInput, themeStyles.text]}
-                    placeholder={searchPlaceholder}
-                    placeholderTextColor={themeStyles.text.color}
-                    value={searchText}
-                    onChangeText={handleSearch}
-                  />
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            enabled
+          >
 
-                  <FlatList
-                    data={filteredData}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    showsVerticalScrollIndicator={false}
-                    style={[styles.list, { maxHeight }]}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            </KeyboardAvoidingView>
-          </View>
-        </TouchableWithoutFeedback>
+            <View style={[styles.dropdown, modalStyle, themeStyles.content]}>
+              <TextInput
+                style={[styles.searchInput, themeStyles.text]}
+                placeholder={searchPlaceholder}
+                placeholderTextColor={themeStyles.text.color}
+                value={searchText}
+                onChangeText={handleSearch}
+              />
+
+              <FlatList
+                data={filteredData}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+                style={[styles.list, { maxHeight }]}
+              />
+            </View>
+          </KeyboardAvoidingView>
+
+        </Pressable>
+
+
+
       </Modal>
     );
   };
 
+
   return (
     <View style={[styles.container]}>
       <Pressable
+
         ref={DropdownButtonRef}
         onPress={toggleDropdown}
 

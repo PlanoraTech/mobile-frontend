@@ -4,23 +4,27 @@ import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
-import { StatusBar } from "expo-status-bar";
 interface ForgotPasswordModalProps {
     onClose: () => void;
 }
 
 
+
+
+
 export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProps) {
     const { theme } = useTheme();
+    const themeStyles = getThemeStyles(theme);
     const [formData, setFormData] = useState({
         oldPassword: '',
         newPassword: '',
         confirmPassword: '',
+
     });
 
 
 
-    const themeStyles = getThemeStyles(theme);
+
 
     return (
         <Modal
@@ -30,8 +34,10 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
             visible={true}
             onRequestClose={onClose}
         >
-            <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
             <View style={styles.modalContainer}>
+
+
+
                 <View style={[styles.modalContent, themeStyles.content]}>
                     <View style={[styles.modalHeader, themeStyles.border]}>
 
@@ -80,9 +86,13 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                     </View>
                 </View>
             </View>
+
+
         </Modal>
+
     );
 }
+
 
 const styles = StyleSheet.create({
     modalContainer: {

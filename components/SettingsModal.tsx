@@ -21,6 +21,7 @@ import { runCloseAnimation, runOpenAnimation } from '@/utils/animationUtils';
 
 import { useAuth } from '@/contexts/AuthProvider';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface SettingsModalProps {
     visible: boolean;
@@ -38,7 +39,9 @@ interface SettingsModalProps {
         rooms: DropdownItem[];
     };
     onSelect: (item: DropdownItem, type: string) => void;
+    onInstChange: () => void;
 }
+
 
 
 
@@ -48,26 +51,39 @@ export const SettingsModal = ({
     institutions,
     loading,
     data,
-    onSelect
+    onSelect,
+    onInstChange
 }: SettingsModalProps) => {
+
+
     const { theme } = useTheme();
     const themeStyle = getThemeStyles(theme);
-    const [currentBtnIndex, setCurrentBtnIndex] = useState(0);
     const { user } = useAuth();
+    const { setInstitutionId } = useInstitutionId();
+
     const slideAnim = useRef(new Animated.Value(-1000)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
+
+    const [currentBtnIndex, setCurrentBtnIndex] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
-    const { setInstitutionId } = useInstitutionId();
+
 
     useEffect(() => {
         if (visible) {
-            setModalVisible(true);
             runOpenAnimation(slideAnim, fadeAnim);
+            setModalVisible(true);
+
+
         } else {
             runCloseAnimation(slideAnim, fadeAnim, () => {
                 setModalVisible(false);
+
             });
+
+
         }
+
+
     }, [visible]);
 
     const handleClose = () => {
@@ -75,9 +91,15 @@ export const SettingsModal = ({
             setModalVisible(false);
             onClose();
         });
+
+
+
     };
 
+
+
     const handleInstSelect = (item: DropdownItem) => {
+
         if (item.access === 'PRIVATE' && !user?.token) {
             handleClose();
             router.replace('/login' as any);
@@ -85,17 +107,33 @@ export const SettingsModal = ({
 
         }
         if (item.access === 'PRIVATE') {
-            if (!user?.institutions.some((instId: string) => instId === item.id)) {
+            if (!user?.institutions.some((instId: { id: string }) => {
+                console.log(instId);
+                console.log(item.id);
+                return instId.id === item.id;
+
+            })) {
+
                 handleClose();
+
+
                 router.replace('/login' as any);
                 return;
             }
+
         }
+
+        //upon app start there won't be faulty institutionId timetableId pairs
+        AsyncStorage.removeItem('timetable');
+
         saveId('institution', item.id);
         setInstitutionId(item.id);
+        onInstChange();
+
     }
 
-    const orderedInstitutions = [...institutions].sort((a, b) => user?.institutions.some((instId: string) => instId === a.id) ? -1 : 1);
+
+    const orderedInstitutions = [...institutions].sort((a, b) => user?.institutions.some((instId: { id: string }) => instId.id === a.id) ? -1 : 1);
 
 
 
@@ -142,9 +180,12 @@ export const SettingsModal = ({
                             placeholder={data.institution?.name || "Intézmény kiválasztása"}
                             searchPlaceholder="Intézmény keresése..."
                             onSelect={(item: DropdownItem) => { handleInstSelect(item) }}
+
                         />
                         <View style={styles.dropdownContainer}>
                             <FlatList
+
+
                                 style={styles.choiceList}
                                 horizontal
                                 data={["Órarend", "Előadó", "Terem"]}
@@ -168,6 +209,8 @@ export const SettingsModal = ({
                                             searchPlaceholder="Órarend keresése..."
                                             onSelect={(item) => onSelect(item, 'timetable')}
 
+
+
                                         />
                                     )}
                                 </View>
@@ -183,7 +226,10 @@ export const SettingsModal = ({
                                             placeholder="Válassz előadót"
                                             searchPlaceholder="Előadó keresése..."
                                             onSelect={(item) => onSelect(item, 'presentators')}
+
                                         />
+
+
                                     )}
                                 </View>
                             )}
@@ -200,7 +246,10 @@ export const SettingsModal = ({
 
                                             searchPlaceholder="Terem keresése..."
                                             onSelect={(item) => onSelect(item, 'rooms')}
+
                                         />
+
+
                                     )}
                                 </View>
                             )}

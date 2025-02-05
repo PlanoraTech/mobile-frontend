@@ -6,7 +6,7 @@ import { TimetableView } from "@/components/TimeTableView";
 import { BASE_URL, SCREEN_WIDTH } from "@/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, Linking, Pressable, SafeAreaView, View, Text, StyleSheet, Platform } from "react-native";
+import { FlatList, Pressable, SafeAreaView, View, Text, StyleSheet, Platform } from "react-native";
 import { Settings } from 'lucide-react-native';
 import { SettingsModal } from "@/components/SettingsModal";
 
@@ -14,43 +14,39 @@ import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { StatusBar } from "expo-status-bar";
 import ViewToggle from "@/components/ViewToggle";
-import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
 export default function TimetableScreen() {
+
 
 
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
-  const { institutionId } = useInstitutionId();
+
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
   const [selectedView, setSelectedView] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
   const [modalVisible, setModalVisible] = useState(false);
-
-  const [selectedTitle, setSelectedTitle] = useState<string>("");
   const [institutions, setInstitutions] = useState<any[]>([]);
   const [showEvents, setShowEvents] = useState(false);
+
   const daysListRef = useRef<FlatList>(null);
   const appointmentsListRef = useRef<FlatList>(null);
 
   const { data, loading: institutionLoading, error: institutionError } = useInstitutionData();
   const { appointments, events, loading, error } = useTimetable({ selectedView, selectedId });
 
-
-  useEffect(() => {
-    setSelectedId(null);
-    setSelectedView(null);
-    setSelectedTitle("Válassz órarendet");
-  }, [institutionId]);
-
-
   useEffect(() => {
     fetchInstitutions();
     fetchSavedTimetable();
   }, []);
 
+  const selectedTitle = () => {
+    if (!selectedView) return 'Válassz órarendet';
+    const selectedName = data.rooms.find((item: any) => item.id === selectedId)?.name
+      || data.presentators.find((item: any) => item.id === selectedId)?.name
+      || data.timetables.find((item: any) => item.id === selectedId)?.name;
+    return `${selectedName || 'Válassz órarendet'}`;
 
-
+  };
 
   const fetchSavedTimetable = async () => {
     const savedTimetable = await AsyncStorage.getItem('timetable');
@@ -63,20 +59,6 @@ export default function TimetableScreen() {
       }
     }
   }
-
-  useEffect(() => {
-    const updateTitle = async () => {
-      if (data?.rooms && selectedId && selectedView) {
-        const selectedName = data.rooms.find((item: any) => item.id === selectedId)?.name
-          || data.presentators.find((item: any) => item.id === selectedId)?.name
-          || data.timetables.find((item: any) => item.id === selectedId)?.name;
-
-        setSelectedTitle(`${selectedName || 'Válassz órarendet'}`);
-
-      }
-    };
-    updateTitle();
-  }, [data, selectedId, selectedView]);
 
   const fetchInstitutions = async () => {
     try {
@@ -121,7 +103,6 @@ export default function TimetableScreen() {
     }
   }).current;
 
-
   if (institutionLoading.institution) return <LoadingSpinner />;
 
   return (
@@ -136,10 +117,10 @@ export default function TimetableScreen() {
             adjustsFontSizeToFit={true}
           >
 
-            {selectedTitle || 'Válassz órarendet'}
+            {selectedTitle()}
           </Text>
 
-          {selectedView === 'timetable' && !error &&
+          {selectedView === 'timetable' && !error && selectedId &&
             <View style={styles.toggleCenterContainer}>
               <ViewToggle onViewChange={() => setShowEvents(!showEvents)} />
             </View>
@@ -188,9 +169,11 @@ export default function TimetableScreen() {
         institutions={institutions}
         loading={institutionLoading}
         data={data}
+        onInstChange={() => setSelectedId(null)}
         onSelect={(item, type) => {
           handleSelection(item.id, type.toLowerCase());
         }}
+
 
       />
     </View>

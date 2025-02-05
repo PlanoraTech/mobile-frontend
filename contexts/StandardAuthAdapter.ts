@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 export interface User {
     credentials?: AuthData,
     token?: string
-    institutions: string[]
+    institutions: { id: string }[]
     role: string
 }
 
@@ -20,7 +20,7 @@ export interface AuthResponse {
 export class StandardAuthAdapter {
     private readonly apiUrl: string;
 
-    constructor(apiUrl: string = 'http://192.168.61.192:3000') {
+    constructor(apiUrl: string = 'http://192.168.61.62:3000') {
         this.apiUrl = apiUrl;
     }
 

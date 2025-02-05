@@ -8,7 +8,7 @@ import { Appointment } from '@/components/AppointmentCard';
 
 
 
-  
+
 interface UseTimetableProps {
   selectedView: string | null;
   selectedId: string | null;
@@ -28,22 +28,22 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
     fetchEvents();
     fetchTimetable();
 
-    console.log("error: "+error);
-    console.log("selectedId: "+selectedId);
-    console.log("selectedView: "+selectedView);
+    console.log("error: " + error);
+    console.log("selectedId: " + selectedId);
+    console.log("selectedView: " + selectedView);
 
     const saveTimetable = async () => {
       if (selectedId && selectedView) {
-        await AsyncStorage.setItem('timetable', JSON.stringify({ id: selectedId, endpoint: selectedView }));  
+        await AsyncStorage.setItem('timetable', JSON.stringify({ id: selectedId, endpoint: selectedView }));
       }
     }
     saveTimetable();
 
-  }, [selectedView, selectedId]);
+  }, [selectedId]);
   const fetchTimetable = async () => {
-    
+
     if (!selectedView || !selectedId) return;
-  
+
     setLoading(true);
     setError(null);
 
@@ -53,15 +53,15 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
         presentators: `/presentators/${selectedId}/appointments`,
         rooms: `/rooms/${selectedId}/appointments`,
       };
- 
+
       const endpoint = endpoints[selectedView as keyof typeof endpoints];
-      console.log("user token in timetable: "+user?.token);
+      console.log("user token in timetable: " + user?.token);
       const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}/?token=${user?.token}`);
 
       if (!response.ok) {
         throw new Error('Hiba az órarend betöltése során.');
       }
-      
+
       const data = await response.json();
       setAppointments(data);
     } catch (error: any) {

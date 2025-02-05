@@ -38,7 +38,11 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
             runCloseAnimation(slideAnim, fadeAnim, () => {
                 setModalVisible(false);
             });
+
         }
+
+
+
     }, [isVisible]);
 
 

@@ -41,12 +41,7 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
 
         }
 
-
-
     }, [isVisible]);
-
-
-
 
     useEffect(() => {
         fetchPresentators();
@@ -119,29 +114,7 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                         </Pressable>
                     </View>
                     <View style={styles.modalMain}>
-                        <View style={styles.modalTop}>
-                            <View style={[styles.textContainer, styles.card]}>
-                                <Text style={[styles.subject, themeStyles.textSecondary]}>{appointment.subject.name}</Text>
-                                <Text style={styles.date}>{formatTime(appointment.start)} - {formatTime(appointment.end)}</Text>
-                            </View>
-
-                            <View style={[styles.cancelContainer, styles.card]}>
-                                {isEnabled ?
-                                    <Text style={styles.cancelTextPostive}>Elmarad</Text> :
-                                    <Text style={styles.cancelTextNegative}>Megtartva</Text>
-                                }
-                                <Switch
-                                    trackColor={{
-                                        false: themeStyles.switch.track,
-                                        true: themeStyles.switch.trackActive
-                                    }}
-                                    ios_backgroundColor="#3e3e3e"
-                                    onValueChange={toggleSwitch}
-                                    value={isEnabled}
-                                />
-                            </View>
-                        </View>
-                        <View style={[styles.card, themeStyles.content]}>
+                        <View style={[styles.card]}>
                             <DropdownComponent
                                 key="presentators-dropdown"
                                 data={presentators}
@@ -157,9 +130,37 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                                 searchPlaceholder="Terem keresése..."
                                 placeholder={appointment.rooms.map(r => r.name).join(' - ')}
                             />
+                            <View style={styles.modalTop}>
+                                <View style={[styles.textContainer, styles.card]}>
+                                    <Text style={[styles.subject, themeStyles.textSecondary]}>{appointment.subject.name}</Text>
+                                    <Text style={styles.date}>{formatTime(appointment.start)} - {formatTime(appointment.end)}</Text>
+                                </View>
+
+                                <View style={[styles.cancelContainer, styles.card]}>
+                                    {isEnabled ?
+                                        <Text style={styles.cancelTextPostive}>Elmarad</Text> :
+                                        <Text style={styles.cancelTextNegative}>Megtartva</Text>
+                                    }
+                                    <Switch
+                                        trackColor={{
+                                            false: themeStyles.switch.track,
+                                            true: themeStyles.switch.trackActive
+                                        }}
+                                        ios_backgroundColor="#3e3e3e"
+                                        onValueChange={toggleSwitch}
+                                        value={isEnabled}
+                                    />
+                                </View>
+                            </View>
                         </View>
+
+                        <Pressable style={[styles.modalButton, themeStyles.button]}>
+                            <Text style={styles.modalButtonText}>Mentés</Text>
+                        </Pressable>
+
                     </View>
                 </Animated.View>
+
             </Animated.View>
         </Modal>
     );
@@ -243,13 +244,17 @@ const styles = StyleSheet.create({
     card: {
         padding: 16,
         borderRadius: 15,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 5,
-            height: 5,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 0
+    },
+    modalButton: {
+        padding: 16,
+        borderRadius: 15,
+
+        marginTop: 16,
+    },
+    modalButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center',
     },
 });

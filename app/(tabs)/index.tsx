@@ -133,12 +133,14 @@ export default function TimetableScreen() {
           </Pressable>
         </View>
       </SafeAreaView>
-      {institutionError ? (
-        <ErrorMessage message={institutionError} />
-      ) : selectedId ? (
+      {institutionError && <ErrorMessage message={institutionError} />}
+
+
+      {selectedId ? (
         <>
           {loading ? (
             <LoadingSpinner />
+
           ) : error ? (
             <ErrorMessage message={error} />
           ) : (

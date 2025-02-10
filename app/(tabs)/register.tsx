@@ -12,10 +12,13 @@ import { AuthInput } from '@/components/AuthInput';
 import { validateEmail, validatePassword, validateName } from '@/utils/validation';
 import { createAuthStyles } from '@/assets/styles/authStyles'
 import { Link, router } from 'expo-router';
+import { ErrorMessage } from '@/components/ErrorMessage';
 export default function RegisterScreen() {
 
     const styles = createAuthStyles();
     const { register } = useAuth();
+    const [error, setError] = useState<string | null>(null);
+
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -44,13 +47,22 @@ export default function RegisterScreen() {
         setErrors(newErrors);
 
         if (!Object.values(newErrors).some(error => error)) {
-            register(formData);
-            router.replace('/profile');
+            register(formData)
+                .then(() => {
+                    router.replace('/profile');
+                })
+                .catch((error: any) => {
+                    setError(error.message || 'Sikertelen regisztráció');
+                });
         }
+
+
     };
+
 
     return (
         <KeyboardAvoidingView
+
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
@@ -99,6 +111,8 @@ export default function RegisterScreen() {
                     <Link style={styles.switchAuthLink} href="/login">Bejelentkezés</Link>
                 </View>
             </View>
+            {error && <ErrorMessage message={error} onClose={() => setError(null)} />}
         </KeyboardAvoidingView>
+
     );
 }

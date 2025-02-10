@@ -21,10 +21,9 @@ export function AuthProvider({ children, authAdapter }: { children: React.ReactN
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-
         loadUser();
     }, []);
-    
+
     const loadUser = async () => {
         try {
             const currentUser = await authAdapter.getCurrentUser();
@@ -35,7 +34,7 @@ export function AuthProvider({ children, authAdapter }: { children: React.ReactN
             setLoading(false);
         }
     };
-    
+
     const register = async (data: AuthData) => {
         await authAdapter.register(data);
         await loadUser();

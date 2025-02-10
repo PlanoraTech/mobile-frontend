@@ -27,19 +27,14 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
   useEffect(() => {
     fetchEvents();
     fetchTimetable();
-
-    console.log("error: " + error);
-    console.log("selectedId: " + selectedId);
-    console.log("selectedView: " + selectedView);
-
-    const saveTimetable = async () => {
-      if (selectedId && selectedView) {
-        await AsyncStorage.setItem('timetable', JSON.stringify({ id: selectedId, endpoint: selectedView }));
-      }
-    }
     saveTimetable();
-
   }, [selectedId]);
+
+  const saveTimetable = async () => {
+    if (selectedId && selectedView) {
+      await AsyncStorage.setItem('timetable', JSON.stringify({ id: selectedId, endpoint: selectedView }));
+    }
+  }
   const fetchTimetable = async () => {
 
     if (!selectedView || !selectedId) return;
@@ -55,7 +50,6 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
       };
 
       const endpoint = endpoints[selectedView as keyof typeof endpoints];
-      console.log("user token in timetable: " + user?.token);
       const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}/?token=${user?.token}`);
 
       if (!response.ok) {

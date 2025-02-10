@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, Animated, StyleSheet } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Pressable, Text, Animated, StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import { SCREEN_WIDTH } from '@/constants';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 
+
 const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) => void }) => {
     const [isAppointments, setIsAppointments] = useState(true);
-    const slideAnim = useMemo(() => new Animated.Value(0), []);
+    const slideAnim = useRef(new Animated.Value(0)).current;
     const { theme } = useTheme();
     const themeStyles = getThemeStyles(theme);
+
     const toggleView = () => {
         const toValue = isAppointments ? 1 : 0;
 
@@ -19,6 +21,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
             speed: 12,
             bounciness: 8,
         }).start();
+
 
         setIsAppointments(!isAppointments);
         onViewChange(!isAppointments);
@@ -32,10 +35,11 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity
-                style={[styles.toggleContainer, { width: buttonWidth },  themeStyles.content]}
-                activeOpacity={0.8}
+            <Pressable
+                style={[styles.toggleContainer, { width: buttonWidth }, themeStyles.content]}
                 onPress={toggleView}
+
+
             >
                 <Animated.View
                     style={[
@@ -54,7 +58,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
                             isAppointments ? styles.activeText : styles.inactiveText,
                         ]}
                     >
-                        Óra
+                        Órarend
                     </Text>
                     <Text
                         style={[
@@ -65,8 +69,9 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
                         Esemény
                     </Text>
                 </View>
-            </TouchableOpacity>
+            </Pressable>
         </View>
+
     );
 };
 
@@ -74,7 +79,7 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16 ,
+        paddingVertical: 16,
     },
     toggleContainer: {
         height: 30,
@@ -91,8 +96,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 10,
         height: '100%',
+
     },
     toggleText: {
         fontSize: 12,

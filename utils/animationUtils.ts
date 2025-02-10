@@ -1,4 +1,4 @@
-import { Animated, Easing } from 'react-native';
+import { Animated, Easing, EasingFunction } from 'react-native';
 
 export const runCloseAnimation = (
     slideAnim: Animated.Value,
@@ -68,3 +68,20 @@ export const runButtonAnimation = (
         })
     ]).start();
 };
+
+export const runSlideAnimation = (
+    slideAnim: Animated.Value,
+    toValue: number,
+    duration: number,
+    easing: EasingFunction,
+    onComplete?: () => void
+) => {
+    Animated.timing(slideAnim, {
+        toValue,
+
+        duration,
+        easing,
+        useNativeDriver: true
+    }).start(() => onComplete?.());
+};
+

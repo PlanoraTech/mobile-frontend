@@ -15,12 +15,13 @@ export interface AuthData {
 export interface AuthResponse {
     token: string;
     user: User;
+    status: number;
 }
 
 export class StandardAuthAdapter {
     private readonly apiUrl: string;
 
-    constructor(apiUrl: string = 'http://192.168.61.62:3000') {
+    constructor(apiUrl: string = 'http://192.168.11.130:3000') {
         this.apiUrl = apiUrl;
     }
 
@@ -31,22 +32,45 @@ export class StandardAuthAdapter {
         body?: object
     ): Promise<T> {
         try {
+            console.log("making request");
             const response = await fetch(`${this.apiUrl}${endpoint}`, {
                 method,
                 headers: {
+
                     'Content-Type': 'application/json',
                 },
                 body: body ? JSON.stringify(body) : undefined,
             });
 
             if (!response.ok) {
-                throw new Error(`Request to ${endpoint} failed with status ${response.status}`);
+                console.error(`Request to ${endpoint} failed with status ${response.status}`);
+                if (response.status === 409) {
+                    throw new Error('A felhasználó már létezik');
+                }
+
+                if (response.status === 404) {
+                    throw new Error('Hibás email cím vagy jelszó');
+                }
+
+                if (response.status === 500) {
+                    throw new Error('Szerver hiba. Kérlek próbáld újra később.');
+                }
+
+                throw new Error('Valami hiba történt... Kérlek próbáld újra később.');
+
+
             }
+
+
+
             return response.json();
-        } catch (error) {
+
+
+        } catch (error: any) {
             console.error('Request error:', error);
-            throw error;
+            throw new Error(error.message);
         }
+
     }
 
 
@@ -59,10 +83,16 @@ export class StandardAuthAdapter {
         try {
             const response = await this.makeRequest<AuthResponse>('/register', 'POST', data);
             await this.storeAuthToken(response.token);
-        } catch (error) {
+        } catch (error: any) {
+            console.log("registration error");
             console.error('Registration error:', error);
-            throw error;
+            throw new Error(error.message || 'Regisztráció sikertelen');
         }
+
+
+
+
+
     }
 
     async login(credentials: AuthData): Promise<AuthResponse> {
@@ -70,20 +100,24 @@ export class StandardAuthAdapter {
             const response = await this.makeRequest<AuthResponse>('/login', 'POST', credentials);
             await this.storeAuthToken(response.token);
             return response;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Login error:', error);
-            throw new Error('Login failed');
+            throw new Error(error.message || 'Sikertelen belépés');
         }
+
     }
+
 
     async logout(): Promise<void> {
         try {
             await SecureStore.deleteItemAsync('auth_tokens');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Logout error:', error);
-            throw new Error('Logout failed');
+            throw new Error(error.message || 'Sikertelen kijelentkezés');
         }
+
     }
+
 
     async getCurrentUser(): Promise<any | null> {
         try {

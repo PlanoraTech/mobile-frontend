@@ -1,16 +1,13 @@
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, act, waitFor } from '@testing-library/react-native';
 import LoginScreen from '@/app/(tabs)/login';
 import * as AsyncStorage from '@/__mocks__/@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthProvider';
+import { userEvent } from '@testing-library/react-native';
+import '@testing-library/jest-dom'
+import { router } from 'expo-router';
 
 
-
-
-jest.mock('@/contexts/AuthProvider', () => ({
-    useAuth: jest.fn(() => ({
-        login: jest.fn(),
-    })),
-}));
+jest.mock('@/contexts/AuthProvider');
 
 jest.mock('@/assets/styles/authStyles', () => ({
     createAuthStyles: jest.fn(() => ({
@@ -22,9 +19,21 @@ jest.mock('@/assets/styles/authStyles', () => ({
     })),
 }));
 
+jest.mock('expo-router', () => ({
+    router: {
+        replace: jest.fn()
+    },
+    Link: () => null
+}));
+
+
 describe('Login', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        (useAuth as jest.Mock).mockImplementation(() => ({
+            login: jest.fn(),
+        }));
+
     });
 
     test('renders correctly', () => {
@@ -32,7 +41,8 @@ describe('Login', () => {
         render(<LoginScreen />);
     });
 
-    test('login button fails to call login if email is invalid', () => {
+    test('login button fails to call login if email is invalid', async () => {
+        const user = userEvent.setup();
         const loginScreen = render(<LoginScreen />);
         const loginButton = loginScreen.getByTestId('login-button');
         const emailInput = loginScreen.getByPlaceholderText('Email');
@@ -42,14 +52,15 @@ describe('Login', () => {
             .mockImplementation(() => ({
                 login: mockLogin, user: null, loading: false, logout: jest.fn(), register: jest.fn()
             }));
-        fireEvent.changeText(emailInput, 'testtest.com');
-        fireEvent.changeText(passwordInput, 'StrongPassword123!');
-        fireEvent.press(loginButton);
+        await user.type(emailInput, 'testtest.com');
+        await user.type(passwordInput, 'StrongPassword123!');
+        await user.press(loginButton);
         expect(loginScreen.getByTestId('email-error').props.children).toBe('Érvényes emailt adj meg!');
         expect(mockLogin).not.toHaveBeenCalled();
     });
 
-    test('login button fails to call login if password is invalid', () => {
+    test('login button fails to call login if password is invalid', async () => {
+        const user = userEvent.setup();
         const loginScreen = render(<LoginScreen />);
         const loginButton = loginScreen.getByTestId('login-button');
         const emailInput = loginScreen.getByPlaceholderText('Email');
@@ -59,30 +70,17 @@ describe('Login', () => {
             .mockImplementation(() => ({
                 login: mockLogin, user: null, loading: false, logout: jest.fn(), register: jest.fn()
             }));
-        fireEvent.changeText(emailInput, 'test@test.com');
-        fireEvent.changeText(passwordInput, '123');
-        fireEvent.press(loginButton);
+        await user.type(emailInput, 'test@test.com');
+        await user.type(passwordInput, '123');
+        await user.press(loginButton);
         expect(loginScreen.getByTestId('password-error').props.children).toBe('A jelszónak minimum 6 betűből kell állnia!');
         expect(mockLogin).not.toHaveBeenCalled();
     });
 
-    test('login button calls login if email and password are valid', () => {
-        const loginScreen = render(<LoginScreen />);
-        const loginButton = loginScreen.getByTestId('login-button');
-        const emailInput = loginScreen.getByPlaceholderText('Email');
-        const passwordInput = loginScreen.getByPlaceholderText('Jelszó');
-        const mockLogin = jest.fn();
-        (useAuth as jest.MockedFunction<typeof useAuth>)
-            .mockImplementation(() => ({
-                login: mockLogin, user: null, loading: false, logout: jest.fn(), register: jest.fn()
-            }));
-        fireEvent.changeText(emailInput, 'test@test.com');
-        fireEvent.changeText(passwordInput, 'StrongPassword123!');
-        fireEvent.press(loginButton);
-        expect(mockLogin).toHaveBeenCalled();
-    });
 
-    test('login button calls login with correct data', () => {
+
+    test('login button calls login with correct data', async () => {
+        const user = userEvent.setup();
         const mockLogin = jest.fn();
         (useAuth as jest.MockedFunction<typeof useAuth>)
             .mockImplementation(() => ({
@@ -93,12 +91,15 @@ describe('Login', () => {
         const loginButton = loginScreen.getByTestId('login-button');
         const emailInput = loginScreen.getByPlaceholderText('Email');
         const passwordInput = loginScreen.getByPlaceholderText('Jelszó');
-
-        fireEvent.changeText(emailInput, 'test@test.com');
-        fireEvent.changeText(passwordInput, 'StrongPassword123!');
-        fireEvent.press(loginButton);
+        const mockReplace = jest.fn();
+        (router as jest.Mocked<typeof router>).replace.mockImplementation(mockReplace);
+        await user.type(emailInput, 'test@test.com');
+        await user.type(passwordInput, 'StrongPassword123!');
+        await user.press(loginButton);
         expect(mockLogin).toHaveBeenCalledWith({ email: 'test@test.com', password: 'StrongPassword123!' });
+        expect(mockReplace).toHaveBeenCalledWith('/profile');
     });
+
 });
 
 

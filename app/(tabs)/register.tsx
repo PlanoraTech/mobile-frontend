@@ -6,13 +6,13 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';
 import { AuthInput } from '@/components/AuthInput';
-import { validateEmail, validatePassword, validateName } from '@/utils/validation';
+import { validateEmail, validatePassword } from '@/utils/validation';
 import { createAuthStyles } from '@/assets/styles/authStyles'
 import { Link, router } from 'expo-router';
 import { ErrorMessage } from '@/components/ErrorMessage';
+
 export default function RegisterScreen() {
 
     const styles = createAuthStyles();
@@ -102,7 +102,7 @@ export default function RegisterScreen() {
                 />
                 {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
 
-                <Pressable style={styles.authButton} onPress={handleRegister}>
+                <Pressable testID="register-button" style={styles.authButton} onPress={handleRegister}>
                     <Text style={styles.authButtonText}>Regisztáció</Text>
                 </Pressable>
 

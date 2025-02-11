@@ -20,8 +20,6 @@ export default function RegisterScreen() {
     const [error, setError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -34,7 +32,7 @@ export default function RegisterScreen() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         const newErrors = {
             email: !formData.email ? 'Email címet megadni kötelező!' :
                 !validateEmail(formData.email) ? 'Érvényes Email címet adj meg!' : '',
@@ -47,13 +45,12 @@ export default function RegisterScreen() {
         setErrors(newErrors);
 
         if (!Object.values(newErrors).some(error => error)) {
-            register(formData)
-                .then(() => {
-                    router.replace('/profile');
-                })
-                .catch((error: any) => {
-                    setError(error.message || 'Sikertelen regisztráció');
-                });
+            try {
+                await register(formData);
+                router.replace('/profile');
+            } catch (error: any) {
+                setError(error.message || 'Sikertelen regisztráció');
+            }
         }
 
 

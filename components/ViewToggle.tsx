@@ -38,7 +38,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
             <Pressable
                 style={[styles.toggleContainer, { width: buttonWidth }, themeStyles.content]}
                 onPress={toggleView}
-
+                testID='switch-toggle'
 
             >
                 <Animated.View

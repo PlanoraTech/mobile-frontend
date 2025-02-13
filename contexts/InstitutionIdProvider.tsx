@@ -18,7 +18,6 @@ export const InstitutionIdProvider = ({ children }: { children: React.ReactNode 
     useEffect(() => {
         setIsLoading(true);
         AsyncStorage.getItem('institution').then((id: string | null) => {
-            console.log('id', id);
             (id !== null) && setInstitutionId(id);
             setIsLoading(false);
         });

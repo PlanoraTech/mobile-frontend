@@ -25,7 +25,7 @@ export const formatWeekRange = (date: Date) => {
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
 
-    return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
+    return `${start.toLocaleDateString('hu-HU')} - ${end.toLocaleDateString('hu-HU')}`;
 };
 
 export const formatTime = (dateString: string) => {

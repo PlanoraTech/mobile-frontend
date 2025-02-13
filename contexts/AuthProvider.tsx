@@ -4,7 +4,6 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { AuthData, User } from '@/contexts/StandardAuthAdapter';
 
 
-
 interface AuthContextType {
     user: User | null;
     loading: boolean;

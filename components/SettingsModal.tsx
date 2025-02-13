@@ -88,9 +88,6 @@ export const SettingsModal = ({
             setModalVisible(false);
             onClose();
         });
-
-
-
     };
 
 
@@ -101,20 +98,14 @@ export const SettingsModal = ({
                 handleClose();
                 router.replace('/login' as any);
                 return;
-
             }
             if (!user?.institutions.some((instId: { id: string }) => {
                 return instId.id === item.id;
             })) {
-
                 handleClose();
                 setErrorMessage('Nincs hozzáférésed ehhez az intézményhez');
-
                 return;
             }
-
-
-
         }
 
         //upon app start there won't be faulty institutionId timetableId pairs
@@ -126,10 +117,7 @@ export const SettingsModal = ({
 
     }
 
-
-    const orderedInstitutions = [...institutions].sort((a, b) => user?.institutions.some((instId: { id: string }) => instId.id === a.id) ? -1 : 1);
-
-
+    const orderedInstitutions = [...institutions].sort((a) => user?.institutions.some((instId: { id: string }) => instId.id === a.id) ? -1 : 1);
 
     return (
         <>
@@ -138,9 +126,9 @@ export const SettingsModal = ({
                 transparent={true}
                 visible={modalVisible}
                 onRequestClose={handleClose}
-
             >
                 <Animated.View
+                    testID="settings-modal"
                     style={[
                         styles.modalContainer,
                         {

@@ -1,4 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
+import { BASE_URL_AUTH } from '@/constants';
 
 export interface User {
     credentials?: AuthData,
@@ -21,7 +22,7 @@ export interface AuthResponse {
 export class StandardAuthAdapter {
     private readonly apiUrl: string;
 
-    constructor(apiUrl: string = 'http://192.168.11.130:3000') {
+    constructor(apiUrl: string = BASE_URL_AUTH) {
         this.apiUrl = apiUrl;
     }
 

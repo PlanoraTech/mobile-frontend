@@ -30,3 +30,4 @@ export enum DayOfWeek {
 
 
 export const BASE_URL = 'http://192.168.11.130:3000/institutions';
+export const BASE_URL_AUTH = 'http://192.168.11.130:3000';

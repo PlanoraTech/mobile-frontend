@@ -5,7 +5,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TimetableView } from "@/components/TimeTableView";
 import { BASE_URL, SCREEN_WIDTH } from "@/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, RefObject } from "react";
 import { FlatList, Pressable, SafeAreaView, View, Text, StyleSheet, Platform } from "react-native";
 import { Settings } from 'lucide-react-native';
 import { SettingsModal } from "@/components/SettingsModal";
@@ -14,10 +14,8 @@ import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { StatusBar } from "expo-status-bar";
 import ViewToggle from "@/components/ViewToggle";
+
 export default function TimetableScreen() {
-
-
-
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
 
@@ -128,6 +126,7 @@ export default function TimetableScreen() {
           <Pressable
             style={styles.settingsButton}
             onPress={() => setModalVisible(true)}
+            testID="settings-button"
           >
             <Settings color={themeStyles.textSecondary.color} size={28} />
           </Pressable>
@@ -149,8 +148,8 @@ export default function TimetableScreen() {
               events={events}
               currentDayIndex={currentDayIndex}
               onDayChange={handleDayChange}
-              daysListRef={daysListRef}
-              appointmentsListRef={appointmentsListRef}
+              daysListRef={daysListRef as RefObject<FlatList>}
+              appointmentsListRef={appointmentsListRef as RefObject<FlatList>}
               handleViewableItemsChanged={handleViewableItemsChanged}
               showedList={showEvents ? 'events' : 'appointments'}
             />

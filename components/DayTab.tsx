@@ -1,5 +1,5 @@
 import { getThemeStyles } from "@/assets/styles/themes";
-import { DAY_TRANSLATIONS, SCREEN_WIDTH } from "@/constants";
+import { DAY_TRANSLATIONS } from "@/constants";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { Pressable, Text, StyleSheet } from "react-native";
 interface DayTabProps {

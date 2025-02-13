@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Text, StyleSheet, Pressable } from "react-native";
+import { Text, StyleSheet, Pressable, View } from "react-native";
 import { AppointmentModal } from "./AppointmentModal";
 import { formatTime } from "@/utils/dateUtils";
 import { useTheme } from "@/contexts/ThemeProvider";
@@ -29,15 +29,25 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const substitutedPresentators = appointment.presentators.filter(p => p.isSubstituted);
+  const presentators = appointment.presentators.filter(p => !p.isSubstituted);
   return <Pressable onPress={() => setIsModalVisible(true)} style={[styles.appointmentCard, themeStyles.content, appointment.isCancelled && styles.cancelledCard]}>
 
     <Text style={[styles.subjectName, themeStyles.textSecondary]}>{appointment.subject.name}</Text>
     <Text style={[styles.timeText]}>
       {formatTime(appointment.start)} - {formatTime(appointment.end)}
     </Text>
-    <Text style={[styles.presentatorText, themeStyles.text]}>
-      {appointment.presentators.map(p => p.name).join(', ')}
-    </Text>
+
+    {substitutedPresentators.length > 0 && (
+      presentators.map(p =>
+        <Text style={[styles.presentatorText, themeStyles.text, { textDecorationLine: 'line-through' }]} key={p.id}>{p.name}</Text>
+      )
+    )}
+    {presentators.map(p =>
+      <Text style={[styles.presentatorText, themeStyles.text]} key={p.id}>{p.name}</Text>
+    )}
+
+
     <Text style={[styles.roomText, themeStyles.text]}>
       {appointment.rooms.map(r => r.name).join(' - ')}
     </Text>

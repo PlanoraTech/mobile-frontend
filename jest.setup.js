@@ -7,3 +7,4 @@ jest.mock("expo-font", () => {
 
     return module;
 });
+

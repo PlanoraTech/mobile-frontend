@@ -39,6 +39,7 @@ describe('Login', () => {
     test('renders correctly', () => {
         (AsyncStorage.default.getItem as jest.Mock).mockResolvedValue(null);
         render(<LoginScreen />);
+        expect(LoginScreen).toBeTruthy();
     });
 
     test('login button fails to call login if email is invalid', async () => {

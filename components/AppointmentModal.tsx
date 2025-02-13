@@ -1,5 +1,5 @@
 import { Appointment } from "@/components/AppointmentCard";
-import { formatTime } from "@/utils/dateUtils";
+import { formatTime, formatTimeRange } from "@/utils/dateUtils";
 import { Modal, View, Text, StyleSheet, Pressable, Switch, Animated } from "react-native"
 import DropdownComponent from "./Dropdown";
 import { useState, useEffect, useRef } from "react";
@@ -73,7 +73,7 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
 
 
 
-    if (user?.role !== 'PRESENTATOR') {
+    if (user?.role !== 'PRESENTATOR' && user?.role !== 'DIRECTOR') {
         return null;
     }
 
@@ -133,7 +133,7 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                             <View style={styles.modalTop}>
                                 <View style={[styles.textContainer, styles.card]}>
                                     <Text style={[styles.subject, themeStyles.textSecondary]}>{appointment.subject.name}</Text>
-                                    <Text style={styles.date}>{formatTime(appointment.start)} - {formatTime(appointment.end)}</Text>
+                                    <Text style={styles.date}>{formatTimeRange(appointment.start, appointment.end)}</Text>
                                 </View>
 
                                 <View style={[styles.cancelContainer, styles.card]}>

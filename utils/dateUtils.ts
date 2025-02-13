@@ -28,9 +28,17 @@ export const formatWeekRange = (date: Date) => {
     return `${start.toLocaleDateString('hu-HU')} - ${end.toLocaleDateString('hu-HU')}`;
 };
 
+export const formatDate = (date: Date) => {
+    return date.toLocaleDateString('hu-HU');
+};
+
 export const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString([], {
+    return new Date(dateString).toLocaleTimeString('hu-HU', {
         hour: '2-digit',
         minute: '2-digit'
     });
+};
+
+export const formatTimeRange = (start: string, end: string) => {
+    return `${formatTime(start)} - ${formatTime(end)}`;
 };

@@ -32,20 +32,12 @@ export default function LoginScreen() {
     const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
-    const checkforErrors = async () => {
+    const handleLogin = async () => {
         const newErrors = {
-            email: !formData.email ? 'Email címet megadni kötelező!' :
-                !validateEmail(formData.email) ? 'Érvényes emailt adj meg!' : '',
-
-            password: !formData.password ? 'Jelszót megadni kötelező!' :
-                !validatePassword(formData.password) ? 'A jelszónak minimum 6 betűből kell állnia!' : '',
+            email: validateEmail(formData.email),
+            password: validatePassword(formData.password),
         };
-
         setErrors(newErrors);
-        handleLogin(newErrors);
-    };
-
-    const handleLogin = async (newErrors: any) => {
         if (!Object.values(newErrors).some(error => error)) {
             try {
                 await login(formData);
@@ -54,7 +46,7 @@ export default function LoginScreen() {
                 setErrorMessage(error.message || 'Sikertelen bejelentkezés');
             }
         }
-    }
+    };
 
     return (
         <KeyboardAvoidingView
@@ -88,7 +80,7 @@ export default function LoginScreen() {
                     <Text style={styles.forgotPassword}>Elfelejtetted a jelszót?</Text>
                 </Pressable>
                 {isModalVisible && <ForgotPasswordModal onClose={() => setIsModalVisible(false)} />}
-                <Pressable testID='login-button' style={styles.authButton} onPress={checkforErrors}>
+                <Pressable testID='login-button' style={styles.authButton} onPress={handleLogin}>
                     <Text style={styles.authButtonText}>Bejelentkezés</Text>
                 </Pressable>
 

@@ -2,7 +2,7 @@
 import { Fragment, useState } from "react";
 import { Text, StyleSheet, Pressable, View } from "react-native";
 import { AppointmentModal } from "./AppointmentModal";
-import { formatTime } from "@/utils/dateUtils";
+import { formatTimeRange } from "@/utils/dateUtils";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { DropdownItem } from "./Dropdown";
@@ -35,7 +35,7 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
 
     <Text style={[styles.subjectName, themeStyles.textSecondary]}>{appointment.subject.name}</Text>
     <Text style={[styles.timeText]}>
-      {formatTime(appointment.start)} - {formatTime(appointment.end)}
+      {formatTimeRange(appointment.start, appointment.end)}
     </Text>
     <Text style={[styles.presentatorText, themeStyles.text]}>
       {[...substitutedPresentators, ...presentators].map((p, index, array) => (

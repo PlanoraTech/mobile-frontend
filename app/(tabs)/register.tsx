@@ -34,16 +34,14 @@ export default function RegisterScreen() {
 
     const handleRegister = async () => {
         const newErrors = {
-            email: !formData.email ? 'Email címet megadni kötelező!' :
-                !validateEmail(formData.email) ? 'Érvényes Email címet adj meg!' : '',
-            password: !formData.password ? 'Jelszót megadni kötelező!' :
-                !validatePassword(formData.password) ? 'A jelszó minimum 6 betű!' : '',
-            confirmPassword: !formData.confirmPassword ? 'Kérlek, erősítsd meg a jelszavad!' :
-                formData.password !== formData.confirmPassword ? 'A jelszavak nem egyeznek!' : '',
+            email: validateEmail(formData.email),
+            password: validatePassword(formData.password),
+            confirmPassword: validatePassword(formData.confirmPassword),
         };
-
+        if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = 'A jelszavak nem egyeznek!';
+        }
         setErrors(newErrors);
-
         if (!Object.values(newErrors).some(error => error)) {
             try {
                 await register(formData);
@@ -52,8 +50,6 @@ export default function RegisterScreen() {
                 setError(error.message || 'Sikertelen regisztráció');
             }
         }
-
-
     };
 
 

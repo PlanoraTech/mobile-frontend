@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Text, StyleSheet, Pressable, View } from "react-native";
 import { AppointmentModal } from "./AppointmentModal";
 import { formatTime } from "@/utils/dateUtils";
@@ -37,17 +37,22 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
     <Text style={[styles.timeText]}>
       {formatTime(appointment.start)} - {formatTime(appointment.end)}
     </Text>
-
-    {substitutedPresentators.length > 0 && (
-      presentators.map(p =>
-        <Text style={[styles.presentatorText, themeStyles.text, { textDecorationLine: 'line-through' }]} key={p.id}>{p.name}</Text>
-      )
-    )}
-    {presentators.map(p =>
-      <Text style={[styles.presentatorText, themeStyles.text]} key={p.id}>{p.name}</Text>
-    )}
-
-
+    <Text style={[styles.presentatorText, themeStyles.text]}>
+      {[...substitutedPresentators, ...presentators].map((p, index, array) => (
+        <Fragment key={p.id}>
+          <Text
+            style={[
+              styles.presentatorText,
+              themeStyles.text,
+              substitutedPresentators.includes(p) && { textDecorationLine: 'line-through' }
+            ]}
+          >
+            {p.name}
+          </Text>
+          {index < array.length - 1 && <Text>, </Text>}
+        </Fragment>
+      ))}
+    </Text>
     <Text style={[styles.roomText, themeStyles.text]}>
       {appointment.rooms.map(r => r.name).join(' - ')}
     </Text>

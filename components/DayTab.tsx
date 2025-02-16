@@ -47,9 +47,8 @@ const styles = StyleSheet.create({
   dayTab: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderBottomWidth: 2,
-
   },
   activeDayTab: {
     borderBottomColor: '#0066cc',

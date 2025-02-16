@@ -1,8 +1,8 @@
 import { DAYS, SCREEN_WIDTH } from "@/constants";
 import { Appointment } from "@/components/AppointmentCard";
 import { DayEvent } from "@/components/EventModal";
-import React, { useState } from "react";
-import { FlatList, View, StyleSheet, ScrollView, Text } from "react-native";
+import React, { RefObject, useState } from "react";
+import { FlatList, View, StyleSheet, ScrollView, Text, Pressable } from "react-native";
 import { AppointmentCard } from "@/components/AppointmentCard";
 import { DayTab } from "./DayTab";
 import { WeekNavigation } from "./WeekNavigation";
@@ -12,25 +12,26 @@ import { EventCard } from "./EventCard";
 import { AddEventCard } from "./AddEventCard";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getCurrentWeekDates, isSameDayUTC } from "@/utils/dateUtils";
-import { StatusBar } from "expo-status-bar";
+
 interface TimetableViewProps {
   appointments: Appointment[];
-  currentDayIndex: number;
+
   onDayChange: (index: number) => void;
-  daysListRef: React.RefObject<FlatList>;
+  onScrolltoIndexEnd: () => void;
   events: DayEvent[];
-  appointmentsListRef: React.RefObject<FlatList>;
+  cardsListRef: RefObject<FlatList>;
+  goalDayIndex: number;
   showedList: 'appointments' | 'events';
   handleViewableItemsChanged: (info: { viewableItems: any[] }) => void;
 }
 
 export const TimetableView = ({
   appointments,
-  currentDayIndex,
 
+  goalDayIndex,
   onDayChange,
-  daysListRef,
-  appointmentsListRef,
+  onScrolltoIndexEnd,
+  cardsListRef,
   showedList,
   events,
   handleViewableItemsChanged
@@ -39,10 +40,11 @@ export const TimetableView = ({
   const { user } = useAuth();
   const themeStyle = getThemeStyles(theme);
   const [currentDate, setCurrentDate] = useState(new Date());
-
-
+  console.log(goalDayIndex)
+  //console.log("appointmentRef:" + appointmentsListRef.current?._listRef?._scrollMetrics?.offset)
 
   const handleWeekChange = (direction: 'prev' | 'next') => {
+    console.log("helloaaa")
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
     setCurrentDate(newDate);
@@ -75,12 +77,15 @@ export const TimetableView = ({
         ) : (
           <ScrollView>
             <FlatList
+
               data={dayAppointments}
               keyExtractor={(appointment) => appointment.id}
               renderItem={({ item }) => (
+                //<Pressable style={{flex: 1, height: 500}}><Text style={{color: '#fff', fontSize: 30}} numberOfLines={5}>HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</Text></Pressable>
                 <AppointmentCard appointment={item} />
               )}
               showsVerticalScrollIndicator={false}
+
               scrollEnabled={false}
             />
           </ScrollView>
@@ -133,6 +138,7 @@ export const TimetableView = ({
     );
   };
 
+
   return (
     <View style={[styles.timetableContainer, themeStyle.background]}>
       <WeekNavigation
@@ -141,18 +147,16 @@ export const TimetableView = ({
       />
 
       <FlatList
-        ref={daysListRef}
         data={DAYS}
         keyExtractor={(item) => item}
         horizontal
-        style={[styles.daysList, themeStyle.content]}
+        style={[styles.testContainer, themeStyle.content]}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.daysListContent}
         renderItem={({ item, index }) => (
           <DayTab
             day={item}
             date={weekDates[index].toLocaleDateString('hu-HU', { day: 'numeric', month: 'short' })}
-            isActive={index === currentDayIndex}
+            isActive={index === goalDayIndex}
             onPress={() => onDayChange(index)}
             width={SCREEN_WIDTH / 5}
           />
@@ -162,46 +166,31 @@ export const TimetableView = ({
       {showedList === 'appointments' ? (
 
         <FlatList
-          ref={appointmentsListRef}
+          ref={cardsListRef}
           data={DAYS}
           keyExtractor={(item) => item}
           horizontal
-          pagingEnabled
           bounces={false}
+          pagingEnabled
           showsHorizontalScrollIndicator={false}
           onViewableItemsChanged={handleViewableItemsChanged}
-          viewabilityConfig={{
-            viewAreaCoveragePercentThreshold: 50,
-            minimumViewTime: 0,
-          }}
-          getItemLayout={(data, index) => ({
-            length: SCREEN_WIDTH,
-            offset: SCREEN_WIDTH * index,
-            index,
-          })}
+          onMomentumScrollEnd={onScrolltoIndexEnd}
+          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, }}
           renderItem={renderDayPage}
         />) : (
         <FlatList
-          ref={appointmentsListRef}
+          ref={cardsListRef}
           data={DAYS}
           keyExtractor={(item) => item}
           horizontal
-          pagingEnabled
           bounces={false}
+          pagingEnabled
           showsHorizontalScrollIndicator={false}
           onViewableItemsChanged={handleViewableItemsChanged}
-          viewabilityConfig={{
-            viewAreaCoveragePercentThreshold: 50,
-            minimumViewTime: 0,
-          }}
-          getItemLayout={(data, index) => ({
-            length: SCREEN_WIDTH,
-            offset: SCREEN_WIDTH * index,
-            index,
-          })}
+          onMomentumScrollEnd={onScrolltoIndexEnd}
+          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, }}
           renderItem={renderEventpage}
         />
-
       )}
     </View>
   );
@@ -211,12 +200,7 @@ const styles = StyleSheet.create({
   timetableContainer: {
     flex: 1,
   },
-  daysList: {
-    maxHeight: 60,
-  },
-  daysListContent: {
-    flexGrow: 1,
-  },
+
   dayTab: {
     flex: 1,
     alignItems: 'center',
@@ -238,11 +222,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    minHeight: 200,
+
   },
   notFoundText: {
     fontSize: 16,
     fontWeight: '400',
     textAlign: 'center',
+  },
+  testContainer: {
+
+    minHeight: 60,
+    maxHeight: 60,
   },
 });

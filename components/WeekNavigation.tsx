@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeProvider';
@@ -25,8 +24,8 @@ export const WeekNavigation = ({ currentDate, onWeekChange }: WeekNavigationProp
 
   return (
     <View style={[styles.weekNavigation, themeStyles.content, themeStyles.border]}>
-      <Pressable 
-        style={styles.navButton} 
+      <Pressable
+        style={styles.navButton}
         onPress={() => onWeekChange('prev')}
       >
         <ChevronLeft color={themeStyles.textSecondary.color} size={24} />
@@ -36,8 +35,8 @@ export const WeekNavigation = ({ currentDate, onWeekChange }: WeekNavigationProp
 
         {formatWeekRange(currentDate)}
       </Text>
-      <Pressable 
-        style={styles.navButton} 
+      <Pressable
+        style={styles.navButton}
         onPress={() => onWeekChange('next')}
       >
         <ChevronRight color={themeStyles.textSecondary.color} size={24} />
@@ -49,74 +48,74 @@ export const WeekNavigation = ({ currentDate, onWeekChange }: WeekNavigationProp
 };
 
 const styles = StyleSheet.create({
-    timetableContainer: {
-      flex: 1,
-    },
-    weekNavigation: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-      borderBottomWidth: 0.5,
-    },
-    navButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: 8,
-    },
-    secondArrow: {
-      marginLeft: -12,
-    },
-    weekText: {
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    daysList: {
-      maxHeight: 60,
-      borderBottomWidth: 1,
-      borderBottomColor: '#e0e0e0',
-    },
-    dayTab: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      minWidth: 80,
-    },
-    activeDayTab: {
-      borderBottomWidth: 2,
-      borderBottomColor: '#0066cc',
-    },
-    dayText: {
-      fontSize: 16,
-      fontWeight: '600',
-      marginBottom: 2,
-    },
-    dateText: {
-      fontSize: 12,
-    },
-    activeDayText: {
-      color: '#0066cc',
-    },
-    activeDateText: {
-      color: '#0066cc',
-    },
-    dayPage: {
-      width: SCREEN_WIDTH,
-      padding: 10,
-    },
-    notFoundContainer: {
-      flex: 1,
-      width: SCREEN_WIDTH,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 20,
-    },
-    notFoundText: {
-      fontSize: 16,
-      fontWeight: '400',
-      textAlign: 'center',
-    },
-  });
+  timetableContainer: {
+    flex: 1,
+  },
+  weekNavigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 0.5,
+  },
+  navButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+  },
+  secondArrow: {
+    marginLeft: -12,
+  },
+  weekText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  daysList: {
+    maxHeight: 60,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  dayTab: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    minWidth: 80,
+  },
+  activeDayTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#0066cc',
+  },
+  dayText: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  dateText: {
+    fontSize: 12,
+  },
+  activeDayText: {
+    color: '#0066cc',
+  },
+  activeDateText: {
+    color: '#0066cc',
+  },
+  dayPage: {
+    width: SCREEN_WIDTH,
+    padding: 10,
+  },
+  notFoundContainer: {
+    flex: 1,
+    width: SCREEN_WIDTH,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  notFoundText: {
+    fontSize: 16,
+    fontWeight: '400',
+    textAlign: 'center',
+  },
+});

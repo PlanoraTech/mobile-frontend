@@ -1,6 +1,6 @@
 import { Appointment } from "@/components/AppointmentCard";
 import { formatTime, formatTimeRange } from "@/utils/dateUtils";
-import { Modal, View, Text, StyleSheet, Pressable, Switch, Animated } from "react-native"
+import { Modal, View, Text, StyleSheet, Pressable, Switch, Animated, Platform } from "react-native"
 import DropdownComponent from "./Dropdown";
 import { useState, useEffect, useRef } from "react";
 import { getThemeStyles } from "@/assets/styles/themes";
@@ -91,7 +91,8 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                     {
                         opacity: fadeAnim,
                         backgroundColor: 'rgba(0, 0, 0, 0.5)'
-                    }
+                    },
+                    Platform.OS === 'ios' ? { paddingTop: 50 } : { paddingTop: 0 }
                 ]}
             >
                 <Animated.View

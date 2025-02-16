@@ -23,6 +23,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ErrorMessage } from './ErrorMessage';
+import { Platform } from 'react-native';
 interface SettingsModalProps {
     visible: boolean;
     onClose: () => void;
@@ -128,13 +129,15 @@ export const SettingsModal = ({
                 onRequestClose={handleClose}
             >
                 <Animated.View
+
                     testID="settings-modal"
                     style={[
                         styles.modalContainer,
                         {
                             opacity: fadeAnim,
                             backgroundColor: 'rgba(0, 0, 0, 0.3)'
-                        }
+                        },
+                        Platform.OS === 'ios' ? { paddingTop: 50 } : { paddingTop: 0 }
                     ]}
                 >
                     <Animated.View

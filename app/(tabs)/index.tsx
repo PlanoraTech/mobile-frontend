@@ -9,25 +9,27 @@ import React, { useEffect, useRef, useState, RefObject } from "react";
 import { FlatList, Pressable, SafeAreaView, View, Text, StyleSheet, Platform } from "react-native";
 import { Settings } from 'lucide-react-native';
 import { SettingsModal } from "@/components/SettingsModal";
-
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { StatusBar } from "expo-status-bar";
 import ViewToggle from "@/components/ViewToggle";
+import { getCurrentDayIndex } from "@/utils/dateUtils";
 
 export default function TimetableScreen() {
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
 
-  const [currentDayIndex, setCurrentDayIndex] = useState(0);
-  const [selectedView, setSelectedView] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const [goalDayIndex, setGoalDayIndex] = useState(getCurrentDayIndex());
+
+  const [selectedView, setSelectedView] = useState<string>("");
+  const [selectedId, setSelectedId] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
   const [institutions, setInstitutions] = useState<any[]>([]);
   const [showEvents, setShowEvents] = useState(false);
 
-  const daysListRef = useRef<FlatList>(null);
-  const appointmentsListRef = useRef<FlatList>(null);
+  const cardsListRef = useRef<FlatList>(null);
+  const dayChosenByTapRef = useRef(false);
 
   const { data, loading: institutionLoading, error: institutionError } = useInstitutionData();
   const { appointments, events, loading, error } = useTimetable({ selectedView, selectedId });
@@ -78,28 +80,30 @@ export default function TimetableScreen() {
   };
 
   const handleDayChange = (index: number) => {
-    if (appointmentsListRef.current) {
-      appointmentsListRef.current.scrollToOffset({
-        offset: index * SCREEN_WIDTH,
-        animated: true
+    dayChosenByTapRef.current = true;
+    if (cardsListRef.current) {
+
+      setGoalDayIndex(index);
+      cardsListRef.current?.scrollToIndex({
+        index: index,
       });
     }
   };
 
+  const handleScrolltoIndexEnd = () => {
+    dayChosenByTapRef.current = false;
+  }
+
   const handleViewableItemsChanged = useRef(({ viewableItems }: any) => {
+    console.log("hello")
     if (viewableItems && viewableItems.length > 0) {
       const newIndex = viewableItems[0].index;
-      setCurrentDayIndex(newIndex);
-
-      if (daysListRef.current) {
-        daysListRef.current.scrollToIndex({
-          index: newIndex,
-          animated: true,
-          viewPosition: 0.5
-        });
+      if (dayChosenByTapRef.current === false) {
+        setGoalDayIndex(newIndex)
       }
     }
   }).current;
+
 
   if (institutionLoading.institution) return <LoadingSpinner />;
 
@@ -146,10 +150,10 @@ export default function TimetableScreen() {
             <TimetableView
               appointments={appointments}
               events={events}
-              currentDayIndex={currentDayIndex}
               onDayChange={handleDayChange}
-              daysListRef={daysListRef as RefObject<FlatList>}
-              appointmentsListRef={appointmentsListRef as RefObject<FlatList>}
+              onScrolltoIndexEnd={handleScrolltoIndexEnd}
+              goalDayIndex={goalDayIndex}
+              cardsListRef={cardsListRef as RefObject<FlatList>}
               handleViewableItemsChanged={handleViewableItemsChanged}
               showedList={showEvents ? 'events' : 'appointments'}
             />
@@ -170,7 +174,7 @@ export default function TimetableScreen() {
         institutions={institutions}
         loading={institutionLoading}
         data={data}
-        onInstChange={() => setSelectedId(null)}
+        onInstChange={() => setSelectedId("")}
         onSelect={(item, type) => {
           handleSelection(item.id, type.toLowerCase());
         }}
@@ -205,10 +209,7 @@ const styles = StyleSheet.create({
 
   },
   selectedTitle: {
-
     fontWeight: '600',
-
-
   },
   settingsButton: {
     padding: 8,

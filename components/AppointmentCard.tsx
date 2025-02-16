@@ -53,6 +53,7 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
         </Fragment>
       ))}
     </Text>
+    
     <Text style={[styles.roomText, themeStyles.text]}>
       {appointment.rooms.map(r => r.name).join(' - ')}
     </Text>

@@ -19,6 +19,11 @@ export const getCurrentWeekDates = (currentDate: Date) => {
     return dates;
 };
 
+export const getCurrentDayIndex = () => {
+    const date = new Date();
+    const currentDay = date.getDay();
+    return currentDay > 4 ? 0 : currentDay
+}
 export const formatWeekRange = (date: Date) => {
     const start = new Date(date);
     start.setDate(date.getDate() - date.getDay() + 1);

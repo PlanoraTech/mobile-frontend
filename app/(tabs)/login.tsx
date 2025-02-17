@@ -14,15 +14,17 @@ import { Link, router } from 'expo-router';
 import { createAuthStyles } from '@/assets/styles/authStyles';
 import ForgotPasswordModal from '@/components/ForgotPasswordModal';
 import { ErrorMessage } from '@/components/ErrorMessage';
-
+import Checkbox from 'expo-checkbox';
 
 export default function LoginScreen() {
 
     const styles = createAuthStyles();
     const { login } = useAuth();
+    const [checked, setChecked] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
+        rememberMe: false,
     });
     const [errors, setErrors] = useState({
         email: '',
@@ -31,12 +33,12 @@ export default function LoginScreen() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-
     const handleLogin = async () => {
         const newErrors = {
             email: validateEmail(formData.email),
             password: validatePassword(formData.password),
         };
+        console.log(formData.rememberMe)
         setErrors(newErrors);
         if (!Object.values(newErrors).some(error => error)) {
             try {
@@ -76,9 +78,21 @@ export default function LoginScreen() {
                     toggleSecureEntry={() => setShowPassword(!showPassword)}
                 />
                 {errors.password && <Text testID='password-error' style={styles.errorText}>{errors.password}</Text>}
-                <Pressable onPress={() => setIsModalVisible(true)}>
-                    <Text style={styles.forgotPassword}>Elfelejtetted a jelszót?</Text>
-                </Pressable>
+                <View style={styles.suboptionsContainer}>
+                    <View style={styles.checkboxContainer}>
+
+                        <Checkbox
+                            value={formData.rememberMe}
+                            
+                            style={[styles.checkbox]}
+                            onValueChange={() => setFormData(prev => ({ ...prev, rememberMe: !formData.rememberMe }))}
+                        />
+                        <Text style={styles.switchAuthText}>Emlékezz rám</Text>
+                    </View>
+                    <Pressable onPress={() => setIsModalVisible(true)}>
+                        <Text style={styles.forgotPassword}>Elfelejtetted a jelszót?</Text>
+                    </Pressable>
+                </View>
                 {isModalVisible && <ForgotPasswordModal onClose={() => setIsModalVisible(false)} />}
                 <Pressable testID='login-button' style={styles.authButton} onPress={handleLogin}>
                     <Text style={styles.authButtonText}>Bejelentkezés</Text>

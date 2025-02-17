@@ -7,7 +7,10 @@ import {
     ScrollView,
     StyleSheet,
     FlatList,
-    Animated
+    Animated,
+    Platform,
+    TouchableOpacity,
+    TouchableWithoutFeedback
 } from 'react-native';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import DropdownComponent, { DropdownItem } from '@/components/Dropdown';
@@ -23,7 +26,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ErrorMessage } from './ErrorMessage';
-import { Platform } from 'react-native';
+
 interface SettingsModalProps {
     visible: boolean;
     onClose: () => void;
@@ -128,122 +131,130 @@ export const SettingsModal = ({
                 visible={modalVisible}
                 onRequestClose={handleClose}
             >
-                <Animated.View
+
+                <TouchableOpacity
 
                     testID="settings-modal"
+                    onPress={handleClose}
+                    activeOpacity={1}
                     style={[
                         styles.modalContainer,
-                        {
-                            opacity: fadeAnim,
-                            backgroundColor: 'rgba(0, 0, 0, 0.3)'
-                        },
                         Platform.OS === 'ios' ? { paddingTop: 50 } : { paddingTop: 0 }
                     ]}
                 >
                     <Animated.View
-                        style={[
-                            styles.modalContent,
-                            themeStyle.content,
-                            {
-                                transform: [{ translateY: slideAnim }]
-                            }
-                        ]}
-                    >
-                        <View style={[styles.modalHeader, themeStyle.border]}>
-                            <Text style={[styles.modalTitle, themeStyle.textSecondary]}>
-                                Órarend beállítások
-                            </Text>
-                            <Pressable
-                                onPress={handleClose}
-                                style={styles.closeButton}
+                        style={{
+                            opacity: fadeAnim,
+                            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                            flex: 1
+                        }}>
+
+
+                        <TouchableWithoutFeedback>
+                            <Animated.View
+                                style={[
+                                    styles.modalContent,
+                                    themeStyle.content,
+                                    {
+                                        transform: [{ translateY: slideAnim }]
+                                    }
+                                ]}
                             >
-                                <Text style={[styles.closeButtonText, themeStyle.textSecondary]}>×</Text>
-                            </Pressable>
-                        </View>
 
-                        <ScrollView>
-                            <DropdownComponent
-                                data={orderedInstitutions}
-                                placeholder={data.institution?.name || "Intézmény kiválasztása"}
-                                searchPlaceholder="Intézmény keresése..."
-                                onSelect={(item: DropdownItem) => { handleInstSelect(item) }}
+                                <View style={[styles.modalHeader, themeStyle.border]}>
+                                    <Text style={[styles.modalTitle, themeStyle.textSecondary]}>
+                                        Órarend beállítások
+                                    </Text>
+                                    <Pressable
+                                        onPress={handleClose}
+                                        style={styles.closeButton}
+                                    >
+                                        <Text style={[styles.closeButtonText, themeStyle.textSecondary]}>×</Text>
+                                    </Pressable>
+                                </View>
 
-                            />
-                            <View style={styles.dropdownContainer}>
-                                <FlatList
+                                <ScrollView>
+                                    <DropdownComponent
+                                        data={orderedInstitutions}
+                                        placeholder={data.institution?.name || "Intézmény kiválasztása"}
+                                        searchPlaceholder="Intézmény keresése..."
+                                        onSelect={(item: DropdownItem) => { handleInstSelect(item) }}
+
+                                    />
+                                    <View style={styles.dropdownContainer}>
+                                        <FlatList
 
 
-                                    style={styles.choiceList}
-                                    horizontal
-                                    data={["Órarend", "Előadó", "Terem"]}
-                                    renderItem={({ item, index }) => (
-                                        <TimetableButton
-                                            choice={item}
-                                            isActive={index === currentBtnIndex}
-                                            onPress={() => { setCurrentBtnIndex(index) }}
+                                            style={styles.choiceList}
+                                            horizontal
+                                            data={["Órarend", "Előadó", "Terem"]}
+                                            renderItem={({ item, index }) => (
+                                                <TimetableButton
+                                                    choice={item}
+                                                    isActive={index === currentBtnIndex}
+                                                    onPress={() => { setCurrentBtnIndex(index) }}
+                                                />
+                                            )}
                                         />
-                                    )}
-                                />
-                                {currentBtnIndex === 0 && (
-                                    <View style={styles.card}>
-                                        {loading.timetables ? (
-                                            <LoadingSpinner />
-                                        ) : (
-                                            <DropdownComponent
-                                                data={data.timetables}
+                                        {currentBtnIndex === 0 && (
+                                            <View style={styles.card}>
+                                                {loading.timetables ? (
+                                                    <LoadingSpinner />
+                                                ) : (
+                                                    <DropdownComponent
+                                                        data={data.timetables}
+                                                        placeholder="Válassz órarendet"
+                                                        searchPlaceholder="Órarend keresése..."
+                                                        onSelect={(item) => onSelect(item, 'timetable')}
+                                                    />
+                                                )}
+                                            </View>
+                                        )}
 
-                                                placeholder="Válassz órarendet"
-                                                searchPlaceholder="Órarend keresése..."
-                                                onSelect={(item) => onSelect(item, 'timetable')}
+                                        {currentBtnIndex === 1 && (
+                                            <View style={styles.card}>
+                                                {loading.presentators ? (
+                                                    <LoadingSpinner />
+                                                ) : (
+                                                    <DropdownComponent
+                                                        data={data.presentators}
+                                                        placeholder="Válassz előadót"
+                                                        searchPlaceholder="Előadó keresése..."
+                                                        onSelect={(item) => onSelect(item, 'presentators')}
+
+                                                    />
 
 
+                                                )}
+                                            </View>
+                                        )}
 
-                                            />
+                                        {currentBtnIndex === 2 && (
+                                            <View style={styles.card}>
+                                                {loading.rooms ? (
+                                                    <LoadingSpinner />
+                                                ) : (
+                                                    <DropdownComponent
+                                                        data={data.rooms}
+                                                        placeholder="Válassz termet"
+
+
+                                                        searchPlaceholder="Terem keresése..."
+                                                        onSelect={(item) => onSelect(item, 'rooms')}
+
+                                                    />
+
+
+                                                )}
+                                            </View>
                                         )}
                                     </View>
-                                )}
-
-                                {currentBtnIndex === 1 && (
-                                    <View style={styles.card}>
-                                        {loading.presentators ? (
-                                            <LoadingSpinner />
-                                        ) : (
-                                            <DropdownComponent
-                                                data={data.presentators}
-                                                placeholder="Válassz előadót"
-                                                searchPlaceholder="Előadó keresése..."
-                                                onSelect={(item) => onSelect(item, 'presentators')}
-
-                                            />
-
-
-                                        )}
-                                    </View>
-                                )}
-
-                                {currentBtnIndex === 2 && (
-                                    <View style={styles.card}>
-                                        {loading.rooms ? (
-                                            <LoadingSpinner />
-                                        ) : (
-                                            <DropdownComponent
-                                                data={data.rooms}
-                                                placeholder="Válassz termet"
-
-
-                                                searchPlaceholder="Terem keresése..."
-                                                onSelect={(item) => onSelect(item, 'rooms')}
-
-                                            />
-
-
-                                        )}
-                                    </View>
-                                )}
-                            </View>
-                        </ScrollView>
+                                </ScrollView>
+                            </Animated.View>
+                        </TouchableWithoutFeedback>
                     </Animated.View>
-                </Animated.View>
+                </TouchableOpacity>
+
             </Modal>
             {errorMessage && <ErrorMessage message={errorMessage} onClose={() => setErrorMessage('')} />}
         </>

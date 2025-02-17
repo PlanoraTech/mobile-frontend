@@ -40,11 +40,9 @@ export const TimetableView = ({
   const { user } = useAuth();
   const themeStyle = getThemeStyles(theme);
   const [currentDate, setCurrentDate] = useState(new Date());
-  console.log(goalDayIndex)
-  //console.log("appointmentRef:" + appointmentsListRef.current?._listRef?._scrollMetrics?.offset)
 
   const handleWeekChange = (direction: 'prev' | 'next') => {
-    console.log("helloaaa")
+
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
     setCurrentDate(newDate);
@@ -75,13 +73,12 @@ export const TimetableView = ({
             </Text>
           </View>
         ) : (
-          <ScrollView>
+          <ScrollView showsVerticalScrollIndicator={false}>
             <FlatList
 
               data={dayAppointments}
               keyExtractor={(appointment) => appointment.id}
               renderItem={({ item }) => (
-                //<Pressable style={{flex: 1, height: 500}}><Text style={{color: '#fff', fontSize: 30}} numberOfLines={5}>HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</Text></Pressable>
                 <AppointmentCard appointment={item} />
               )}
               showsVerticalScrollIndicator={false}
@@ -104,7 +101,6 @@ export const TimetableView = ({
     return (
       <View
         style={styles.dayPage}
-
       >
         {dayEvents.length === 0 ? (
 
@@ -114,7 +110,6 @@ export const TimetableView = ({
             <View style={[styles.notFoundContainer, themeStyle.content]}>
               <Text style={[themeStyle.textSecondary, styles.notFoundText]}>
                 Erre a napra nincs esemény megadva
-
               </Text>
             </View>
           )

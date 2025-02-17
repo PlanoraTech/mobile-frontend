@@ -75,6 +75,17 @@ export const createAuthStyles = () => {
             fontSize: 14,
             fontWeight: '600',
         },
+        suboptionsContainer: {
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+        },
+        checkboxContainer: {
+            flexDirection: 'row',
+            gap: 5
+        },
+        checkbox: {
+            borderRadius: 5
+        }
     });
 
 };

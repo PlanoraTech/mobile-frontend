@@ -116,14 +116,7 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
                     </View>
                     <View style={styles.modalMain}>
                         <View style={[styles.card]}>
-                            <DropdownComponent
-                                key="presentators-dropdown"
-                                data={presentators}
-                                onSelect={() => { }}
-                                searchPlaceholder="Előadó keresése..."
-
-                                placeholder={appointment.presentators.map(p => p.name).join(', ')}
-                            />
+                        
                             <DropdownComponent
                                 data={rooms}
                                 onSelect={() => { }}
@@ -139,8 +132,8 @@ export const AppointmentModal = ({ isVisible, appointment, onClose }: Appointmen
 
                                 <View style={[styles.cancelContainer, styles.card]}>
                                     {isEnabled ?
-                                        <Text style={styles.cancelTextPostive}>Elmarad</Text> :
-                                        <Text style={styles.cancelTextNegative}>Megtartva</Text>
+                                        <Text style={styles.cancelTextPostive}>Hiányzás</Text> :
+                                        <Text style={styles.cancelTextNegative}>Jelenlét</Text>
                                     }
                                     <Switch
                                         trackColor={{

@@ -44,7 +44,8 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
     setOptionsNotShown(!optionsNotShown)
   }
 
-
+  const colorScheme = useColorScheme();
+  console.log(colorScheme)
   const handleSubstitution = () => {
     const alertType = isSubstituted ? "Jelenlét" : "Hiányzás"
     Alert.alert(

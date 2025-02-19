@@ -2,11 +2,13 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { ThemeMode } from '@/assets/styles/themes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useColorScheme } from 'react-native';
 
 interface ThemeContextType {
   theme: ThemeMode;
   toggleTheme: () => void;
 }
+
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'light',
@@ -14,7 +16,8 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const ThemeProviderLocal = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<ThemeMode>('light');
+  const defaultColorScheme = useColorScheme();
+  const [theme, setTheme] = useState<ThemeMode>(defaultColorScheme as ThemeMode);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const getTheme = async () => {

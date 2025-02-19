@@ -28,6 +28,5 @@ export enum DayOfWeek {
   Friday = 'Friday'
 }
 
-
-export const BASE_URL = 'http://192.168.11.49:3000/institutions';
-export const BASE_URL_AUTH = 'http://192.168.11.49:3000';
+export const BASE_URL = 'https://planora-dfce142fac4b.herokuapp.com/institutions';
+export const BASE_URL_AUTH = 'https://planora-dfce142fac4b.herokuapp.com';

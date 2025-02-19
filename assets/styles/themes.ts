@@ -12,6 +12,7 @@ interface ThemeColors {
   button: {
     primary: string;
     secondary: string;
+    tertiary: string;
   };
   switch: {
     track: string;
@@ -34,7 +35,8 @@ export const lightTheme: ThemeColors = {
   },
   button: {
     primary: '#007AFF',
-    secondary: '#f44336'
+    secondary: '#f44336',
+    tertiary: '#33cc33'
   },
   switch: {
     track: '#767577',
@@ -55,7 +57,8 @@ export const darkTheme: ThemeColors = {
   },
   button: {
     primary: '#11137d',
-    secondary: '#BA0021'
+    secondary: '#BA0021',
+    tertiary: '#009900'
   },
   switch: {
     track: '#767577',
@@ -87,6 +90,9 @@ export const getThemeStyles = (theme: ThemeMode) => {
     },
     buttonSecondary: {
       backgroundColor: colors.button.secondary,
+    },
+    buttonTertiary: {
+      backgroundColor: colors.button.tertiary
     },
     switch: {
       track: colors.switch.track,

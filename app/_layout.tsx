@@ -5,6 +5,7 @@ import { InstitutionIdProvider } from "@/contexts/InstitutionIdProvider";
 import { ThemeProviderLocal, useTheme } from "@/contexts/ThemeProvider";
 import * as SystemUI from "expo-system-ui";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 
 
@@ -35,6 +36,8 @@ const StackNavigator = () => {
     }>
 
       <InstitutionIdProvider>
+        <GestureHandlerRootView>
+
         <Stack>
 
           <Stack.Screen name="(tabs)" options={{
@@ -42,6 +45,7 @@ const StackNavigator = () => {
           }} />
 
         </Stack>
+          </GestureHandlerRootView>
       </InstitutionIdProvider>
     </ThemeProvider>
 

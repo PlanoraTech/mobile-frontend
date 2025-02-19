@@ -76,7 +76,7 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
           throw new Error('Hiba az események betöltése során.');
         }
         const data = await response.json();
-        setEvents(data.events);
+        setEvents(data.events || []);
       } catch (error: any) {
         console.error(error.message);
         setError('Hiba az események betöltése során. Kérjük próbáld újra később.');

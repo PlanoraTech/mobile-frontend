@@ -42,6 +42,7 @@ const StackNavigator = () => {
 
           <Stack.Screen name="(tabs)" options={{
             headerShown: false,
+            presentation: 'modal'
           }} />
 
         </Stack>

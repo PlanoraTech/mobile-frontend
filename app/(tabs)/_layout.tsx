@@ -16,11 +16,15 @@ export default function TabLayout() {
                     borderTopWidth: 0,
                 },
                 headerShown: false,
+                
             }}
+            
         >
             <Tabs.Screen
+            
                 name="index"
                 options={{
+
                     title: 'Órarend',
                     tabBarIcon: ({ color, size }) => <MaterialIcons name="schedule" size={size} color={color} />,
                     animation: 'shift'

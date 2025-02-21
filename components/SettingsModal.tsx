@@ -1,16 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-    Modal,
     View,
     Text,
     Pressable,
     ScrollView,
     StyleSheet,
     FlatList,
-    Animated,
     Platform,
     TouchableOpacity,
-    TouchableWithoutFeedback
+    TouchableWithoutFeedback,
+    BackHandler
 } from 'react-native';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import DropdownComponent, { DropdownItem } from '@/components/Dropdown';
@@ -19,13 +18,17 @@ import { getThemeStyles } from '@/assets/styles/themes';
 import { TimetableButton } from './timetableButton';
 import { router } from 'expo-router';
 import { saveId } from '@/utils/saveId';
-import { runCloseAnimation, runOpenAnimation } from '@/utils/animationUtils';
-
-
 import { useAuth } from '@/contexts/AuthProvider';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ErrorMessage } from './ErrorMessage';
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withTiming,
+    runOnJS,
+    Easing
+} from 'react-native-reanimated';
 
 interface SettingsModalProps {
     visible: boolean;
@@ -46,9 +49,6 @@ interface SettingsModalProps {
     onInstChange: () => void;
 }
 
-
-
-
 export const SettingsModal = ({
     visible,
     onClose,
@@ -58,45 +58,90 @@ export const SettingsModal = ({
     onSelect,
     onInstChange
 }: SettingsModalProps) => {
-
-
     const { theme } = useTheme();
     const themeStyle = getThemeStyles(theme);
     const { user } = useAuth();
     const { setInstitutionId } = useInstitutionId();
 
-    const slideAnim = useRef(new Animated.Value(-1000)).current;
-    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useSharedValue(-1000);
+    const fadeAnim = useSharedValue(0);
+    const displayValue = useSharedValue(0);
 
     const [currentBtnIndex, setCurrentBtnIndex] = useState(0);
-    const [modalVisible, setModalVisible] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    
+    const slideAnimStyle = useAnimatedStyle(() => ({
+        transform: [{ translateY: slideAnim.value }]
+    }));
+
+    const fadeAnimStyle = useAnimatedStyle(() => ({
+        opacity: fadeAnim.value,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        position: 'absolute',
+        paddingTop: Platform.OS === 'ios' ? 0 : 24,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 1000,
+        display: displayValue.value === 0 ? 'none' : 'flex',
+    }));
+
+    const runOpenAnimation = useCallback(() => {
+        displayValue.value = 1;
+        slideAnim.value = withTiming(0, {
+            duration: 300,
+            easing: Easing.out(Easing.cubic)
+        });
+        fadeAnim.value = withTiming(1, {
+            duration: 250,
+            easing: Easing.linear
+        });
+    }, [slideAnim, fadeAnim, displayValue]);
+
+    const runCloseAnimation = useCallback((afterClose?: () => void) => {
+        slideAnim.value = withTiming(-1000, {
+            duration: 250,
+            easing: Easing.in(Easing.cubic)
+        });
+        fadeAnim.value = withTiming(0, {
+            duration: 200,
+            easing: Easing.linear
+        }, () => {
+
+            displayValue.value = 0;
+            if (afterClose) runOnJS(afterClose)();
+        });
+    }, [slideAnim, fadeAnim, displayValue]);
+
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (visible) {
+                handleClose();
+                return true;
+            }
+            return false;
+        });
+
+        return () => backHandler.remove();
+    }, [visible]);
 
     useEffect(() => {
         if (visible) {
-            runOpenAnimation(slideAnim, fadeAnim);
-            setModalVisible(true);
-
-
+            runOpenAnimation();
         } else {
-            runCloseAnimation(slideAnim, fadeAnim, () => {
-                setModalVisible(false);
-            });
+            runCloseAnimation();
         }
+    }, [visible, runOpenAnimation, runCloseAnimation]);
 
-
-    }, [visible]);
-
-    const handleClose = () => {
-        runCloseAnimation(slideAnim, fadeAnim, () => {
-            setModalVisible(false);
+    const handleClose = useCallback(() => {
+        runCloseAnimation(() => {
             onClose();
         });
-    };
+    }, [runCloseAnimation, onClose]);
 
-
-
-    const handleInstSelect = (item: DropdownItem) => {
+    const handleInstSelect = useCallback((item: DropdownItem) => {
         if (item.access === 'PRIVATE') {
             if (!user) {
                 handleClose();
@@ -112,154 +157,133 @@ export const SettingsModal = ({
             }
         }
 
-        //upon app start there won't be faulty institutionId timetableId pairs
         AsyncStorage.removeItem('timetable');
 
         saveId('institution', item.id);
         setInstitutionId(item.id);
         onInstChange();
+    }, [user, handleClose, setInstitutionId, onInstChange]);
 
+    const orderedInstitutions = useMemo(() =>
+        [...institutions].sort((a) =>
+            user?.institutions.some((instId: { id: string }) => instId.id === a.id) ? -1 : 1
+        ),
+        [institutions, user?.institutions]
+    );
+
+
+    if (!visible && displayValue.value === 0) {
+        return null;
     }
-
-    const orderedInstitutions = [...institutions].sort((a) => user?.institutions.some((instId: { id: string }) => instId.id === a.id) ? -1 : 1);
 
     return (
         <>
-            <Modal
-                animationType="none"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={handleClose}
-            >
+            <Animated.View style={fadeAnimStyle
+
+            }>
 
                 <TouchableOpacity
-
                     testID="settings-modal"
                     onPress={handleClose}
                     activeOpacity={1}
                     style={[
+
                         styles.modalContainer,
-                        Platform.OS === 'ios' ? { paddingTop: 50 } : { paddingTop: 0 }
                     ]}
                 >
-                    <Animated.View
-                        style={{
-                            opacity: fadeAnim,
-                            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                            flex: 1
-                        }}>
+                    <TouchableWithoutFeedback>
+                        <Animated.View
+                            style={[
+                                styles.modalContent,
+                                themeStyle.content,
+                                slideAnimStyle
+                            ]}
+                        >
+                            <View style={[styles.modalHeader, themeStyle.border]}>
+                                <Text style={[styles.modalTitle, themeStyle.textSecondary]}>
+                                    Órarend beállítások
+                                </Text>
+                                <Pressable
+                                    onPress={handleClose}
+                                    style={styles.closeButton}
+                                >
+                                    <Text style={[styles.closeButtonText, themeStyle.textSecondary]}>×</Text>
+                                </Pressable>
+                            </View>
 
-
-                        <TouchableWithoutFeedback>
-                            <Animated.View
-                                style={[
-                                    styles.modalContent,
-                                    themeStyle.content,
-                                    {
-                                        transform: [{ translateY: slideAnim }]
-                                    }
-                                ]}
-                            >
-
-                                <View style={[styles.modalHeader, themeStyle.border]}>
-                                    <Text style={[styles.modalTitle, themeStyle.textSecondary]}>
-                                        Órarend beállítások
-                                    </Text>
-                                    <Pressable
-                                        onPress={handleClose}
-                                        style={styles.closeButton}
-                                    >
-                                        <Text style={[styles.closeButtonText, themeStyle.textSecondary]}>×</Text>
-                                    </Pressable>
-                                </View>
-
-                                <ScrollView>
-                                    <DropdownComponent
-                                        data={orderedInstitutions}
-                                        placeholder={data.institution?.name || "Intézmény kiválasztása"}
-                                        searchPlaceholder="Intézmény keresése..."
-                                        onSelect={(item: DropdownItem) => { handleInstSelect(item) }}
-
+                            <ScrollView>
+                                <DropdownComponent
+                                    data={orderedInstitutions}
+                                    placeholder={data.institution?.name || "Intézmény kiválasztása"}
+                                    searchPlaceholder="Intézmény keresése..."
+                                    onSelect={handleInstSelect}
+                                />
+                                <View style={styles.dropdownContainer}>
+                                    <FlatList
+                                        style={styles.choiceList}
+                                        horizontal
+                                        data={["Órarend", "Előadó", "Terem"]}
+                                        renderItem={({ item, index }) => (
+                                            <TimetableButton
+                                                choice={item}
+                                                isActive={index === currentBtnIndex}
+                                                onPress={() => setCurrentBtnIndex(index)}
+                                            />
+                                        )}
+                                        keyExtractor={(item) => item}
                                     />
-                                    <View style={styles.dropdownContainer}>
-                                        <FlatList
-
-
-                                            style={styles.choiceList}
-                                            horizontal
-                                            data={["Órarend", "Előadó", "Terem"]}
-                                            renderItem={({ item, index }) => (
-                                                <TimetableButton
-                                                    choice={item}
-                                                    isActive={index === currentBtnIndex}
-                                                    onPress={() => { setCurrentBtnIndex(index) }}
+                                    {currentBtnIndex === 0 && (
+                                        <View style={styles.card}>
+                                            {loading.timetables ? (
+                                                <LoadingSpinner />
+                                            ) : (
+                                                <DropdownComponent
+                                                    data={data.timetables}
+                                                    placeholder="Válassz órarendet"
+                                                    searchPlaceholder="Órarend keresése..."
+                                                    onSelect={(item) => onSelect(item, 'timetable')}
                                                 />
                                             )}
-                                        />
-                                        {currentBtnIndex === 0 && (
-                                            <View style={styles.card}>
-                                                {loading.timetables ? (
-                                                    <LoadingSpinner />
-                                                ) : (
-                                                    <DropdownComponent
-                                                        data={data.timetables}
-                                                        placeholder="Válassz órarendet"
-                                                        searchPlaceholder="Órarend keresése..."
-                                                        onSelect={(item) => onSelect(item, 'timetable')}
-                                                    />
-                                                )}
-                                            </View>
-                                        )}
+                                        </View>
+                                    )}
 
-                                        {currentBtnIndex === 1 && (
-                                            <View style={styles.card}>
-                                                {loading.presentators ? (
-                                                    <LoadingSpinner />
-                                                ) : (
-                                                    <DropdownComponent
-                                                        data={data.presentators}
-                                                        placeholder="Válassz előadót"
-                                                        searchPlaceholder="Előadó keresése..."
-                                                        onSelect={(item) => onSelect(item, 'presentators')}
+                                    {currentBtnIndex === 1 && (
+                                        <View style={styles.card}>
+                                            {loading.presentators ? (
+                                                <LoadingSpinner />
+                                            ) : (
+                                                <DropdownComponent
+                                                    data={data.presentators}
+                                                    placeholder="Válassz előadót"
+                                                    searchPlaceholder="Előadó keresése..."
+                                                    onSelect={(item) => onSelect(item, 'presentators')}
+                                                />
+                                            )}
+                                        </View>
+                                    )}
 
-                                                    />
-
-
-                                                )}
-                                            </View>
-                                        )}
-
-                                        {currentBtnIndex === 2 && (
-                                            <View style={styles.card}>
-                                                {loading.rooms ? (
-                                                    <LoadingSpinner />
-                                                ) : (
-                                                    <DropdownComponent
-                                                        data={data.rooms}
-                                                        placeholder="Válassz termet"
-
-
-                                                        searchPlaceholder="Terem keresése..."
-                                                        onSelect={(item) => onSelect(item, 'rooms')}
-
-                                                    />
-
-
-                                                )}
-                                            </View>
-                                        )}
-                                    </View>
-                                </ScrollView>
-                            </Animated.View>
-                        </TouchableWithoutFeedback>
-                    </Animated.View>
+                                    {currentBtnIndex === 2 && (
+                                        <View style={styles.card}>
+                                            {loading.rooms ? (
+                                                <LoadingSpinner />
+                                            ) : (
+                                                <DropdownComponent
+                                                    data={data.rooms}
+                                                    placeholder="Válassz termet"
+                                                    searchPlaceholder="Terem keresése..."
+                                                    onSelect={(item) => onSelect(item, 'rooms')}
+                                                />
+                                            )}
+                                        </View>
+                                    )}
+                                </View>
+                            </ScrollView>
+                        </Animated.View>
+                    </TouchableWithoutFeedback>
                 </TouchableOpacity>
-
-            </Modal>
+            </Animated.View>
             {errorMessage && <ErrorMessage message={errorMessage} onClose={() => setErrorMessage('')} />}
         </>
-
-
     );
 };
 

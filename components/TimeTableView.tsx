@@ -66,7 +66,7 @@ export const TimetableView = ({
         style={styles.dayPage}
       >
         {dayAppointments.length === 0 ? (
-          <View style={[styles.notFoundContainer, themeStyle.content]}>
+          <View style={[styles.notFoundContainer, themeStyle.background]}>
             <Text style={[themeStyle.textSecondary, styles.notFoundText]}>
 
               Ezen a napon nincs előadás
@@ -107,7 +107,7 @@ export const TimetableView = ({
           user?.role === 'PRESENTATOR' ? (
             <AddEventCard currentDayDate={currentDayDate} />
           ) : (
-            <View style={[styles.notFoundContainer, themeStyle.content]}>
+            <View style={[styles.notFoundContainer, themeStyle.background]}>
               <Text style={[themeStyle.textSecondary, styles.notFoundText]}>
                 Erre a napra nincs esemény megadva
               </Text>

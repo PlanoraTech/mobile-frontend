@@ -7,20 +7,12 @@ import { runSlideAnimation } from "@/utils/animationUtils";
 
 interface ErrorMessageProps {
     message: string;
-
-
     onClose?: () => void;
-
 }
-
-
 
 export const ErrorMessage = ({
     message,
     onClose,
-
-
-
 }: ErrorMessageProps) => {
     const { theme } = useTheme();
     const themeStyles = getThemeStyles(theme);
@@ -40,11 +32,6 @@ export const ErrorMessage = ({
     const handleClose = () => {
         runSlideAnimation(slideAnimation, -Dimensions.get('window').width, 300, Easing.in(Easing.ease), () => onClose?.());
     }
-
-
-
-
-
 
     return (
         <Animated.View

@@ -6,7 +6,8 @@ import { ThemeProviderLocal, useTheme } from "@/contexts/ThemeProvider";
 import * as SystemUI from "expo-system-ui";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
+import { PaperProvider } from 'react-native-paper';
+import { useCombinedTheme } from "@/hooks/useCombinedTheme";
 
 
 
@@ -17,6 +18,8 @@ const StackNavigator = () => {
   //needed for keyboard appearance
   theme === "dark" ? SystemUI.setBackgroundColorAsync("#121212") : SystemUI.setBackgroundColorAsync("#f5f5f5");
 
+  const {paperTheme} = useCombinedTheme(theme)
+  
   return (
     // needed for background during animation
     <ThemeProvider value={
@@ -37,15 +40,14 @@ const StackNavigator = () => {
 
       <InstitutionIdProvider>
         <GestureHandlerRootView>
+          <PaperProvider theme={paperTheme}>
 
         <Stack>
-
           <Stack.Screen name="(tabs)" options={{
             headerShown: false,
-            presentation: 'modal'
           }} />
-
         </Stack>
+          </PaperProvider>
           </GestureHandlerRootView>
       </InstitutionIdProvider>
     </ThemeProvider>

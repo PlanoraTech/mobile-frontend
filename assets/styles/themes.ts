@@ -1,5 +1,5 @@
 
-interface ThemeColors {
+export interface ThemeColors {
   background: string;
   contentBackground: string;
   inputBackground: string;

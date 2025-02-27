@@ -120,12 +120,12 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
           <Dialog.Title>
             {
               dialogVisible && // after confirm isUpsent instantly changes causing misleading textchange while dialog is closing
-              <Text>{ isUpsent  ?  "Jelenlét" : "Hiányzás"} megerősítése</Text>
+              <Text>{isUpsent ? "Jelenlét" : "Hiányzás"} megerősítése</Text>
             }
 
           </Dialog.Title>
           <Dialog.Actions>
-            <Button mode="contained" onPress={() => setDialogVisible(false)}>Mégse</Button>
+            <Button textColor={theme.colors.onSurface} onPress={() => setDialogVisible(false)}>Mégse</Button>
             <Button mode="contained" onPress={handleSubstitution}>Megerősítés</Button>
           </Dialog.Actions>
         </Dialog>
@@ -134,6 +134,7 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
       <Animated.View style={[rightCardStyle]}>
         <View style={styles.optionCard}>
           <Button
+            compact
             buttonColor={isUpsent ? theme.colors.tertiary : theme.colors.secondary}
             onPress={() => setDialogVisible(true)}
             mode="contained" contentStyle={{
@@ -146,7 +147,7 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
         </View>
         <View style={styles.optionCard}>
 
-          <Button onPress={console.log} mode="contained"
+          <Button compact onPress={console.log} mode="contained"
             contentStyle={{
               height: '100%',
             }} >

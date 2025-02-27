@@ -1,7 +1,7 @@
 import { DAYS, SCREEN_WIDTH } from "@/constants";
 import { Appointment } from "@/components/AppointmentCard";
 import { DayEvent } from "@/components/EventModal";
-import React, { RefObject, useState } from "react";
+import React, { RefObject, useEffect, useState } from "react";
 import { FlatList, View, StyleSheet, ScrollView, Text, Pressable } from "react-native";
 import { AppointmentCard } from "@/components/AppointmentCard";
 import { DayTab } from "./DayTab";
@@ -15,7 +15,6 @@ import { getCurrentWeekDates, isSameDayUTC } from "@/utils/dateUtils";
 
 interface TimetableViewProps {
   appointments: Appointment[];
-
   onDayChange: (index: number) => void;
   onScrolltoIndexEnd: () => void;
   events: DayEvent[];
@@ -27,7 +26,6 @@ interface TimetableViewProps {
 
 export const TimetableView = ({
   appointments,
-
   goalDayIndex,
   onDayChange,
   onScrolltoIndexEnd,
@@ -42,19 +40,18 @@ export const TimetableView = ({
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const handleWeekChange = (direction: 'prev' | 'next') => {
-
+    console.log("weekchange ran")
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
+    console.log("------------------------------new date: " + newDate)
     setCurrentDate(newDate);
   };
 
-
-
   const weekDates = getCurrentWeekDates(currentDate);
-
 
   const renderDayPage = ({ index }: { index: number }) => {
     const currentDayDate = weekDates[index];
+    console.log("---------curent day date: " + currentDayDate)
     const dayAppointments = appointments.filter(appointment => {
       const appointmentDate = new Date(appointment.start);
       return isSameDayUTC(appointmentDate, currentDayDate);
@@ -159,20 +156,20 @@ export const TimetableView = ({
       />
 
       {showedList === 'appointments' ? (
-
-        <FlatList
-          ref={cardsListRef}
-          data={DAYS}
-          keyExtractor={(item) => item}
-          horizontal
-          bounces={false}
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onViewableItemsChanged={handleViewableItemsChanged}
-          onMomentumScrollEnd={onScrolltoIndexEnd}
-          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, }}
-          renderItem={renderDayPage}
-        />) : (
+          <FlatList
+            ref={cardsListRef}
+            data={DAYS}
+            keyExtractor={(item) => item}
+            horizontal
+            bounces={false}
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onViewableItemsChanged={handleViewableItemsChanged}
+            onMomentumScrollEnd={onScrolltoIndexEnd}
+            viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, }}
+            renderItem={renderDayPage}
+          />
+      ) : (
         <FlatList
           ref={cardsListRef}
           data={DAYS}

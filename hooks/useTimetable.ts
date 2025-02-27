@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { BASE_URL } from '@/constants';
-import { DayEvent } from '@/components/EventModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
@@ -19,13 +18,11 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
   const { user } = useAuth();
   const { institutionId } = useInstitutionId();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [events, setEvents] = useState<DayEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
 
   useEffect(() => {
-    fetchEvents();
     fetchTimetable();
     saveTimetable();
   }, [selectedId]);
@@ -37,7 +34,10 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
   }
   const fetchTimetable = async () => {
 
-    if (!selectedView || !selectedId) return;
+    if (!selectedView || !selectedId) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -66,24 +66,5 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
     }
   };
 
-  const fetchEvents = async () => {
-    if (!selectedView || !selectedId) return;
-    if (selectedView === 'timetable') {
-      setLoading(true);
-      try {
-        const response = await fetch(`${BASE_URL}/${institutionId}/timetables/${selectedId}/?token=${user?.token}`);
-        if (!response.ok) {
-          throw new Error('Hiba az események betöltése során.');
-        }
-        const data = await response.json();
-        setEvents(data.events || []);
-      } catch (error: any) {
-        console.error(error.message);
-        setError('Hiba az események betöltése során. Kérjük próbáld újra később.');
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-  return { appointments, events, loading, error };
+  return { appointments, loading, error };
 };

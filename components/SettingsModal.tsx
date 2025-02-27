@@ -69,7 +69,7 @@ export const SettingsModal = ({
 
     const [currentBtnIndex, setCurrentBtnIndex] = useState(0);
     const [errorMessage, setErrorMessage] = useState('');
-    
+
     const slideAnimStyle = useAnimatedStyle(() => ({
         transform: [{ translateY: slideAnim.value }]
     }));
@@ -140,25 +140,49 @@ export const SettingsModal = ({
             onClose();
         });
     }, [runCloseAnimation, onClose]);
-
+    
     const handleInstSelect = useCallback((item: DropdownItem) => {
-        if (item.access === 'PRIVATE') {
-            if (!user) {
-                handleClose();
+        const isUserLoggedIn = () => !!user;
+
+        const hasInstitutionAccess = (institutionId: string) => {
+            return user?.institutions.some(
+                (instId: { id: string }) => instId.id === institutionId
+            );
+        };
+
+        const handleAuthorizationFailure = (reason: 'login_required' | 'access_denied') => {
+            handleClose();
+
+            if (reason === 'login_required') {
                 router.replace('/login' as any);
-                return;
-            }
-            if (!user?.institutions.some((instId: { id: string }) => {
-                return instId.id === item.id;
-            })) {
-                handleClose();
+            } else {
                 setErrorMessage('Nincs hozzáférésed ehhez az intézményhez');
-                return;
             }
+
+            return false;
+        };
+
+        const checkAuthorization = () => {
+            if (item.access !== 'PRIVATE') {
+                return true;
+            }
+
+            if (!isUserLoggedIn()) {
+                return handleAuthorizationFailure('login_required');
+            }
+
+            if (!hasInstitutionAccess(item.id)) {
+                return handleAuthorizationFailure('access_denied');
+            }
+
+            return true;
+        };
+
+        if (!checkAuthorization()) {
+            return;
         }
 
         AsyncStorage.removeItem('timetable');
-
         saveId('institution', item.id);
         setInstitutionId(item.id);
         onInstChange();

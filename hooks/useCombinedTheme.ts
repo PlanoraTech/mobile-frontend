@@ -17,7 +17,7 @@ function createPaperTheme(customTheme: ThemeColors, baseTheme: typeof MD3LightTh
             surface: customTheme.contentBackground,
 
      
-            onSurface: customTheme.text.secondary,
+            onSurface: customTheme.text.primary,
             onSurfaceVariant: customTheme.text.secondary,
 
           
@@ -26,7 +26,6 @@ function createPaperTheme(customTheme: ThemeColors, baseTheme: typeof MD3LightTh
             elevation: {
                 level3: customTheme.contentBackground
             }
-    
         },
       
         dark: baseTheme.dark,

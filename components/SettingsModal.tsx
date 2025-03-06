@@ -21,7 +21,7 @@ import { saveId } from '@/utils/saveId';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ErrorMessage } from './ErrorMessage';
+import { StatusMessage } from './StatusMessage';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -140,7 +140,7 @@ export const SettingsModal = ({
             onClose();
         });
     }, [runCloseAnimation, onClose]);
-    
+
     const handleInstSelect = useCallback((item: DropdownItem) => {
         const isUserLoggedIn = () => !!user;
 
@@ -202,17 +202,13 @@ export const SettingsModal = ({
 
     return (
         <>
-            <Animated.View style={fadeAnimStyle
-
-            }>
+            <Animated.View style={fadeAnimStyle}>
 
                 <TouchableOpacity
                     testID="settings-modal"
                     onPress={handleClose}
                     activeOpacity={1}
-                    style={[
-
-                        styles.modalContainer,
+                    style={[styles.modalContainer,
                     ]}
                 >
                     <TouchableWithoutFeedback>
@@ -306,7 +302,7 @@ export const SettingsModal = ({
                     </TouchableWithoutFeedback>
                 </TouchableOpacity>
             </Animated.View>
-            {errorMessage && <ErrorMessage message={errorMessage} onClose={() => setErrorMessage('')} />}
+            {errorMessage && <StatusMessage message={errorMessage} onClose={() => setErrorMessage('')} type={'error'} />}
         </>
     );
 };

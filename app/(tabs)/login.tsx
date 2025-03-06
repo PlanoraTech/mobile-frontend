@@ -13,7 +13,7 @@ import { validateEmail, validatePassword } from '@/utils/validation';
 import { Link, router } from 'expo-router';
 import { createAuthStyles } from '@/assets/styles/authStyles';
 import ForgotPasswordModal from '@/components/ForgotPasswordModal';
-import { ErrorMessage } from '@/components/ErrorMessage';
+import { StatusMessage } from '@/components/StatusMessage';
 import Checkbox from 'expo-checkbox';
 
 export default function LoginScreen() {
@@ -38,7 +38,6 @@ export default function LoginScreen() {
             email: validateEmail(formData.email),
             password: validatePassword(formData.password),
         };
-        console.log(formData.rememberMe)
         setErrors(newErrors);
         if (!Object.values(newErrors).some(error => error)) {
             try {
@@ -83,7 +82,7 @@ export default function LoginScreen() {
 
                         <Checkbox
                             value={formData.rememberMe}
-                            
+
                             style={[styles.checkbox]}
                             onValueChange={() => setFormData(prev => ({ ...prev, rememberMe: !formData.rememberMe }))}
                         />
@@ -104,7 +103,7 @@ export default function LoginScreen() {
                     <Link style={styles.switchAuthLink} href="/register">Regisztáció</Link>
                 </View>
             </View>
-            {errorMessage && <ErrorMessage message={errorMessage} onClose={() => setErrorMessage('')} />}
+            {errorMessage && <StatusMessage type='error' message={errorMessage} onClose={() => setErrorMessage('')} />}
         </KeyboardAvoidingView>
 
     );

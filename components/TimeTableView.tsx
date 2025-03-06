@@ -40,10 +40,8 @@ export const TimetableView = ({
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const handleWeekChange = (direction: 'prev' | 'next') => {
-    console.log("weekchange ran")
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
-    console.log("------------------------------new date: " + newDate)
     setCurrentDate(newDate);
   };
 
@@ -51,7 +49,6 @@ export const TimetableView = ({
 
   const renderDayPage = ({ index }: { index: number }) => {
     const currentDayDate = weekDates[index];
-    console.log("---------curent day date: " + currentDayDate)
     const dayAppointments = appointments.filter(appointment => {
       const appointmentDate = new Date(appointment.start);
       return isSameDayUTC(appointmentDate, currentDayDate);
@@ -156,19 +153,19 @@ export const TimetableView = ({
       />
 
       {showedList === 'appointments' ? (
-          <FlatList
-            ref={cardsListRef}
-            data={DAYS}
-            keyExtractor={(item) => item}
-            horizontal
-            bounces={false}
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onViewableItemsChanged={handleViewableItemsChanged}
-            onMomentumScrollEnd={onScrolltoIndexEnd}
-            viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, }}
-            renderItem={renderDayPage}
-          />
+        <FlatList
+          ref={cardsListRef}
+          data={DAYS}
+          keyExtractor={(item) => item}
+          horizontal
+          bounces={false}
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onViewableItemsChanged={handleViewableItemsChanged}
+          onMomentumScrollEnd={onScrolltoIndexEnd}
+          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, }}
+          renderItem={renderDayPage}
+        />
       ) : (
         <FlatList
           ref={cardsListRef}

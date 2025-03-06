@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -9,16 +9,23 @@ import {
 import { router } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
-import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthProvider';
 import { ROLE_TRANSLATIONS } from '@/constants';
 import ModifyPassword from '@/components/ModifyPassword';
+import AbsentModal from '@/components/AbsentModal';
+
+
+
 const ProfileScreen = () => {
-    const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
+
     const { theme, toggleTheme } = useTheme();
     const { user, logout } = useAuth();
     const themeStyles = getThemeStyles(theme);
+
+    const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
     const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+    const [visible, setVisible] = useState(false);
+
     const toggleNotifications = () => {
         setIsNotificationsEnabled(previousState => !previousState);
     };
@@ -62,6 +69,7 @@ const ProfileScreen = () => {
                     />
                 </View>
 
+
                 <View style={styles.authSection}>
                     {!user?.token ? (
                         <>
@@ -81,6 +89,13 @@ const ProfileScreen = () => {
                         </>
                     ) : (
                         <>
+
+                            <Pressable style={[styles.authButton, themeStyles.button]} onPress={() => setVisible(!visible)}>
+                                <Text style={styles.buttonText}>Hiányzás kezelése</Text>
+
+                            </Pressable>
+
+                            <AbsentModal visible={visible} onDismiss={() => setVisible(false)} />
                             <Pressable style={[styles.authButton, themeStyles.button]} onPress={() => setIsPasswordModalVisible(true)}>
                                 <Text style={styles.buttonText}>Jelszó módosítása</Text>
                             </Pressable>
@@ -92,7 +107,6 @@ const ProfileScreen = () => {
                                 onPress={logout}
                             >
                                 <Text style={styles.buttonText}>Kijelentkezés</Text>
-
                             </Pressable>
                         </>
                     )}
@@ -157,6 +171,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
+
 });
 
 export default ProfileScreen;

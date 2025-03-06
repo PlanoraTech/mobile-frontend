@@ -11,7 +11,7 @@ import { AuthInput } from '@/components/AuthInput';
 import { validateEmail, validatePassword } from '@/utils/validation';
 import { createAuthStyles } from '@/assets/styles/authStyles'
 import { Link, router } from 'expo-router';
-import { ErrorMessage } from '@/components/ErrorMessage';
+import { StatusMessage } from '@/components/StatusMessage';
 
 export default function RegisterScreen() {
 
@@ -104,7 +104,7 @@ export default function RegisterScreen() {
                     <Link style={styles.switchAuthLink} href="/login">Bejelentkezés</Link>
                 </View>
             </View>
-            {error && <ErrorMessage message={error} onClose={() => setError(null)} />}
+            {error && <StatusMessage message={error} onClose={() => setError(null)} type={'error'} />}
         </KeyboardAvoidingView>
 
     );

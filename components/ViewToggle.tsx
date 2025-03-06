@@ -1,12 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { View, Pressable, Text, Animated, StyleSheet } from 'react-native';
-import { useMemo } from 'react';
 import { SCREEN_WIDTH } from '@/constants';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 
 
-const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) => void }) => {
+interface Props {
+    leftText: string;
+    rightText: string;
+    onViewChange: (isAppointments: boolean) => void;
+}
+
+const ViewToggle = ({ onViewChange, leftText, rightText }: Props) => {
     const [isAppointments, setIsAppointments] = useState(true);
     const slideAnim = useRef(new Animated.Value(0)).current;
     const { theme } = useTheme();
@@ -27,7 +32,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
         onViewChange(!isAppointments);
     };
 
-    const buttonWidth = SCREEN_WIDTH * 0.3;
+    const buttonWidth = SCREEN_WIDTH * 0.6;
     const slideX = slideAnim.interpolate({
         inputRange: [0, 1],
         outputRange: [0, buttonWidth / 2],
@@ -58,7 +63,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
                             isAppointments ? styles.activeText : styles.inactiveText,
                         ]}
                     >
-                        Órarend
+                        {leftText}
                     </Text>
                     <Text
                         style={[
@@ -66,7 +71,7 @@ const ViewToggle = ({ onViewChange }: { onViewChange: (isAppointments: boolean) 
                             !isAppointments ? styles.activeText : styles.inactiveText,
                         ]}
                     >
-                        Esemény
+                        {rightText}
                     </Text>
                 </View>
             </Pressable>
@@ -100,7 +105,7 @@ const styles = StyleSheet.create({
 
     },
     toggleText: {
-        fontSize: 12,
+        fontSize: 16,
         fontWeight: '600',
         flex: 1,
         textAlign: 'center',

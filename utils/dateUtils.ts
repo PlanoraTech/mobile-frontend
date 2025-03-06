@@ -1,3 +1,6 @@
+import { format } from "date-fns";
+import { hu } from "date-fns/locale";
+
 export const isSameDayUTC = (date1: Date, date2: Date) => {
     return (
         date1.getUTCFullYear() === date2.getUTCFullYear() &&
@@ -46,4 +49,9 @@ export const formatTime = (dateString: string) => {
 
 export const formatTimeRange = (start: string, end: string) => {
     return `${formatTime(start)} - ${formatTime(end)}`;
+};
+
+export const formatDisplayDate = (date: string | null) => {
+    if (!date) return '-';
+    return format(new Date(date), 'yyyy MMM dd', { locale: hu });
 };

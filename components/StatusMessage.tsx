@@ -1,21 +1,22 @@
-import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
-import { View, Text, StyleSheet, Animated, Easing, Dimensions, Pressable, Keyboard } from "react-native";
-import { AlertCircle, ArrowLeft } from "lucide-react-native";
+import { View, Text, StyleSheet, Animated, Easing, Dimensions, Pressable, Keyboard, useColorScheme } from 'react-native';
+import { AlertCircle, ArrowLeft, Info } from "lucide-react-native";
 import { useEffect, useRef } from "react";
 import { runSlideAnimation } from "@/utils/animationUtils";
+import { useTheme } from "react-native-paper";
 
-interface ErrorMessageProps {
+interface StatusMessageProps {
     message: string;
+    type: 'error' | 'success';
     onClose?: () => void;
 }
 
-export const ErrorMessage = ({
+export const StatusMessage = ({
     message,
     onClose,
-}: ErrorMessageProps) => {
-    const { theme } = useTheme();
-    const themeStyles = getThemeStyles(theme);
+    type,
+}: StatusMessageProps) => {
+    const theme = useTheme();
     const slideAnimation = useRef(new Animated.Value(-Dimensions.get('window').width)).current;
 
     useEffect(() => {
@@ -37,8 +38,8 @@ export const ErrorMessage = ({
         <Animated.View
             style={[
                 styles.container,
-                themeStyles.buttonSecondary,
-                themeStyles.border,
+                { backgroundColor: type === 'error' ? theme.colors.secondary : theme.colors.tertiary },
+                { borderColor: theme.colors.outline },
                 styles.absolute,
 
                 {
@@ -48,14 +49,20 @@ export const ErrorMessage = ({
 
             accessible={true}
             accessibilityRole="alert"
-            accessibilityLabel={`Error: ${message}`}
+            accessibilityLabel={`Status: ${message}`}
 
         >
             <View style={styles.iconContainer}>
-                <AlertCircle
-                    size={24}
-                    color={'#fff'}
-                />
+                {type === 'success' ? (
+                    <Info size={24} color={'#fff'} />) :
+                    (
+                        <AlertCircle
+                            size={24}
+                            color={'#fff'}
+                        />)
+                }
+
+
             </View>
 
             <Text style={[

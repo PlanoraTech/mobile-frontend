@@ -16,7 +16,7 @@ const StackNavigator = () => {
   const { theme } = useTheme();
 
   //needed for keyboard appearance
-  theme === "dark" ? SystemUI.setBackgroundColorAsync("#121212") : SystemUI.setBackgroundColorAsync("#f5f5f5");
+  theme === "dark" ? SystemUI.setBackgroundColorAsync("#1a1a1a") : SystemUI.setBackgroundColorAsync("#f5f5f5");
 
   const {paperTheme} = useCombinedTheme(theme)
   
@@ -27,7 +27,7 @@ const StackNavigator = () => {
         ...DarkTheme,
         colors: {
           ...DarkTheme.colors,
-          background: "#121212",
+          background: "#1a1a1a",
         }
       } : {
         ...DefaultTheme,

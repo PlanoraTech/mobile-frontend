@@ -1,6 +1,6 @@
 import { useInstitutionData } from "@/hooks/useInstitutionData";
 import { useTimetable } from "@/hooks/useTimetable";
-import { ErrorMessage } from "@/components/ErrorMessage";
+import { StatusMessage } from "@/components/StatusMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TimetableView } from "@/components/TimeTableView";
 import { BASE_URL } from "@/constants";
@@ -53,7 +53,6 @@ export default function TimetableScreen() {
       if (id) {
         setSelectedId(id);
         setSelectedView(endpoint);
-        console.log('there is saved timetable');
       }
     }
   }
@@ -80,7 +79,6 @@ export default function TimetableScreen() {
   const handleDayChange = (index: number) => {
     dayChosenByTapRef.current = true;
     if (cardsListRef.current) {
-      console.log(index)
       setGoalDayIndex(index);
       cardsListRef.current?.scrollToIndex({
         index: index,
@@ -114,7 +112,7 @@ export default function TimetableScreen() {
     }
 
     if (error) {
-      return <ErrorMessage message={error} />;
+      return <StatusMessage type="error" message={error} />;
     }
 
     return (
@@ -143,7 +141,7 @@ export default function TimetableScreen() {
             {selectedTitle()}
           </Text>
           <View style={styles.toggleCenterContainer}>
-            <ViewToggle onViewChange={() => setShowEvents(!showEvents)} />
+            <ViewToggle leftText="Órarend" rightText="Esemény" onViewChange={() => setShowEvents(!showEvents)} />
           </View>
           <Pressable
             style={styles.settingsButton}
@@ -154,9 +152,9 @@ export default function TimetableScreen() {
           </Pressable>
         </View>
       </SafeAreaView>
-      
+
       {renderTimetableContent()}
-      
+
       <SettingsModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -168,7 +166,7 @@ export default function TimetableScreen() {
           handleSelection(item.id, type.toLowerCase());
         }}
       />
-      {institutionError && <ErrorMessage message={institutionError} />}
+      {institutionError && <StatusMessage type="error" message={institutionError} />}
     </View>
   );
 }

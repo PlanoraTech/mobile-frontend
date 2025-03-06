@@ -26,18 +26,15 @@ export class StandardAuthAdapter {
         this.apiUrl = apiUrl;
     }
 
-
     private async makeRequest<T>(
         endpoint: string,
         method: 'GET' | 'POST',
         body?: object
     ): Promise<T> {
         try {
-            console.log("making request");
             const response = await fetch(`${this.apiUrl}${endpoint}`, {
                 method,
                 headers: {
-
                     'Content-Type': 'application/json',
                 },
                 body: body ? JSON.stringify(body) : undefined,
@@ -58,8 +55,6 @@ export class StandardAuthAdapter {
                 }
 
                 throw new Error('Valami hiba történt... Kérlek próbáld újra később.');
-
-
             }
 
 
@@ -85,7 +80,6 @@ export class StandardAuthAdapter {
             const response = await this.makeRequest<AuthResponse>('/register', 'POST', data);
             await this.storeAuthToken(response.token);
         } catch (error: any) {
-            console.log("registration error");
             console.error('Registration error:', error);
             throw new Error(error.message || 'Regisztráció sikertelen');
         }

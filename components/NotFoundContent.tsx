@@ -2,11 +2,16 @@
 import { View, Text, StyleSheet } from "react-native"
 import { useTheme } from "react-native-paper";
 
-const NotFoundContent = () => {
+interface Props {
+  message?: string;
+}
+
+const NotFoundContent = ({ message }: Props) => {
   const theme = useTheme()
+
   return <View style={[styles.noSelectionContainer, { backgroundColor: theme.colors.surface }]}>
     <Text style={[styles.noSelectionText, { color: theme.colors.onSurface }]}>
-      Válassz órarendet, előadót vagy termet a beállítások gombbal
+      {message}
     </Text>
   </View>
 }

@@ -73,7 +73,6 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
         const end = new Date(secondDate);
         const chronologicalStartDate = start <= end ? firstDate : secondDate;
         const chronologicalEndDate = start <= end ? secondDate : firstDate;
-        console.log(start, end, chronologicalStartDate, chronologicalEndDate);
         range[chronologicalStartDate] = {
             selected: true,
             color: selectionColor,

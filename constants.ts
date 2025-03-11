@@ -30,3 +30,47 @@ export enum DayOfWeek {
 
 export const BASE_URL = 'https://planora-dfce142fac4b.herokuapp.com/institutions';
 export const BASE_URL_AUTH = 'https://planora-dfce142fac4b.herokuapp.com';
+
+
+export const TAB_TYPES = {
+  TIMETABLE: 0,
+  PRESENTATOR: 1,
+  ROOM: 2,
+};
+
+export const TAB_CONFIG = [
+  {
+    value: '0',
+    label: 'Órarend',
+    accessibilityLabel: 'Órarend',
+    icon: 'calendar',
+    type: 'timetable',
+    placeholder: 'Válassz órarendet',
+    searchPlaceholder: 'Órarend keresése...',
+    loadingKey: 'timetable',
+    dataKey: 'timetables',
+  },
+  {
+    value: '1',
+    label: 'Előadó',
+    accessibilityLabel: 'Előadó',
+    icon: 'account',
+    type: 'presentators',
+    placeholder: 'Válassz előadót',
+    searchPlaceholder: 'Előadó keresése...',
+    loadingKey: 'presentators',
+    dataKey: 'presentators',
+  },
+  {
+    value: '2',
+    label: 'Terem',
+    accessibilityLabel: 'Terem',
+    icon: 'home',
+    type: 'rooms',
+    placeholder: 'Válassz termet',
+    searchPlaceholder: 'Terem keresése...',
+    loadingKey: 'rooms',
+    dataKey: 'rooms',
+  },
+];
+

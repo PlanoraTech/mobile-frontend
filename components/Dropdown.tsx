@@ -10,14 +10,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   StatusBar,
-  Pressable
+  Pressable,
+  Keyboard
 } from 'react-native';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
-
-
-
-
 
 export interface DropdownItem {
   id: string;
@@ -33,44 +30,28 @@ interface CustomDropdownProps {
   placeholder?: string;
   searchPlaceholder?: string;
   onSelect?: (item: DropdownItem) => void;
-  style?: any;
-  placeholderStyle?: any;
-
-
-  selectedTextStyle?: any;
-  inputSearchStyle?: any;
-  itemTextStyle?: any;
-  itemContainerStyle?: any;
-  containerStyle?: any;
-  searchPlaceholderTextColor?: string;
   maxHeight?: number;
 }
 
 export const DropdownComponent = ({
   data,
-  placeholder = 'Select item',
-  searchPlaceholder = 'Search...',
+  placeholder = 'Válassz...',
+  searchPlaceholder = 'Keresés...',
   onSelect,
-
-
-
-  maxHeight = 225,
+  maxHeight = 180,
 
 }: CustomDropdownProps) => {
   const { theme } = useTheme();
   const themeStyles = getThemeStyles(theme);
   const [visible, setVisible] = useState(false);
-  const [value, setValue] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const [filteredData, setFilteredData] = useState(data);
 
   const [position, setPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const DropdownButtonRef = useRef<View>(null);
   const [isFocus, setIsFocus] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     setFilteredData(data);
   }, [data]);
 
@@ -82,7 +63,28 @@ export const DropdownComponent = ({
   };
 
 
+  useEffect(() => {
+    function onKeyboardDidShow() {
+      measureDropdown();
+    }
+
+    function onKeyboardDidHide() {
+      measureDropdown();
+    }
+
+    const showSubscription = Keyboard.addListener('keyboardDidShow', onKeyboardDidShow);
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', onKeyboardDidHide);
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+
+
+
   const toggleDropdown = useCallback(() => {
+
     measureDropdown();
     setVisible(!visible);
     if (!visible) {
@@ -97,12 +99,12 @@ export const DropdownComponent = ({
     }
   }, [visible, data]);
 
-  const onItemPress = useCallback((item: DropdownItem) => {
-    setValue(item.id);
+  const onItemPress = (item: DropdownItem) => {
+    //setValue(item.id);
     setVisible(false);
     setIsFocus(false);
     onSelect?.(item);
-  }, [onSelect]);
+  };
 
 
   const handleSearch = useCallback((text: string) => {
@@ -113,7 +115,6 @@ export const DropdownComponent = ({
     setFilteredData(filtered);
   }, [data]);
 
-  const selectedItem = data.length > 0 ? data.find(item => item.id === value) : null;
 
 
 
@@ -128,14 +129,9 @@ export const DropdownComponent = ({
 
 
   const renderDropdown = () => {
-    const { height: windowHeight } = Dimensions.get('window');
-    const statusBarHeight = StatusBar.currentHeight || 0;
-    const bottomSpace = windowHeight - position.y - position.height - statusBarHeight;
-    const showOnTop = bottomSpace < maxHeight;
 
     const modalStyle = {
-      top: showOnTop ? undefined : position.y + position.height,
-      bottom: showOnTop ? windowHeight - position.y : undefined,
+      top: position.y + position.height,
       left: position.x,
       width: position.width,
     };
@@ -175,7 +171,7 @@ export const DropdownComponent = ({
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}
-                style={[styles.list, { maxHeight }]}
+                style={[styles.list, { maxHeight: maxHeight }]}
               />
             </View>
           </KeyboardAvoidingView>
@@ -209,7 +205,7 @@ export const DropdownComponent = ({
           ]}
         >
 
-          {selectedItem ? selectedItem.name : placeholder}
+          {placeholder}
         </Text>
       </Pressable>
       {visible && renderDropdown()}

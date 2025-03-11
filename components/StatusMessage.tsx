@@ -61,8 +61,6 @@ export const StatusMessage = ({
                             color={'#fff'}
                         />)
                 }
-
-
             </View>
 
             <Text style={[

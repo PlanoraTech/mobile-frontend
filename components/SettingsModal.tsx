@@ -1,11 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
     View,
-    Text,
-    Pressable,
     ScrollView,
     StyleSheet,
-    FlatList,
     Platform,
     TouchableOpacity,
     TouchableWithoutFeedback,
@@ -13,9 +10,6 @@ import {
 } from 'react-native';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import DropdownComponent, { DropdownItem } from '@/components/Dropdown';
-import { useTheme } from '@/contexts/ThemeProvider';
-import { getThemeStyles } from '@/assets/styles/themes';
-import { TimetableButton } from './timetableButton';
 import { router } from 'expo-router';
 import { saveId } from '@/utils/saveId';
 import { useAuth } from '@/contexts/AuthProvider';
@@ -29,6 +23,9 @@ import Animated, {
     runOnJS,
     Easing
 } from 'react-native-reanimated';
+import { SegmentedButtons, useTheme } from 'react-native-paper';
+import ModalHeader from './ModalHeader';
+import { TAB_CONFIG } from '@/constants';
 
 interface SettingsModalProps {
     visible: boolean;
@@ -58,8 +55,7 @@ export const SettingsModal = ({
     onSelect,
     onInstChange
 }: SettingsModalProps) => {
-    const { theme } = useTheme();
-    const themeStyle = getThemeStyles(theme);
+    const theme = useTheme();
     const { user } = useAuth();
     const { setInstitutionId } = useInstitutionId();
 
@@ -67,8 +63,32 @@ export const SettingsModal = ({
     const fadeAnim = useSharedValue(0);
     const displayValue = useSharedValue(0);
 
+    const [selectedPlaceholder, setSelectedPlaceholder] = useState<Record<number, string>>({
+        0: '',
+        1: '',
+        2: ''
+    });
     const [currentBtnIndex, setCurrentBtnIndex] = useState(0);
     const [errorMessage, setErrorMessage] = useState('');
+
+    const segmentedButtonOptions = TAB_CONFIG.map((tab, index) => ({
+        value: tab.value,
+        label: tab.label,
+        accessibilityLabel: tab.accessibilityLabel,
+        icon: tab.icon,
+        checkedColor: '#fff',
+        style: {
+            backgroundColor: currentBtnIndex === index ? theme.colors.primary : theme.colors.surface,
+        },
+    }));
+
+    const handleDropdownSelect = (item: DropdownItem, type: string) => {
+        onSelect(item, type);
+        setSelectedPlaceholder({
+            ...selectedPlaceholder,
+            [currentBtnIndex]: item.name,
+        });
+    };
 
     const slideAnimStyle = useAnimatedStyle(() => ({
         transform: [{ translateY: slideAnim.value }]
@@ -200,36 +220,57 @@ export const SettingsModal = ({
         return null;
     }
 
+    const renderTabContent = () => {
+        const currentTab = TAB_CONFIG[currentBtnIndex];
+        const loadingMap = {
+            presentators: loading.presentators,
+            timetables: loading.timetables,
+            rooms: loading.rooms
+        };
+
+        const dataMap = {
+            presentators: data.presentators,
+            timetables: data.timetables,
+            rooms: data.rooms
+        };
+
+        const isLoading = loadingMap[currentTab.loadingKey as keyof typeof loadingMap] ?? false;
+        const itemsData = dataMap[currentTab.dataKey as keyof typeof dataMap] ?? [];
+        const placeholderText = selectedPlaceholder[currentBtnIndex] || currentTab.placeholder;
+        return (
+            <View style={styles.card}>
+                {isLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <DropdownComponent
+                        data={itemsData}
+                        placeholder={placeholderText}
+                        searchPlaceholder={currentTab.searchPlaceholder}
+                        onSelect={(item) => handleDropdownSelect(item, currentTab.type)}
+                    />
+                )}
+            </View>
+        );
+    };
+
     return (
         <>
             <Animated.View style={fadeAnimStyle}>
-
                 <TouchableOpacity
                     testID="settings-modal"
                     onPress={handleClose}
                     activeOpacity={1}
-                    style={[styles.modalContainer,
-                    ]}
+                    style={styles.modalContainer}
                 >
                     <TouchableWithoutFeedback>
                         <Animated.View
                             style={[
                                 styles.modalContent,
-                                themeStyle.content,
-                                slideAnimStyle
+                                { backgroundColor: theme.colors.surface },
+                                slideAnimStyle,
                             ]}
                         >
-                            <View style={[styles.modalHeader, themeStyle.border]}>
-                                <Text style={[styles.modalTitle, themeStyle.textSecondary]}>
-                                    Órarend beállítások
-                                </Text>
-                                <Pressable
-                                    onPress={handleClose}
-                                    style={styles.closeButton}
-                                >
-                                    <Text style={[styles.closeButtonText, themeStyle.textSecondary]}>×</Text>
-                                </Pressable>
-                            </View>
+                            <ModalHeader title="Beállítások" handleClose={handleClose} />
 
                             <ScrollView>
                                 <DropdownComponent
@@ -238,71 +279,30 @@ export const SettingsModal = ({
                                     searchPlaceholder="Intézmény keresése..."
                                     onSelect={handleInstSelect}
                                 />
+
                                 <View style={styles.dropdownContainer}>
-                                    <FlatList
-                                        style={styles.choiceList}
-                                        horizontal
-                                        data={["Órarend", "Előadó", "Terem"]}
-                                        renderItem={({ item, index }) => (
-                                            <TimetableButton
-                                                choice={item}
-                                                isActive={index === currentBtnIndex}
-                                                onPress={() => setCurrentBtnIndex(index)}
-                                            />
-                                        )}
-                                        keyExtractor={(item) => item}
+                                    <SegmentedButtons
+                                        value={String(currentBtnIndex)}
+                                        onValueChange={(value) => setCurrentBtnIndex(Number(value))}
+                                        density="regular"
+                                        buttons={segmentedButtonOptions}
                                     />
-                                    {currentBtnIndex === 0 && (
-                                        <View style={styles.card}>
-                                            {loading.timetables ? (
-                                                <LoadingSpinner />
-                                            ) : (
-                                                <DropdownComponent
-                                                    data={data.timetables}
-                                                    placeholder="Válassz órarendet"
-                                                    searchPlaceholder="Órarend keresése..."
-                                                    onSelect={(item) => onSelect(item, 'timetable')}
-                                                />
-                                            )}
-                                        </View>
-                                    )}
-
-                                    {currentBtnIndex === 1 && (
-                                        <View style={styles.card}>
-                                            {loading.presentators ? (
-                                                <LoadingSpinner />
-                                            ) : (
-                                                <DropdownComponent
-                                                    data={data.presentators}
-                                                    placeholder="Válassz előadót"
-                                                    searchPlaceholder="Előadó keresése..."
-                                                    onSelect={(item) => onSelect(item, 'presentators')}
-                                                />
-                                            )}
-                                        </View>
-                                    )}
-
-                                    {currentBtnIndex === 2 && (
-                                        <View style={styles.card}>
-                                            {loading.rooms ? (
-                                                <LoadingSpinner />
-                                            ) : (
-                                                <DropdownComponent
-                                                    data={data.rooms}
-                                                    placeholder="Válassz termet"
-                                                    searchPlaceholder="Terem keresése..."
-                                                    onSelect={(item) => onSelect(item, 'rooms')}
-                                                />
-                                            )}
-                                        </View>
-                                    )}
+                                    {renderTabContent()}
                                 </View>
                             </ScrollView>
                         </Animated.View>
                     </TouchableWithoutFeedback>
                 </TouchableOpacity>
             </Animated.View>
-            {errorMessage && <StatusMessage message={errorMessage} onClose={() => setErrorMessage('')} type={'error'} />}
+
+            {/* Error Message */}
+            {errorMessage && (
+                <StatusMessage
+                    message={errorMessage}
+                    onClose={() => setErrorMessage('')}
+                    type="error"
+                />
+            )}
         </>
     );
 };

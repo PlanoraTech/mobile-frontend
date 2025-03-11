@@ -34,17 +34,10 @@ export default function TimetableScreen() {
   const { appointments, loading, error } = useTimetable({ selectedView, selectedId });
 
   useEffect(() => {
+    AsyncStorage.clear();
     fetchInstitutions();
     fetchSavedTimetable();
   }, []);
-
-  const selectedTitle = () => {
-    if (!selectedView) return 'Válassz órarendet';
-    const selectedName = data.rooms?.find((item: any) => item.id === selectedId)?.name
-      || data.presentators?.find((item: any) => item.id === selectedId)?.name
-      || data.timetables?.find((item: any) => item.id === selectedId)?.name;
-    return `${selectedName || 'Válassz órarendet'}`;
-  };
 
   const fetchSavedTimetable = async () => {
     const savedTimetable = await AsyncStorage.getItem('timetable');
@@ -103,8 +96,12 @@ export default function TimetableScreen() {
 
   const renderTimetableContent = () => {
 
-    if (!data.institution || selectedId === "" && !showEvents) {
-      return <NotFoundContent />;
+    if (!data.institution) {
+      return <NotFoundContent message="Válassz intézményt a beállítások gombbal" />;
+    }
+
+    if (selectedId === "" && !showEvents) {
+      return <NotFoundContent message="Válassz órarendet, előadót vagy termet a beállítások gombbal" />;
     }
 
     if (loading) {
@@ -133,16 +130,14 @@ export default function TimetableScreen() {
     <View style={[styles.container, themeStyles.content, Platform.OS === 'ios' ? { paddingTop: 0 } : { paddingTop: 24 }]}>
       <StatusBar backgroundColor={themeStyles.content.backgroundColor} />
       <SafeAreaView style={[styles.header, themeStyles.content]}>
+
         <View style={styles.headerContent}>
-          <Text style={[styles.selectedTitle, themeStyles.text]}
-            numberOfLines={1}
-            adjustsFontSizeToFit={true}
-          >
-            {selectedTitle()}
-          </Text>
-          <View style={styles.toggleCenterContainer}>
-            <ViewToggle leftText="Órarend" rightText="Esemény" onViewChange={() => setShowEvents(!showEvents)} />
-          </View>
+          {data.institution &&
+            <View style={styles.toggleCenterContainer}>
+              <ViewToggle leftText="Órarend" rightText="Esemény" onViewChange={() => setShowEvents(!showEvents)} />
+            </View>
+
+          }
           <Pressable
             style={styles.settingsButton}
             onPress={() => setModalVisible(true)}
@@ -174,14 +169,13 @@ export default function TimetableScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
   },
   header: {
     borderBottomWidth: 0,
   },
   headerContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -194,9 +188,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
   },
-  selectedTitle: {
-    fontWeight: '600',
-  },
+
   settingsButton: {
     padding: 8,
     alignSelf: 'flex-end'

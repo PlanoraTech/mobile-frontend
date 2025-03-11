@@ -2,9 +2,11 @@ import { useTheme } from '@/contexts/ThemeProvider';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { getThemeStyles } from '@/assets/styles/themes';
+
 export default function TabLayout() {
     const { theme } = useTheme();
     const themeStyles = getThemeStyles(theme);
+
     return (
         <Tabs
             screenOptions={{
@@ -16,15 +18,11 @@ export default function TabLayout() {
                     borderTopWidth: 0,
                 },
                 headerShown: false,
-                
             }}
-            
         >
             <Tabs.Screen
-            
                 name="index"
                 options={{
-
                     title: 'Órarend',
                     tabBarIcon: ({ color, size }) => <MaterialIcons name="schedule" size={size} color={color} />,
                     animation: 'shift'
@@ -32,7 +30,6 @@ export default function TabLayout() {
             />
             <Tabs.Screen
                 name="profile"
-
                 options={{
                     title: 'Profil',
                     tabBarIcon: ({ color, size }) => <MaterialIcons name="person" size={size} color={color} />,
@@ -51,7 +48,6 @@ export default function TabLayout() {
                     animation: 'shift'
                 }
             } />
-
         </Tabs>
     );
 }

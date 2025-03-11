@@ -7,10 +7,9 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-
 } from 'react-native-reanimated';
-
 import { Button, Dialog, Portal, Text, useTheme } from 'react-native-paper';
+import RoomChangeModal from "./RoomChangeModal";
 
 
 interface AppointmentCardProps {
@@ -36,6 +35,7 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const [optionsNotShown, setOptionsNotShown] = useState(true);
   const [isUpsent, setIsUpsent] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
+  const [roomChangeModalVisible, setRoomChangeModalVisible] = useState(false);
   const expandProgress = useSharedValue(0);
   const time = formatTimeRange(appointment.start, appointment.end)
 
@@ -64,6 +64,14 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const handlePress = () => {
     expandProgress.value = expandProgress.value === 0 ? 1 : 0;
     setOptionsNotShown(!optionsNotShown);
+  };
+
+  const openRoomModal = () => {
+    setRoomChangeModalVisible(true);
+  };
+
+  const closeRoomModal = () => {
+    setRoomChangeModalVisible(false);
   };
 
   const handleSubstitution = () => {
@@ -147,13 +155,14 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
         </View>
         <View style={styles.optionCard}>
 
-          <Button compact onPress={console.log} mode="contained"
+          <Button compact onPress={openRoomModal} mode="contained"
             contentStyle={{
               height: '100%',
             }} >
             Teremcsere
           </Button>
         </View>
+        {roomChangeModalVisible && <RoomChangeModal rooms={appointment.rooms} visible={roomChangeModalVisible} onDismiss={closeRoomModal} />}
       </Animated.View>
     </View>
   );

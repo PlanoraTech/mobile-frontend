@@ -1,9 +1,8 @@
 import { getThemeStyles } from "@/assets/styles/themes";
 import { useTheme } from "@/contexts/ThemeProvider";
-import { DayEvent } from "@/types";
 import { useState } from "react";
 import { Pressable, Text, StyleSheet } from "react-native";
-import { EventModal } from "./EventModal";
+import { DayEvent, EventModal } from "./EventModal";
 
 interface EventCardProps {
     event: DayEvent;
@@ -21,7 +20,6 @@ export const EventCard = ({ event }: EventCardProps) => {
             <Text style={[styles.eventTitle, themeStyles.text]}>
                 {event.title}
             </Text>
-            
             <EventModal isVisible={isModalVisible} event={event} onClose={() => setIsModalVisible(false)} />
         </Pressable>
     );

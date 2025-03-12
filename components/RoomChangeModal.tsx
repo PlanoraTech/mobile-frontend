@@ -25,6 +25,13 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
         { id: "8", name: "Room 8" },
         { id: "9", name: "Room 9" },
         { id: "10", name: "Room 10" },
+        { id: "11", name: "Room 11" },
+        { id: "12", name: "Room 12" },
+        { id: "13", name: "Room 13" },
+        { id: "14", name: "Room 14" },
+        { id: "15", name: "Room 15" },
+        { id: "16", name: "Room 16" },
+
     ]);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -55,40 +62,35 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
                 }
             });
 
-            switch (response.status) {
-                case 401:
-                    throw new Error("Nincs jogosultság");
-                case 403:
-                    throw new Error("Hozzáférés megtagadva");
-                case 400:
-                    throw new Error("Hibás kérés");
-                default:
-                    throw new Error("Ismeretlen hiba");
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    setError("Nincs jogosultságod a művelethez");
+                }
+                if (response.status === 400) {
+                    setError("Hibás kérés");
+                }
             }
+            setSuccess("Sikeres művelet");
         } catch (error: any) {
-            setError(error.message || "Hiba a szerver elérése közben");
-        } finally {
-            setSuccess("Sikeres mentés");
-            //onDismiss();
+            console.error(error.message);
+            setError("Ismeretlen hiba történt...");
         }
     }
 
     useEffect(() => {
-        setError("");
-        setSelectedRooms(rooms);
         const fetchAvailableRooms = async () => {
+            setSelectedRooms(rooms);
+            setError("");
             try {
                 const response = await fetch('https://api.example.com/rooms');
-                if (response.status === 401) {
-                    throw new Error("Nincs jogosultság");
-                }
-                if (response.status === 403) {
-                    throw new Error("Hozzáférés megtagadva");
+                if (response.status === 401 || response.status === 403) {
+                    setError("Nincs jogosultságod a lekéréshez");
+                    return;
                 }
                 const data = await response.json();
                 setAvailableRooms(data);
             } catch (error: any) {
-                setError(error.message || "Hiba a szerver elérése közben");
+                setError("Ismeretlen hiba történt...");
             }
         }
         fetchAvailableRooms();
@@ -108,7 +110,6 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
                 ]}
             >
                 <ModalHeader title="Termek" handleClose={handleClose} />
-
                 <FlatList
                     data={selectedRooms}
                     ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
@@ -117,21 +118,19 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
                     }
                     keyExtractor={(item) => item.id}
                     style={{ marginBottom: 20 }}
-                    scrollEnabled={false}
                 />
-
-                <DropdownComponent maxHeight={selectedRooms.length >= 3 ? 135 : 180} onSelect={addRoom} data={availableRooms} placeholder="Terem hozzáadása" />
+                <DropdownComponent onSelect={addRoom} data={availableRooms} placeholder="Terem hozzáadása" />
                 <View style={styles.buttonsContainer}>
                     <Button mode="contained" onPress={handleClose}>
                         Mégse
                     </Button>
-
                     <Button mode="contained" onPress={handleConfirm}>
                         Megerősítés
                     </Button>
                 </View>
             </Modal>
             {error && <StatusMessage message={error} type="error" />}
+            {success && <StatusMessage message={success} type="success" />}
         </Portal>
 
     );

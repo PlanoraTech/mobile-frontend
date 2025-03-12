@@ -1,14 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet } from "react-native";
 import { Button, Modal, Portal, Text, useTheme } from "react-native-paper";
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, useSharedValue } from "react-native-reanimated";
 import { Calendar } from 'react-native-calendars';
 import { configHungarian } from '@/utils/calendarLangConfig';
 import { BASE_URL } from "@/constants";
 import { StatusMessage } from "./StatusMessage";
 import ViewToggle from "./ViewToggle";
 import { formatDisplayDate } from '@/utils/dateUtils';
-
 
 interface Props {
     visible: boolean;
@@ -35,9 +33,7 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
 
     const [markedDates, setMarkedDates] = useState<{ [date: string]: any }>({});
     useEffect(() => {
-
         const selectedColor = theme.colors.primary;
-
         setAbsences({
             ...getDateRange("2025-02-11", "2025-02-15", selectedColor),
             ...getDateRange("2025-03-20", "2025-03-22", selectedColor),
@@ -48,7 +44,6 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
         });
 
     }, [visible]);
-
 
     const fetchAbsences = async () => {
         setCurrentFetched(true);
@@ -145,10 +140,9 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                     : 'Hiba történt a jelenlét bejelentése során.');
             }
             setSuccess('Az adatok mentése sikeres volt.');
+            onClose();
         } catch (error: any) {
             setError(error.message);
-        } finally {
-            onClose();
         }
     };
 
@@ -185,7 +179,6 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                     onViewChange={handleViewChange}
                 />
 
-
                 <View style={[styles.dateDisplayContainer, { backgroundColor: theme.colors.surface }]}>
                     <View style={styles.dateDisplay}>
                         <Text variant="labelMedium">Kezdő dátum</Text>
@@ -197,7 +190,6 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                         <Text variant="titleMedium">{formatDisplayDate(endDate)}</Text>
                     </View>
                 </View>
-
 
                 <Calendar
                     minDate={minDate}

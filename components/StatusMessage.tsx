@@ -46,11 +46,9 @@ export const StatusMessage = ({
                     transform: [{ translateX: slideAnimation }]
                 }
             ]}
-
             accessible={true}
             accessibilityRole="alert"
             accessibilityLabel={`Status: ${message}`}
-
         >
             <View style={styles.iconContainer}>
                 {type === 'success' ? (

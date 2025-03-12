@@ -4,7 +4,11 @@ import { BASE_URL_AUTH } from '@/constants';
 export interface User {
     credentials?: AuthData,
     token?: string
-    institutions: { id: string }[]
+    institutions: {
+        institutionId: string,
+        role: string,
+        presentatorId: string | null
+    }[]
     role: string
 }
 
@@ -56,24 +60,16 @@ export class StandardAuthAdapter {
 
                 throw new Error('Valami hiba történt... Kérlek próbáld újra később.');
             }
-
-
-
             return response.json();
-
-
         } catch (error: any) {
             console.error('Request error:', error);
             throw new Error(error.message);
         }
-
     }
-
 
     private async storeAuthToken(token: string): Promise<void> {
         await SecureStore.setItemAsync('auth_tokens', token);
     }
-
 
     async register(data: AuthData): Promise<void> {
         try {
@@ -83,11 +79,6 @@ export class StandardAuthAdapter {
             console.error('Registration error:', error);
             throw new Error(error.message || 'Regisztráció sikertelen');
         }
-
-
-
-
-
     }
 
     async login(credentials: AuthData): Promise<AuthResponse> {
@@ -99,9 +90,7 @@ export class StandardAuthAdapter {
             console.error('Login error:', error);
             throw new Error(error.message || 'Sikertelen belépés');
         }
-
     }
-
 
     async logout(): Promise<void> {
         try {
@@ -110,9 +99,7 @@ export class StandardAuthAdapter {
             console.error('Logout error:', error);
             throw new Error(error.message || 'Sikertelen kijelentkezés');
         }
-
     }
-
 
     async getCurrentUser(): Promise<any | null> {
         try {
@@ -120,8 +107,6 @@ export class StandardAuthAdapter {
             if (!token) return null;
             const response = await this.makeRequest<any>('/login', 'POST', { token: token });
             return { ...response.user, token };
-
-
         } catch (error) {
             console.error('Error loading current user:', error);
             return null;

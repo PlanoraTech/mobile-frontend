@@ -27,6 +27,7 @@ export function AuthProvider({ children, authAdapter }: { children: React.ReactN
         try {
             const currentUser = await authAdapter.getCurrentUser();
             setUser(currentUser);
+            console.log(currentUser)
         } catch (error) {
             console.error('Hiba a felhasználó betöltése során:', error);
         } finally {

@@ -12,7 +12,7 @@ import { EventCard } from "./EventCard";
 import { AddEventCard } from "./AddEventCard";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getCurrentWeekDates, isSameDayUTC } from "@/utils/dateUtils";
-
+import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
 interface TimetableViewProps {
   appointments: Appointment[];
   onDayChange: (index: number) => void;
@@ -38,12 +38,14 @@ export const TimetableView = ({
   const { user } = useAuth();
   const themeStyle = getThemeStyles(theme);
   const [currentDate, setCurrentDate] = useState(new Date());
-
+  const { institutionId } = useInstitutionId();
   const handleWeekChange = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
     setCurrentDate(newDate);
   };
+
+
 
   const weekDates = getCurrentWeekDates(currentDate);
 
@@ -51,6 +53,7 @@ export const TimetableView = ({
     const currentDayDate = weekDates[index];
     const dayAppointments = appointments.filter(appointment => {
       const appointmentDate = new Date(appointment.start);
+
       return isSameDayUTC(appointmentDate, currentDayDate);
     }).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
@@ -62,21 +65,18 @@ export const TimetableView = ({
         {dayAppointments.length === 0 ? (
           <View style={[styles.notFoundContainer, themeStyle.background]}>
             <Text style={[themeStyle.textSecondary, styles.notFoundText]}>
-
               Ezen a napon nincs előadás
             </Text>
           </View>
         ) : (
           <ScrollView showsVerticalScrollIndicator={false}>
             <FlatList
-
               data={dayAppointments}
               keyExtractor={(appointment) => appointment.id}
               renderItem={({ item }) => (
                 <AppointmentCard appointment={item} />
               )}
               showsVerticalScrollIndicator={false}
-
               scrollEnabled={false}
             />
           </ScrollView>
@@ -87,6 +87,8 @@ export const TimetableView = ({
 
   const renderEventpage = ({ index }: { index: number }) => {
     const currentDayDate = weekDates[index];
+    console.log("currentDayDate", currentDayDate);
+    const isDirector = user?.institutions.some(inst => inst.institutionId === institutionId && inst.role === 'DIRECTOR');
     const dayEvents = events.filter(event => {
       const eventDate = new Date(event.date);
       return isSameDayUTC(eventDate, currentDayDate);
@@ -97,8 +99,7 @@ export const TimetableView = ({
         style={styles.dayPage}
       >
         {dayEvents.length === 0 ? (
-
-          user?.role === 'PRESENTATOR' ? (
+          isDirector ? (
             <AddEventCard currentDayDate={currentDayDate} />
           ) : (
             <View style={[styles.notFoundContainer, themeStyle.background]}>
@@ -119,9 +120,8 @@ export const TimetableView = ({
                 showsVerticalScrollIndicator={false}
                 scrollEnabled={false}
               />
-              {user?.role === 'PRESENTATOR' && <AddEventCard currentDayDate={currentDayDate} />}
+              {isDirector && <AddEventCard currentDayDate={currentDayDate} />}
             </ScrollView>
-
           )}
       </View>
     );

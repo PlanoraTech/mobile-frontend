@@ -28,11 +28,9 @@ export const AuthInput = ({
 }: AuthInputProps) => {
     const { theme } = useTheme();
     const themeStyles = getThemeStyles(theme);
-    return <View style={[styles.inputContainer, themeStyles.inputBackground ]}>
+    return <View style={[styles.inputContainer, themeStyles.inputBackground]}>
         <Ionicons name={icon} size={24} color="#666" style={styles.icon} />
         <TextInput
-
-
             style={[
                 styles.input,
                 secureTextEntry && styles.passwordInput,

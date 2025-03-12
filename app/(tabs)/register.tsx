@@ -52,19 +52,14 @@ export default function RegisterScreen() {
         }
     };
 
-
     return (
         <KeyboardAvoidingView
-
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
             <View style={styles.formContainer}>
                 <Text style={styles.title}>Fiók létrehozása</Text>
-
                 <Text style={styles.subtitle}>Hozz létre egy fiókot a privát intézmények eléréséhez</Text>
-
-
                 <AuthInput
                     icon="mail-outline"
                     placeholder="Email"

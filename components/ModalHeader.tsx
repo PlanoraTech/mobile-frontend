@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         borderBottomWidth: 1,
-        padding: 5,
+        padding: 10,
         marginBottom: 10,
     },
     modalTitle: {

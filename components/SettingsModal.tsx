@@ -166,19 +166,17 @@ export const SettingsModal = ({
 
         const hasInstitutionAccess = (institutionId: string) => {
             return user?.institutions.some(
-                (instId: { id: string }) => instId.id === institutionId
+                (instId: { institutionId: string }) => instId.institutionId === institutionId
             );
         };
 
         const handleAuthorizationFailure = (reason: 'login_required' | 'access_denied') => {
             handleClose();
-
             if (reason === 'login_required') {
                 router.replace('/login' as any);
             } else {
                 setErrorMessage('Nincs hozzáférésed ehhez az intézményhez');
             }
-
             return false;
         };
 
@@ -210,7 +208,7 @@ export const SettingsModal = ({
 
     const orderedInstitutions = useMemo(() =>
         [...institutions].sort((a) =>
-            user?.institutions.some((instId: { id: string }) => instId.id === a.id) ? -1 : 1
+            user?.institutions.some((inst: { institutionId: string }) => inst.institutionId === a.id) ? -1 : 1
         ),
         [institutions, user?.institutions]
     );

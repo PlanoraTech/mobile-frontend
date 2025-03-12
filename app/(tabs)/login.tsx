@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -10,7 +10,7 @@ import {
 import { useAuth } from '@/contexts/AuthProvider';
 import { AuthInput } from '@/components/AuthInput';
 import { validateEmail, validatePassword } from '@/utils/validation';
-import { Link, router } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import { createAuthStyles } from '@/assets/styles/authStyles';
 import ForgotPasswordModal from '@/components/ForgotPasswordModal';
 import { StatusMessage } from '@/components/StatusMessage';
@@ -30,9 +30,22 @@ export default function LoginScreen() {
         email: '',
         password: '',
     });
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const params = useLocalSearchParams();
+
+    useEffect(() => {
+        if (params.logout) {
+            setFormData({
+                email: '',
+                password: '',
+                rememberMe: false,
+            });
+            router.setParams({ logout: undefined });
+        }
+    }, [params.logout]);
     const handleLogin = async () => {
         const newErrors = {
             email: validateEmail(formData.email),
@@ -67,7 +80,6 @@ export default function LoginScreen() {
                     autoComplete="email"
                 />
                 {errors.email && <Text testID='email-error' style={styles.errorText}>{errors.email}</Text>}
-
                 <AuthInput
                     icon="lock-closed-outline"
                     placeholder="Jelszó"
@@ -79,10 +91,8 @@ export default function LoginScreen() {
                 {errors.password && <Text testID='password-error' style={styles.errorText}>{errors.password}</Text>}
                 <View style={styles.suboptionsContainer}>
                     <View style={styles.checkboxContainer}>
-
                         <Checkbox
                             value={formData.rememberMe}
-
                             style={[styles.checkbox]}
                             onValueChange={() => setFormData(prev => ({ ...prev, rememberMe: !formData.rememberMe }))}
                         />
@@ -96,8 +106,6 @@ export default function LoginScreen() {
                 <Pressable testID='login-button' style={styles.authButton} onPress={handleLogin}>
                     <Text style={styles.authButtonText}>Bejelentkezés</Text>
                 </Pressable>
-
-
                 <View style={styles.switchAuthContainer}>
                     <Text style={styles.switchAuthText}>Nincs még fiókod? </Text>
                     <Link style={styles.switchAuthLink} href="/register">Regisztáció</Link>

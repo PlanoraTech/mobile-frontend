@@ -17,8 +17,10 @@ export const TITLE_TRANSLATIONS: Record<string, string> = {
 };
 
 export const ROLE_TRANSLATIONS: Record<string, string> = {
+  'DIRECTOR': 'Igazgató',
   'PRESENTATOR': 'Előadó',
   'USER': 'Felhasználó',
+  'GUEST': 'Vendég',
 };
 export enum DayOfWeek {
   Monday = 'Monday',

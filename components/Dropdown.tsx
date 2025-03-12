@@ -23,8 +23,6 @@ export interface DropdownItem {
   isSubstituted?: boolean;
 }
 
-
-
 interface CustomDropdownProps {
   data: DropdownItem[];
   placeholder?: string;
@@ -55,14 +53,6 @@ export const DropdownComponent = ({
     setFilteredData(data);
   }, [data]);
 
-  const measureDropdown = () => {
-
-    DropdownButtonRef.current?.measureInWindow((x, y, width, height) => {
-      setPosition({ x, y, width, height });
-    });
-  };
-
-
   useEffect(() => {
     function onKeyboardDidShow() {
       measureDropdown();
@@ -80,17 +70,17 @@ export const DropdownComponent = ({
     };
   }, []);
 
-
-
+  const measureDropdown = () => {
+    DropdownButtonRef.current?.measureInWindow((x, y, width, height) => {
+      setPosition({ x, y, width, height });
+    });
+  };
 
   const toggleDropdown = useCallback(() => {
 
     measureDropdown();
     setVisible(!visible);
     if (!visible) {
-
-
-
       setIsFocus(true);
       setSearchText('');
       setFilteredData(data);
@@ -106,7 +96,6 @@ export const DropdownComponent = ({
     onSelect?.(item);
   };
 
-
   const handleSearch = useCallback((text: string) => {
     setSearchText(text);
     const filtered = data.filter(item =>
@@ -114,9 +103,6 @@ export const DropdownComponent = ({
     );
     setFilteredData(filtered);
   }, [data]);
-
-
-
 
   const renderItem = ({ item }: { item: DropdownItem }) => (
     <Pressable
@@ -143,7 +129,6 @@ export const DropdownComponent = ({
         animationType='none'
         onRequestClose={toggleDropdown}
       >
-
         <Pressable
           onPress={(e) => {
             e.stopPropagation();
@@ -152,11 +137,9 @@ export const DropdownComponent = ({
           style={styles.overlay}
         >
           <KeyboardAvoidingView
-
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             enabled
           >
-
             <View style={[styles.dropdown, modalStyle, themeStyles.content]}>
               <TextInput
                 style={[styles.searchInput, themeStyles.text]}
@@ -175,20 +158,14 @@ export const DropdownComponent = ({
               />
             </View>
           </KeyboardAvoidingView>
-
         </Pressable>
-
-
-
       </Modal>
     );
   };
 
-
   return (
     <View style={[styles.container]}>
       <Pressable
-
         ref={DropdownButtonRef}
         onPress={toggleDropdown}
 
@@ -197,20 +174,17 @@ export const DropdownComponent = ({
           isFocus && { borderColor: themeStyles.text.color }
         ]}
       >
-
         <Text
           style={[
             styles.buttonText,
             themeStyles.text
           ]}
         >
-
           {placeholder}
         </Text>
       </Pressable>
       {visible && renderDropdown()}
     </View>
-
   );
 };
 

@@ -18,10 +18,10 @@ export const AddEventCard = ({ currentDayDate }: EventCardProps) => {
             style={[styles.eventCard, themeStyles.content]}
         >
             <Text style={[styles.eventTitle, themeStyles.text]}>
-                +
+                Esemény hozzáadása
             </Text>
-            
-            <AddEventModal isVisible={isModalVisible} dayDate={currentDayDate} onClose={() => setIsModalVisible(false)} />
+
+            <AddEventModal currentDayDate={currentDayDate} isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} />
         </Pressable>
     );
 }

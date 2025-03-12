@@ -9,7 +9,7 @@ interface Props {
 const NotFoundContent = ({ message }: Props) => {
   const theme = useTheme()
 
-  return <View style={[styles.noSelectionContainer, { backgroundColor: theme.colors.surface }]}>
+  return <View style={[styles.noSelectionContainer, { backgroundColor: theme.colors.background }]}>
     <Text style={[styles.noSelectionText, { color: theme.colors.onSurface }]}>
       {message}
     </Text>

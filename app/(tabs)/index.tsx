@@ -6,7 +6,7 @@ import { TimetableView } from "@/components/TimeTableView";
 import { BASE_URL } from "@/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useRef, useState, RefObject } from "react";
-import { FlatList, Pressable, SafeAreaView, View, Text, StyleSheet, Platform } from "react-native";
+import { FlatList, Pressable, SafeAreaView, View, StyleSheet, Platform, Text } from "react-native";
 import { Settings } from 'lucide-react-native';
 import { SettingsModal } from "@/components/SettingsModal";
 import { useTheme } from "@/contexts/ThemeProvider";
@@ -15,6 +15,7 @@ import { StatusBar } from "expo-status-bar";
 import ViewToggle from "@/components/ViewToggle";
 import { getCurrentDayIndex } from "@/utils/dateUtils";
 import NotFoundContent from "@/components/NotFoundContent";
+import { IconButton } from "react-native-paper";
 
 export default function TimetableScreen() {
   const { theme } = useTheme();
@@ -31,7 +32,7 @@ export default function TimetableScreen() {
   const dayChosenByTapRef = useRef(false);
 
   const { data, loading: institutionLoading, error: institutionError } = useInstitutionData();
-  const { appointments, loading, error } = useTimetable({ selectedView, selectedId });
+  const { appointments, loading, error: timetableError } = useTimetable({ selectedView, selectedId });
 
   useEffect(() => {
     AsyncStorage.clear();
@@ -96,20 +97,21 @@ export default function TimetableScreen() {
 
   const renderTimetableContent = () => {
 
+
     if (!data.institution) {
-      return <NotFoundContent message="Válassz intézményt a beállítások gombbal" />;
+      return <NotFoundContent onPress={() => setModalVisible(true)} message="Válassz intézményt a beállítások gombbal" />;
+    }
+
+    if (timetableError && !showEvents) {
+      return <NotFoundContent onPress={() => setModalVisible(true)} message="Nem sikerült betölteni az elmentett/kiválasztott órarendet. Válassz új órarendet a beállítások gombbal." />;
     }
 
     if (selectedId === "" && !showEvents) {
-      return <NotFoundContent message="Válassz órarendet, előadót vagy termet a beállítások gombbal" />;
+      return <NotFoundContent onPress={() => setModalVisible(true)} message="Válassz órarendet, előadót vagy termet a beállítások gombbal" />;
     }
 
     if (loading) {
       return <LoadingSpinner />;
-    }
-
-    if (error) {
-      return <StatusMessage type="error" message={error} />;
     }
 
     return (
@@ -132,19 +134,16 @@ export default function TimetableScreen() {
       <SafeAreaView style={[styles.header, themeStyles.content]}>
 
         <View style={styles.headerContent}>
-          {data.institution &&
+          {data.institution ?
             <View style={styles.toggleCenterContainer}>
               <ViewToggle leftText="Órarend" rightText="Esemény" onViewChange={() => setShowEvents(!showEvents)} />
             </View>
-
+            :
+            <View style={styles.toggleCenterContainer}>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}>Planora</Text>
+            </View>
           }
-          <Pressable
-            style={styles.settingsButton}
-            onPress={() => setModalVisible(true)}
-            testID="settings-button"
-          >
-            <Settings color={themeStyles.textSecondary.color} size={28} />
-          </Pressable>
+          <IconButton icon="cog" size={28} onPress={() => setModalVisible(true)} />
         </View>
       </SafeAreaView>
 
@@ -162,6 +161,7 @@ export default function TimetableScreen() {
         }}
       />
       {institutionError && <StatusMessage type="error" message={institutionError} />}
+      {timetableError && <StatusMessage type="error" message={timetableError} />}
     </View>
   );
 }

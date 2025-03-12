@@ -162,7 +162,7 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
             Teremcsere
           </Button>
         </View>
-        {roomChangeModalVisible && <RoomChangeModal rooms={appointment.rooms} visible={roomChangeModalVisible} onDismiss={closeRoomModal} />}
+        <RoomChangeModal rooms={appointment.rooms} visible={roomChangeModalVisible} onDismiss={closeRoomModal} />
       </Animated.View>
     </View>
   );

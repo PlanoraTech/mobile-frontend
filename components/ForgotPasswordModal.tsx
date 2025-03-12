@@ -1,9 +1,11 @@
-import { Modal, Pressable } from "react-native";
+import { Modal } from "react-native";
 import { AuthInput } from "./AuthInput";
 import { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
+import { IconButton } from "react-native-paper";
+
 interface ForgotPasswordModalProps {
     onClose: () => void;
 }
@@ -20,7 +22,6 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
     return (
         <Modal
             animationType="fade"
-
             transparent={true}
             visible={true}
             onRequestClose={onClose}
@@ -28,14 +29,15 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
             <View style={styles.modalContainer}>
                 <View style={[styles.modalContent, themeStyles.content]}>
                     <View style={styles.modalHeader}>
-
                         <Text style={[styles.headerText, themeStyles.textSecondary]}>
                             Elfelejtett Jelszó
-
                         </Text>
-                        <Pressable onPress={onClose} style={styles.closeButton}>
-                            <Text style={[styles.closeButtonText, themeStyles.textSecondary]}>×</Text>
-                        </Pressable>
+                        <IconButton
+                            icon="close"
+                            size={24}
+                            onPress={onClose}
+                            iconColor={themeStyles.textSecondary.color}
+                        />
                     </View>
                     <View>
 

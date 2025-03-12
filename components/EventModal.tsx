@@ -3,6 +3,7 @@ import { useTheme } from "@/contexts/ThemeProvider";
 import { useState } from "react";
 import { Modal, Pressable, Text, TextInput, View, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { IconButton } from "react-native-paper";
 
 
 interface EventModalProps {
@@ -16,7 +17,7 @@ export interface DayEvent {
     id: string;
     title: string;
     date: Date;
-  }
+}
 
 export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
     const { theme } = useTheme();
@@ -33,51 +34,54 @@ export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
             onRequestClose={onClose}
             animationType="fade"
         >
-             <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
-            <View style={[styles.modalContainer, ]}>
-            <View style={[styles.modalContent, themeStyles.content]}>
-                <View style={[styles.modalHeader, themeStyles.border]} >
-                    <Text style={[styles.modalTitle, themeStyles.textSecondary]}>
-                        Esemény szerkesztése
-                    </Text>
+            <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
+            <View style={[styles.modalContainer,]}>
+                <View style={[styles.modalContent, themeStyles.content]}>
+                    <View style={[styles.modalHeader, themeStyles.border]} >
+                        <Text style={[styles.modalTitle, themeStyles.textSecondary]}>
+                            Esemény szerkesztése
+                        </Text>
 
-                    <Pressable onPress={handleClose} style={[styles.closeButton]}>
-                        <Text style={[styles.closeButtonText, themeStyles.textSecondary]}>×</Text>
-                    </Pressable>    
+                        <IconButton
+                            icon="close"
+                            size={24}
+                            onPress={handleClose}
+                            iconColor={themeStyles.textSecondary.color}
+                        />
+                    </View>
+                    <TextInput
+                        style={[
+                            styles.input,
+                            themeStyles.inputBackground,
+                            themeStyles.text,
+                        ]}
+                        multiline={true}
+
+                        value={newTitle}
+                        onChangeText={(text) => setNewTitle(text)}
+                        autoCapitalize="sentences"
+                    />
+                    <View style={styles.ButtonsContainer}>
+                        <Pressable style={[styles.deleteButton, themeStyles.buttonSecondary]}>
+                            <Text style={styles.buttonText}>Esemény törlése</Text>
+                        </Pressable>
+                        <Pressable style={[styles.saveButton, themeStyles.button]}>
+
+                            <Text style={styles.buttonText}>Mentés</Text>
+                        </Pressable>
+                    </View>
+
                 </View>
-                <TextInput
-                    style={[
-                        styles.input,
-                        themeStyles.inputBackground,
-                        themeStyles.text,
-                    ]}
-                    multiline={true}
-
-                    value={newTitle}
-                    onChangeText={(text) => setNewTitle(text)}
-                    autoCapitalize="sentences"
-                />
-                <View style={styles.ButtonsContainer}>
-                    <Pressable style={[styles.deleteButton, themeStyles.buttonSecondary]}>
-                        <Text style={styles.buttonText}>Esemény törlése</Text>
-                    </Pressable>
-                    <Pressable style={[styles.saveButton, themeStyles.button]}>
-
-                        <Text style={styles.buttonText}>Mentés</Text>
-                    </Pressable>
-                </View>
-
-            </View>
             </View>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
-     modalContainer: {
+    modalContainer: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        justifyContent: 'center',   
+        justifyContent: 'center',
         alignItems: 'center',
     },
     modalContent: {
@@ -123,7 +127,7 @@ const styles = StyleSheet.create({
     saveButton: {
         padding: 10,
         borderRadius: 8,
-        
+
     },
     buttonText: {
         color: '#fff',

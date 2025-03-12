@@ -1,10 +1,9 @@
-
 import { BASE_URL } from "@/constants";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
 import { useState } from "react";
-import { Pressable, Text, TextInput, View, StyleSheet } from "react-native";
-import { Button, Modal, Portal, useTheme } from "react-native-paper";
+import { Text, TextInput, View, StyleSheet } from "react-native";
+import { Button, Modal, Portal, useTheme, IconButton } from "react-native-paper";
 import { StatusMessage } from "./StatusMessage";
 import { AuthInput } from "./AuthInput";
 
@@ -67,9 +66,12 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
                         Esemény létrehozása
                     </Text>
 
-                    <Pressable onPress={onClose} style={[styles.closeButton]}>
-                        <Text style={[styles.closeButtonText, { color: theme.colors.onSurface }]}>×</Text>
-                    </Pressable>
+                    <IconButton
+                        icon="close"
+                        size={24}
+                        onPress={onClose}
+                        iconColor={theme.colors.onSurface}
+                    />
                 </View>
                 <AuthInput
                     icon="calendar-outline"

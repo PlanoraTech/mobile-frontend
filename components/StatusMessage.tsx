@@ -60,12 +60,10 @@ export const StatusMessage = ({
                         />)
                 }
             </View>
-
             <Text style={[
                 styles.message,
             ]}>
                 {message}
-
             </Text>
             {onClose && (
                 <Pressable

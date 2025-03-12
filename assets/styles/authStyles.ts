@@ -20,7 +20,7 @@ export const createAuthStyles = () => {
             width: '100%',
         },
         title: {
-            fontSize: 32,
+            fontSize: 24,
             fontWeight: 'bold',
             ...themeStyles.text,
             marginBottom: 8,
@@ -47,11 +47,6 @@ export const createAuthStyles = () => {
             fontSize: 14,
         },
         authButton: {
-            ...themeStyles.button,
-            borderRadius: 12,
-            height: 56,
-            justifyContent: 'center',
-            alignItems: 'center',
             marginBottom: 24,
 
         },
@@ -81,10 +76,17 @@ export const createAuthStyles = () => {
         },
         checkboxContainer: {
             flexDirection: 'row',
-            gap: 5
+            gap: 5,
+            alignItems: 'center'
         },
         checkbox: {
             borderRadius: 5
+        },
+        checkboxChecked: {
+            backgroundColor: themeStyles.button.backgroundColor
+        },
+        checkboxUnchecked: {
+            backgroundColor: themeStyles.background.backgroundColor
         }
     });
 

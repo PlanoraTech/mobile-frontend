@@ -1,14 +1,14 @@
-
 import { AuthInput } from "./AuthInput";
 import { useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
-import { Button, Modal, Portal } from "react-native-paper";
+import { Button, Modal, Portal, IconButton } from "react-native-paper";
 import { BASE_URL, BASE_URL_AUTH } from "@/constants";
 import { useAuth } from "@/contexts/AuthProvider";
 import { StatusMessage } from "./StatusMessage";
 import { validatePassword } from "@/utils/validation";
+
 interface ForgotPasswordModalProps {
     isVisible: boolean;
     onClose: () => void;
@@ -36,56 +36,60 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    const validateForm = () => {
+        const newErrors = {
+            oldPassword: validatePassword(formData.oldPassword),
+            newPassword: validatePassword(formData.newPassword),
+            confirmPassword: validatePassword(formData.confirmPassword),
+        };
+        setErrors(newErrors);
+        if (Object.values(newErrors).some(error => error)) {
+            return;
+        }
+        return true;
+    }
+
     const modifyPassword = async () => {
+        if (!validateForm()) {
+            return;
+        }
         try {
-            const newErrors = {
-                oldPassword: validatePassword(formData.oldPassword),
-                newPassword: validatePassword(formData.newPassword),
-                confirmPassword: validatePassword(formData.confirmPassword),
-            };
-            setErrors(newErrors);
-            if (!Object.values(newErrors).some(error => error)) {
-                setError('');
-                setSuccess('');
-                const response = await fetch(`${BASE_URL_AUTH}/profile?token=${user?.token}`, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        oldPassword: formData.oldPassword,
-                        newPassword: formData.newPassword,
-                    }),
-                });
-                console.log(JSON.stringify({
+            setError('');
+            setSuccess('');
+            const response = await fetch(`${BASE_URL_AUTH}/profile?token=${user?.token}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
                     oldPassword: formData.oldPassword,
                     newPassword: formData.newPassword,
-                }));
-                console.log(response.status);
-                console.log(await response.text());
-                if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        setError("Nincs jogosultságod a művelethez");
-                        return;
-                    }
-                    if (response.status === 400) {
-                        setError("Hibás kérés");
-                        return;
-                    }
+                }),
+            });
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    setError("Nincs jogosultságod a művelethez");
+                    return;
                 }
-                setSuccess("Jelszó módosítva");
-                setFormData({
-                    oldPassword: '',
-                    newPassword: '',
-                    confirmPassword: '',
-                });
-                onClose();
+                if (response.status === 400) {
+                    setError("Hibás kérés");
+                    return;
+                }
             }
+            setSuccess("Jelszó módosítva");
+            setFormData({
+                oldPassword: '',
+                newPassword: '',
+                confirmPassword: '',
+            });
+            onClose();
         } catch (error: any) {
             console.error(error);
             setError("Ismeretlen hiba történt...");
         }
     }
+
     const handleClose = () => {
         setFormData({
             oldPassword: '',
@@ -104,6 +108,7 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
         });
         onClose();
     }
+
     return (
         <Portal>
             <Modal
@@ -115,9 +120,12 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                     <Text style={[styles.headerText, themeStyles.textSecondary]}>
                         Jelszó módosítása
                     </Text>
-                    <Pressable onPress={handleClose} style={styles.closeButton}>
-                        <Text style={[styles.closeButtonText, themeStyles.textSecondary]}>×</Text>
-                    </Pressable>
+                    <IconButton
+                        icon="close"
+                        size={24}
+                        onPress={handleClose}
+                        iconColor={themeStyles.textSecondary.color}
+                    />
                 </View>
                 <View>
                     <AuthInput
@@ -125,7 +133,6 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                         placeholder="Régi jelszó"
                         value={formData.oldPassword}
                         onChangeText={(text) => setFormData(prev => ({ ...prev, oldPassword: text }))}
-                        keyboardType="default"
                         secureTextEntry={!showPassword.oldPassword}
                         toggleSecureEntry={() => setShowPassword(prev => ({ ...prev, oldPassword: !prev.oldPassword }))}
                         autoComplete="password"
@@ -136,7 +143,6 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                         placeholder="Új jelszó"
                         value={formData.newPassword}
                         onChangeText={(text) => setFormData(prev => ({ ...prev, newPassword: text }))}
-                        keyboardType="default"
                         autoComplete="password"
                         secureTextEntry={!showPassword.newPassword}
                         toggleSecureEntry={() => setShowPassword(prev => ({ ...prev, newPassword: !prev.newPassword }))}
@@ -147,7 +153,6 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                         placeholder="Jelszó megerősítése"
                         value={formData.confirmPassword}
                         onChangeText={(text) => setFormData(prev => ({ ...prev, confirmPassword: text }))}
-                        keyboardType="default"
                         secureTextEntry={!showPassword.confirmPassword}
                         toggleSecureEntry={() => setShowPassword(prev => ({ ...prev, confirmPassword: !prev.confirmPassword }))}
                     />

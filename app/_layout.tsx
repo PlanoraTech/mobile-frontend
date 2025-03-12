@@ -18,8 +18,8 @@ const StackNavigator = () => {
   //needed for keyboard appearance
   theme === "dark" ? SystemUI.setBackgroundColorAsync("#1a1a1a") : SystemUI.setBackgroundColorAsync("#f5f5f5");
 
-  const {paperTheme} = useCombinedTheme(theme)
-  
+  const { paperTheme } = useCombinedTheme(theme)
+
   return (
     // needed for background during animation
     <ThemeProvider value={
@@ -27,13 +27,13 @@ const StackNavigator = () => {
         ...DarkTheme,
         colors: {
           ...DarkTheme.colors,
-          background: "#1a1a1a",
+          background: "transparent",
         }
       } : {
         ...DefaultTheme,
         colors: {
           ...DefaultTheme.colors,
-          background: "#f5f5f5",
+          background: "transparent",
         }
       }
     }>
@@ -42,13 +42,13 @@ const StackNavigator = () => {
         <GestureHandlerRootView>
           <PaperProvider theme={paperTheme}>
 
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{
-            headerShown: false,
-          }} />
-        </Stack>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{
+                headerShown: false,
+              }} />
+            </Stack>
           </PaperProvider>
-          </GestureHandlerRootView>
+        </GestureHandlerRootView>
       </InstitutionIdProvider>
     </ThemeProvider>
 

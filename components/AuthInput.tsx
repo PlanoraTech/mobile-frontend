@@ -37,11 +37,10 @@ export const AuthInput = ({
                 themeStyles.text,
             ]}
             placeholder={placeholder}
-            value={value}
+            defaultValue={value}
             placeholderTextColor={themeStyles.textSecondary.color}
             onChangeText={onChangeText}
             secureTextEntry={secureTextEntry}
-
             keyboardType={keyboardType}
             autoCapitalize={autoCapitalize}
             autoComplete={autoComplete}
@@ -65,7 +64,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         marginBottom: 16,
         paddingHorizontal: 16,
-        height: 56,
+        height: 45,
     },
     icon: {
         marginRight: 12,

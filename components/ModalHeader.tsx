@@ -1,5 +1,5 @@
-import { View, Text, Pressable, StyleSheet } from "react-native"
-import { useTheme } from "react-native-paper";
+import { View, Text, StyleSheet } from "react-native"
+import { useTheme, IconButton } from "react-native-paper";
 
 interface ModalHeaderProps {
     title: string;
@@ -14,12 +14,12 @@ const ModalHeader = ({ title, handleClose }: ModalHeaderProps) => {
                 {title}
             </Text>
             {handleClose &&
-                <Pressable
+                <IconButton
+                    icon="close"
+                    size={24}
                     onPress={handleClose}
-                    style={styles.closeButton}
-                >
-                    <Text style={[styles.closeButtonText, { color: theme.colors.onSurface }]}>×</Text>
-                </Pressable>
+                    iconColor={theme.colors.onSurface}
+                />
             }
         </View>
     );
@@ -38,12 +38,6 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 20,
-    },
-    closeButton: {
-        padding: 5,
-    },
-    closeButtonText: {
-        fontSize: 20,
-    },
+    }
 });
 

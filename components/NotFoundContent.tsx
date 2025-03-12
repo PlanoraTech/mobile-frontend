@@ -1,19 +1,20 @@
 
 import { View, Text, StyleSheet } from "react-native"
-import { useTheme } from "react-native-paper";
+import { useTheme, TouchableRipple } from "react-native-paper";
 
 interface Props {
   message?: string;
+  onPress?: () => void;
 }
 
-const NotFoundContent = ({ message }: Props) => {
+const NotFoundContent = ({ message, onPress }: Props) => {
   const theme = useTheme()
 
-  return <View style={[styles.noSelectionContainer, { backgroundColor: theme.colors.background }]}>
+  return <TouchableRipple style={[styles.noSelectionContainer, { backgroundColor: theme.colors.background }]} rippleColor={theme.colors.backdrop} onPress={onPress}>
     <Text style={[styles.noSelectionText, { color: theme.colors.onSurface }]}>
       {message}
     </Text>
-  </View>
+  </TouchableRipple>
 }
 
 export default NotFoundContent;

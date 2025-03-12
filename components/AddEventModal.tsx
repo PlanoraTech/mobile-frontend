@@ -12,6 +12,7 @@ interface AddEventModalProps {
     currentDayDate: Date;
     onClose: () => void;
 }
+
 export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventModalProps) => {
     const theme = useTheme();
     const [newTitle, setNewTitle] = useState("");
@@ -24,14 +25,18 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
         if (!newTitle) {
             return;
         }
+
         try {
             setError("");
             setSuccess("");
+
             const newEvent = {
                 title: newTitle,
                 date: currentDayDate,
             }
+
             console.log(`url: ${BASE_URL}/${institutionId}/events`);
+
             const response = await fetch(`${BASE_URL}/${institutionId}/events/?token=${user?.token}`, {
                 method: "POST",
                 headers: {
@@ -39,13 +44,16 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
                 },
                 body: JSON.stringify(newEvent),
             });
+
             console.log('newEvent', JSON.stringify(newEvent));
             console.log('response', response.status);
             console.log('response', await response.text());
+
             if (response.status === 401 || response.status === 403) {
                 setError("Nincs jogosultságod a művelethez");
                 return;
             }
+
             setSuccess("Sikeresen hozzáadva");
             onClose();
         } catch (error: any) {
@@ -53,15 +61,18 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
             setError("Ismeretlen hiba történt...");
         }
     }
+
     return (
         <Portal>
             <Modal
                 visible={isVisible}
                 onDismiss={onClose}
-                contentContainerStyle={[styles.modalContent, { backgroundColor: theme.colors.surface }]}
+                contentContainerStyle={[
+                    styles.modalContent,
+                    { backgroundColor: theme.colors.surface }
+                ]}
             >
-
-                <View style={[styles.modalHeader, { borderColor: theme.colors.outline }]} >
+                <View style={[styles.modalHeader, { borderColor: theme.colors.outline }]}>
                     <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
                         Esemény létrehozása
                     </Text>
@@ -73,18 +84,24 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
                         iconColor={theme.colors.onSurface}
                     />
                 </View>
+
                 <AuthInput
                     icon="calendar-outline"
                     placeholder="Esemény leírása"
                     value={newTitle}
                     onChangeText={(text) => setNewTitle(text)}
                 />
+
                 <View style={styles.ButtonsContainer}>
-                    <Button mode="contained" onPress={handleAdd}>
+                    <Button
+                        mode="contained"
+                        onPress={handleAdd}
+                    >
                         <Text style={styles.saveButtonText}>Hozzáadás</Text>
                     </Button>
                 </View>
             </Modal>
+
             {error && <StatusMessage message={error} type="error" />}
             {success && <StatusMessage message={success} type="success" />}
         </Portal>
@@ -92,7 +109,6 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
 }
 
 const styles = StyleSheet.create({
-
     modalContent: {
         borderRadius: 8,
         padding: 15,
@@ -121,12 +137,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 15,
     },
-
     ButtonsContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
     },
-
     saveButton: {
         padding: 10,
         borderRadius: 8,

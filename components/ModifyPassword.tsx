@@ -18,21 +18,25 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
     const { theme } = useTheme();
     const { user } = useAuth();
     const themeStyles = getThemeStyles(theme);
+
     const [formData, setFormData] = useState({
         oldPassword: '',
         newPassword: '',
         confirmPassword: '',
     });
+
     const [showPassword, setShowPassword] = useState({
         oldPassword: false,
         newPassword: false,
         confirmPassword: false,
     });
+
     const [errors, setErrors] = useState({
         oldPassword: '',
         newPassword: '',
         confirmPassword: '',
     });
+
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
@@ -42,10 +46,13 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
             newPassword: validatePassword(formData.newPassword),
             confirmPassword: validatePassword(formData.confirmPassword),
         };
+
         setErrors(newErrors);
+
         if (Object.values(newErrors).some(error => error)) {
             return;
         }
+
         return true;
     }
 
@@ -53,9 +60,11 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
         if (!validateForm()) {
             return;
         }
+
         try {
             setError('');
             setSuccess('');
+
             const response = await fetch(`${BASE_URL_AUTH}/profile?token=${user?.token}`, {
                 method: "PATCH",
                 headers: {
@@ -72,17 +81,20 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                     setError("Nincs jogosultságod a művelethez");
                     return;
                 }
+
                 if (response.status === 400) {
                     setError("Hibás kérés");
                     return;
                 }
             }
+
             setSuccess("Jelszó módosítva");
             setFormData({
                 oldPassword: '',
                 newPassword: '',
                 confirmPassword: '',
             });
+
             onClose();
         } catch (error: any) {
             console.error(error);
@@ -96,16 +108,19 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
             newPassword: '',
             confirmPassword: '',
         });
+
         setShowPassword({
             oldPassword: false,
             newPassword: false,
             confirmPassword: false,
         });
+
         setErrors({
             oldPassword: '',
             newPassword: '',
             confirmPassword: '',
         });
+
         onClose();
     }
 
@@ -120,6 +135,7 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                     <Text style={[styles.headerText, themeStyles.textSecondary]}>
                         Jelszó módosítása
                     </Text>
+
                     <IconButton
                         icon="close"
                         size={24}
@@ -127,6 +143,7 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                         iconColor={themeStyles.textSecondary.color}
                     />
                 </View>
+
                 <View>
                     <AuthInput
                         icon="lock-closed-outline"
@@ -138,6 +155,7 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                         autoComplete="password"
                     />
                     {errors.oldPassword && <Text style={styles.errorText}>{errors.oldPassword}</Text>}
+
                     <AuthInput
                         icon="lock-closed-outline"
                         placeholder="Új jelszó"
@@ -148,6 +166,7 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                         toggleSecureEntry={() => setShowPassword(prev => ({ ...prev, newPassword: !prev.newPassword }))}
                     />
                     {errors.newPassword && <Text style={styles.errorText}>{errors.newPassword}</Text>}
+
                     <AuthInput
                         icon="lock-closed-outline"
                         placeholder="Jelszó megerősítése"
@@ -157,11 +176,13 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                         toggleSecureEntry={() => setShowPassword(prev => ({ ...prev, confirmPassword: !prev.confirmPassword }))}
                     />
                     {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+
                     <Button mode="contained" onPress={modifyPassword}>
                         Módosítás
                     </Button>
                 </View>
             </Modal>
+
             {error && <StatusMessage message={error} type="error" />}
             {success && <StatusMessage message={success} type="success" />}
         </Portal>

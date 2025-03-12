@@ -5,13 +5,11 @@ import { Modal, Pressable, Text, TextInput, View, StyleSheet } from "react-nativ
 import { StatusBar } from "expo-status-bar";
 import { IconButton } from "react-native-paper";
 
-
 interface EventModalProps {
     isVisible: boolean;
     event: DayEvent;
     onClose: () => void;
 }
-
 
 export interface DayEvent {
     id: string;
@@ -23,10 +21,12 @@ export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
     const { theme } = useTheme();
     const themeStyles = getThemeStyles(theme);
     const [newTitle, setNewTitle] = useState(event.title);
+
     const handleClose = () => {
         setNewTitle(event.title);
         onClose();
     }
+
     return (
         <Modal
             visible={isVisible}
@@ -35,9 +35,10 @@ export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
             animationType="fade"
         >
             <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
-            <View style={[styles.modalContainer,]}>
+
+            <View style={styles.modalContainer}>
                 <View style={[styles.modalContent, themeStyles.content]}>
-                    <View style={[styles.modalHeader, themeStyles.border]} >
+                    <View style={[styles.modalHeader, themeStyles.border]}>
                         <Text style={[styles.modalTitle, themeStyles.textSecondary]}>
                             Esemény szerkesztése
                         </Text>
@@ -49,6 +50,7 @@ export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
                             iconColor={themeStyles.textSecondary.color}
                         />
                     </View>
+
                     <TextInput
                         style={[
                             styles.input,
@@ -56,21 +58,24 @@ export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
                             themeStyles.text,
                         ]}
                         multiline={true}
-
                         value={newTitle}
                         onChangeText={(text) => setNewTitle(text)}
                         autoCapitalize="sentences"
                     />
+
                     <View style={styles.ButtonsContainer}>
-                        <Pressable style={[styles.deleteButton, themeStyles.buttonSecondary]}>
+                        <Pressable
+                            style={[styles.deleteButton, themeStyles.buttonSecondary]}
+                        >
                             <Text style={styles.buttonText}>Esemény törlése</Text>
                         </Pressable>
-                        <Pressable style={[styles.saveButton, themeStyles.button]}>
 
+                        <Pressable
+                            style={[styles.saveButton, themeStyles.button]}
+                        >
                             <Text style={styles.buttonText}>Mentés</Text>
                         </Pressable>
                     </View>
-
                 </View>
             </View>
         </Modal>
@@ -119,7 +124,6 @@ const styles = StyleSheet.create({
     deleteButton: {
         padding: 10,
         borderRadius: 8,
-
     },
     deleteButtonText: {
         color: '#fff',
@@ -127,7 +131,6 @@ const styles = StyleSheet.create({
     saveButton: {
         padding: 10,
         borderRadius: 8,
-
     },
     buttonText: {
         color: '#fff',

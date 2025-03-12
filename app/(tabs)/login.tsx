@@ -66,7 +66,6 @@ export default function LoginScreen() {
             setErrorMessage(error.message || 'Sikertelen bejelentkezés');
             setLoading(false);
         }
-
     };
 
     return (

@@ -18,16 +18,15 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Switch } from 'react-native-paper';
 
 const ProfileScreen = () => {
-
     const { theme, toggleTheme } = useTheme();
     const { user, logout } = useAuth();
     const { institutionId } = useInstitutionId();
     const themeStyles = getThemeStyles(theme);
+
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
     const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
     const [absentModalVisible, setAbsentModalVisible] = useState(false);
     const [loading, setLoading] = useState(false);
-
     const [isSwitchEnabled, setIsSwitchEnabled] = useState(false);
 
     useEffect(() => {
@@ -41,9 +40,11 @@ const ProfileScreen = () => {
         const role = user?.institutions.find(institution => institution.institutionId === institutionId)?.role;
         return role || 'GUEST';
     }
+
     const toggleNotifications = () => {
         setIsNotificationsEnabled(previousState => !previousState);
     };
+
     const handleLogout = async () => {
         setLoading(true);
         await logout();
@@ -61,73 +62,116 @@ const ProfileScreen = () => {
 
     return (
         <View style={[styles.container, themeStyles.content]}>
-            {loading ? <LoadingSpinner /> :
+            {loading ? (
+                <LoadingSpinner />
+            ) : (
                 <View style={[styles.content, themeStyles.content]}>
                     <View style={styles.section}>
-                        <Text style={[styles.label, themeStyles.text]}>Szerep</Text>
-
+                        <Text style={[styles.label, themeStyles.text]}>
+                            Szerep
+                        </Text>
                         <Text style={[styles.value, themeStyles.text]}>
                             {ROLE_TRANSLATIONS[getCurrentRole()]}
                         </Text>
                     </View>
+
                     <View style={styles.section}>
-                        <Text style={[styles.label, themeStyles.text]}>Téma</Text>
+                        <Text style={[styles.label, themeStyles.text]}>
+                            Téma
+                        </Text>
                         {isSwitchEnabled && (
                             <Switch
                                 value={theme === 'dark'}
                                 onValueChange={toggleTheme}
-
                             />
                         )}
                     </View>
+
                     <View style={styles.section}>
-                        <Text style={[styles.label, themeStyles.text]}>Értesítések</Text>
+                        <Text style={[styles.label, themeStyles.text]}>
+                            Értesítések
+                        </Text>
                         {isSwitchEnabled && (
                             <Switch
                                 value={isNotificationsEnabled}
                                 onValueChange={toggleNotifications}
-
                             />
                         )}
                     </View>
+
                     <View style={styles.authSection}>
                         {!user?.token ? (
                             <>
                                 <Pressable
-                                    style={[styles.authButton, styles.button, themeStyles.button]}
+                                    style={[
+                                        styles.authButton,
+                                        styles.button,
+                                        themeStyles.button
+                                    ]}
                                     onPress={() => router.push('/login')}
                                 >
-                                    <Text style={styles.buttonText}>Bejelentkezés</Text>
+                                    <Text style={styles.buttonText}>
+                                        Bejelentkezés
+                                    </Text>
                                 </Pressable>
+
                                 <Pressable
-                                    style={[styles.authButton, styles.button, themeStyles.button]}
+                                    style={[
+                                        styles.authButton,
+                                        styles.button,
+                                        themeStyles.button
+                                    ]}
                                     onPress={() => router.push('/register')}
                                 >
-                                    <Text style={styles.buttonText}>Regisztráció</Text>
+                                    <Text style={styles.buttonText}>
+                                        Regisztráció
+                                    </Text>
                                 </Pressable>
                             </>
                         ) : (
                             <>
-                                <Button mode="contained" onPress={() => setAbsentModalVisible(true)}>
-                                    <Text style={styles.buttonText}>Hiányzás kezelése</Text>
+                                <Button
+                                    mode="contained"
+                                    onPress={() => setAbsentModalVisible(true)}
+                                >
+                                    <Text style={styles.buttonText}>
+                                        Hiányzás kezelése
+                                    </Text>
                                 </Button>
-                                <AbsentModal visible={absentModalVisible} onDismiss={() => setAbsentModalVisible(false)} />
-                                <Button mode="contained" onPress={() => setIsPasswordModalVisible(true)}>
-                                    <Text style={styles.buttonText}>Jelszó módosítása</Text>
+
+                                <AbsentModal
+                                    visible={absentModalVisible}
+                                    onDismiss={() => setAbsentModalVisible(false)}
+                                />
+
+                                <Button
+                                    mode="contained"
+                                    onPress={() => setIsPasswordModalVisible(true)}
+                                >
+                                    <Text style={styles.buttonText}>
+                                        Jelszó módosítása
+                                    </Text>
                                 </Button>
-                                <ModifyPassword isVisible={isPasswordModalVisible} onClose={() => setIsPasswordModalVisible(false)} />
+
+                                <ModifyPassword
+                                    isVisible={isPasswordModalVisible}
+                                    onClose={() => setIsPasswordModalVisible(false)}
+                                />
+
                                 <Button
                                     buttonColor={themeStyles.buttonSecondary.backgroundColor}
                                     mode="contained"
                                     onPress={handleLogout}
                                 >
-                                    <Text style={styles.buttonText}>Kijelentkezés</Text>
+                                    <Text style={styles.buttonText}>
+                                        Kijelentkezés
+                                    </Text>
                                 </Button>
                             </>
                         )}
                     </View>
                 </View>
-            }
+            )}
         </View>
     );
 };
@@ -186,7 +230,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
-
 });
 
 export default ProfileScreen;

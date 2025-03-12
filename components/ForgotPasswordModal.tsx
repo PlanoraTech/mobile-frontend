@@ -10,7 +10,6 @@ interface ForgotPasswordModalProps {
     onClose: () => void;
 }
 
-
 export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProps) {
     const { theme } = useTheme();
     const [formData, setFormData] = useState({
@@ -32,6 +31,7 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                         <Text style={[styles.headerText, themeStyles.textSecondary]}>
                             Elfelejtett Jelszó
                         </Text>
+
                         <IconButton
                             icon="close"
                             size={24}
@@ -39,8 +39,8 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                             iconColor={themeStyles.textSecondary.color}
                         />
                     </View>
-                    <View>
 
+                    <View>
                         <AuthInput
                             icon="mail-outline"
                             placeholder="Email"
@@ -49,7 +49,11 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                             keyboardType="email-address"
                             autoComplete="email"
                         />
-                        <Pressable onPress={onClose} style={[styles.submitButton, themeStyles.button]}>
+
+                        <Pressable
+                            onPress={onClose}
+                            style={[styles.submitButton, themeStyles.button]}
+                        >
                             <Text style={styles.submitButtonText}>Küldés</Text>
                         </Pressable>
                     </View>

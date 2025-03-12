@@ -8,19 +8,21 @@ interface ModalHeaderProps {
 
 const ModalHeader = ({ title, handleClose }: ModalHeaderProps) => {
     const theme = useTheme();
+
     return (
         <View style={[styles.modalHeader, { borderColor: theme.colors.outline }]}>
             <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
                 {title}
             </Text>
-            {handleClose &&
+
+            {handleClose && (
                 <IconButton
                     icon="close"
                     size={24}
                     onPress={handleClose}
                     iconColor={theme.colors.onSurface}
                 />
-            }
+            )}
         </View>
     );
 }

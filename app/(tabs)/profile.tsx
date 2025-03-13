@@ -2,20 +2,22 @@ import React, { useState, useCallback, useEffect } from 'react';
 import {
     View,
     Text,
-    Pressable,
     StyleSheet,
+    Linking,
 } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 import { useAuth } from '@/contexts/AuthProvider';
-import { ROLE_TRANSLATIONS } from '@/constants';
+import { BASE_URL, ROLE_TRANSLATIONS, SCREEN_WIDTH } from '@/constants';
 import { ModifyPassword } from '@/components/ModifyPassword';
 import AbsentModal from '@/components/AbsentModal';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
-import { Button } from 'react-native-paper';
+import { Button, Divider, IconButton } from 'react-native-paper';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Switch } from 'react-native-paper';
+import { useQuery } from '@tanstack/react-query';
+import { Institution } from '@/components/Dropdown';
 
 const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
@@ -28,7 +30,7 @@ const ProfileScreen = () => {
     const [absentModalVisible, setAbsentModalVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [isSwitchEnabled, setIsSwitchEnabled] = useState(false);
-
+    const [isExpanded, setIsExpanded] = useState(false);
     useEffect(() => {
         const timeout = setTimeout(() => {
             setIsSwitchEnabled(true);
@@ -36,12 +38,25 @@ const ProfileScreen = () => {
         return () => clearTimeout(timeout);
     }, []);
 
+    const getInstitution = async (): Promise<Institution> => {
+        const response = await fetch(`${BASE_URL}/${institutionId}`, {
+            headers: {
+                Authorization: `Bearer ${user?.token}`,
+            },
+        });
+        const data = await response.json();
+        return data;
+    }
+    const { data } = useQuery({ queryKey: ['institution', institutionId], queryFn: getInstitution });
     const getCurrentRole = () => {
         const role = user?.institutions.find(institution => institution.institutionId === institutionId)?.role;
         return role || 'GUEST';
     }
 
+    const role = getCurrentRole();
+
     const toggleNotifications = () => {
+        console.log(data);
         setIsNotificationsEnabled(previousState => !previousState);
     };
 
@@ -54,6 +69,10 @@ const ProfileScreen = () => {
         });
     }
 
+    const openWebsite = () => {
+        Linking.openURL(data!.website);
+    }
+
     useFocusEffect(
         useCallback(() => {
             setLoading(false);
@@ -61,138 +80,156 @@ const ProfileScreen = () => {
     );
 
     return (
-        <View style={[styles.container, themeStyles.content]}>
-            {loading ? (
-                <LoadingSpinner />
-            ) : (
-                <View style={[styles.content, themeStyles.content]}>
-                    <View style={styles.section}>
-                        <Text style={[styles.label, themeStyles.text]}>
-                            Szerep
-                        </Text>
-                        <Text style={[styles.value, themeStyles.text]}>
-                            {ROLE_TRANSLATIONS[getCurrentRole()]}
-                        </Text>
-                    </View>
+        loading ? (
+            <LoadingSpinner />
+        ) : (
+            <View style={[styles.container, themeStyles.content]}>
+                <View style={styles.section}>
+                    <Text style={[styles.label, themeStyles.text]}>
+                        Intézmény
+                    </Text>
+                    <IconButton
+                        icon={isExpanded ? 'chevron-up' : 'chevron-down'}
+                        onPress={() => setIsExpanded(!isExpanded)}
+                        size={20} />
 
-                    <View style={styles.section}>
-                        <Text style={[styles.label, themeStyles.text]}>
-                            Téma
-                        </Text>
-                        {isSwitchEnabled && (
-                            <Switch
-                                value={theme === 'dark'}
-                                onValueChange={toggleTheme}
-                            />
-                        )}
-                    </View>
-
-                    <View style={styles.section}>
-                        <Text style={[styles.label, themeStyles.text]}>
-                            Értesítések
-                        </Text>
-                        {isSwitchEnabled && (
-                            <Switch
-                                value={isNotificationsEnabled}
-                                onValueChange={toggleNotifications}
-                            />
-                        )}
-                    </View>
-
-                    <View style={styles.authSection}>
-                        {!user?.token ? (
+                </View>
+                {isExpanded &&
+                    <View style={styles.nameContainer}>
+                        {data?.name ? (
                             <>
-                                <Pressable
-                                    style={[
-                                        styles.authButton,
-                                        styles.button,
-                                        themeStyles.button
-                                    ]}
-                                    onPress={() => router.push('/login')}
-                                >
-                                    <Text style={styles.buttonText}>
-                                        Bejelentkezés
-                                    </Text>
-                                </Pressable>
-
-                                <Pressable
-                                    style={[
-                                        styles.authButton,
-                                        styles.button,
-                                        themeStyles.button
-                                    ]}
-                                    onPress={() => router.push('/register')}
-                                >
-                                    <Text style={styles.buttonText}>
-                                        Regisztráció
-                                    </Text>
-                                </Pressable>
+                                <Text style={[styles.value, themeStyles.text, { color: data?.color }]}>
+                                    Budapesti Fejlesztői Szoftverfejlesztő és technikusi Két Tanítási Nyelvű {data?.name}
+                                </Text>
+                                <IconButton icon='open-in-new' onPress={openWebsite} />
                             </>
                         ) : (
+                            <Text style={[{ textAlign: 'center' }, themeStyles.text]}>
+                                Nincs kiválasztva intézmény
+                            </Text>
+                        )
+                        }
+                    </View>
+                }
+
+                <Divider />
+                <View style={styles.section}>
+                    <Text style={[styles.label, themeStyles.text]}>
+                        Szerep
+                    </Text>
+                    <Text style={[themeStyles.text]}>
+                        {ROLE_TRANSLATIONS[role]}
+                    </Text>
+
+                </View>
+                <Divider />
+
+                <View style={styles.section}>
+                    <Text style={[styles.label, themeStyles.text]}>
+                        Téma
+                    </Text>
+                    {isSwitchEnabled && (
+                        <Switch
+                            value={theme === 'dark'}
+                            onValueChange={toggleTheme} />
+                    )}
+                </View>
+                <Divider />
+                <View style={styles.section}>
+                    <Text style={[styles.label, themeStyles.text]}>
+                        Értesítések
+                    </Text>
+                    {isSwitchEnabled && (
+                        <Switch
+                            value={isNotificationsEnabled}
+                            onValueChange={toggleNotifications} />
+                    )}
+                </View>
+
+                {!user?.token ? (
+                    <>
+                        < Divider />
+                        <View style={styles.section}>
+                            <Text style={[styles.label, themeStyles.text]}>
+                                Bejelentkezés
+                            </Text>
+                            <IconButton
+                                icon='chevron-right'
+                                onPress={() => router.push('/login')}
+                                size={20} />
+                        </View>
+                        <Divider />
+                        <View style={styles.section}>
+                            <Text style={[styles.label, themeStyles.text]}>
+                                Regisztráció
+                            </Text>
+                            <IconButton
+                                icon='chevron-right'
+                                onPress={() => router.push('/register')}
+                                size={20} />
+                        </View>
+                    </>
+                ) : (
+                    <>
+                        {role !== "GUESTs" &&
                             <>
-                                <Button
-                                    mode="contained"
-                                    onPress={() => setAbsentModalVisible(true)}
-                                >
-                                    <Text style={styles.buttonText}>
+                                <Divider />
+                                <View style={styles.section}>
+                                    <Text style={[styles.label, themeStyles.text]}>
                                         Hiányzás kezelése
                                     </Text>
-                                </Button>
-
-                                <AbsentModal
-                                    visible={absentModalVisible}
-                                    onDismiss={() => setAbsentModalVisible(false)}
-                                />
-
-                                <Button
-                                    mode="contained"
-                                    onPress={() => setIsPasswordModalVisible(true)}
-                                >
-                                    <Text style={styles.buttonText}>
-                                        Jelszó módosítása
-                                    </Text>
-                                </Button>
-
-                                <ModifyPassword
-                                    isVisible={isPasswordModalVisible}
-                                    onClose={() => setIsPasswordModalVisible(false)}
-                                />
-
-                                <Button
-                                    buttonColor={themeStyles.buttonSecondary.backgroundColor}
-                                    mode="contained"
-                                    onPress={handleLogout}
-                                >
-                                    <Text style={styles.buttonText}>
-                                        Kijelentkezés
-                                    </Text>
-                                </Button>
+                                    <IconButton
+                                        icon='calendar'
+                                        onPress={() => setAbsentModalVisible(true)}
+                                        size={20} />
+                                </View>
                             </>
-                        )}
-                    </View>
-                </View>
-            )}
-        </View>
+                        }
+                        <AbsentModal
+                            visible={absentModalVisible}
+                            onDismiss={() => setAbsentModalVisible(false)} />
+                        <Divider />
+                        <View style={styles.section}>
+                            <Text style={[styles.label, themeStyles.text]}>
+                                Jelszó módosítása
+                            </Text>
+                            <IconButton
+                                icon='key'
+                                onPress={() => setIsPasswordModalVisible(true)}
+                                size={20} />
+                        </View>
+                        <Divider />
+                        <ModifyPassword
+                            isVisible={isPasswordModalVisible}
+                            onClose={() => setIsPasswordModalVisible(false)} />
+                        <View style={styles.section}>
+                            <Text style={[styles.label, themeStyles.text]}>
+                                Kijelentkezés
+                            </Text>
+                            <IconButton
+                                icon='power'
+                                onPress={handleLogout}
+                                size={20} />
+                        </View>
+                    </>
+                )}
+            </View >
+        )
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        height: '100%',
         padding: 20,
+        paddingTop: 30
     },
-    content: {
-        padding: 20,
-        borderRadius: 10,
-        width: '100%',
-    },
+
     nameContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
+        gap: 30,
         marginBottom: 20,
     },
     name: {
@@ -203,16 +240,19 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 15,
-        marginBottom: 20
+        padding: 20,
+        height: 60,
+        marginBottom: 0
     },
     label: {
         fontSize: 16,
     },
     value: {
-        fontSize: 16,
+        fontSize: 14,
+        width: SCREEN_WIDTH * 0.6,
         fontWeight: '500',
     },
+
     authSection: {
         marginTop: 30,
         gap: 20,

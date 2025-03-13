@@ -21,6 +21,15 @@ export interface DropdownItem {
   name: string;
   access?: string;
   isSubstituted?: boolean;
+  website?: string;
+}
+
+export interface Institution {
+  id: string;
+  name: string;
+  website: string;
+  access: string;
+  color: string;
 }
 
 interface CustomDropdownProps {

@@ -115,7 +115,7 @@ export default function TimetableScreen() {
 
     return (
       <TimetableView
-        appointments={appointments!}
+        appointments={appointments}
         events={data.events}
         onDayChange={handleDayChange}
         onScrolltoIndexEnd={handleScrolltoIndexEnd}
@@ -160,7 +160,7 @@ export default function TimetableScreen() {
         }}
       />
       {institutionError && <StatusMessage type="error" message={institutionError} />}
-      {timetableError && <StatusMessage type="error" message={timetableError.message} />}
+      {timetableError && <StatusMessage type="error" message={timetableError} />}
     </View>
   );
 }

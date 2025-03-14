@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import {
     View,
     Text,
@@ -13,11 +13,11 @@ import { BASE_URL, ROLE_TRANSLATIONS, SCREEN_WIDTH } from '@/constants';
 import { ModifyPassword } from '@/components/ModifyPassword';
 import AbsentModal from '@/components/AbsentModal';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
-import { Button, Divider, IconButton } from 'react-native-paper';
+import { Divider, IconButton, Snackbar } from 'react-native-paper';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { Switch } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { Institution } from '@/components/Dropdown';
+import ProfileSection from '@/components/ProfileSection';
 
 const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
@@ -29,14 +29,8 @@ const ProfileScreen = () => {
     const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
     const [absentModalVisible, setAbsentModalVisible] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [isSwitchEnabled, setIsSwitchEnabled] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setIsSwitchEnabled(true);
-        }, 10);
-        return () => clearTimeout(timeout);
-    }, []);
+    const [snackbarVisible, setSnackbarVisible] = useState(false);
 
     const getInstitution = async (): Promise<Institution> => {
         const response = await fetch(`${BASE_URL}/${institutionId}`, {
@@ -48,14 +42,15 @@ const ProfileScreen = () => {
         return data;
     }
     const { data } = useQuery({ queryKey: ['institution', institutionId], queryFn: getInstitution });
-    const getCurrentRole = () => {
-        const role = user?.institutions.find(institution => institution.institutionId === institutionId)?.role;
-        return role || 'GUEST';
-    }
 
-    const role = getCurrentRole();
+    const role = useMemo(() => {
+        const role = user?.institutions.find((inst) => inst.institutionId === institutionId)?.role
+        console.log("role" + role);
+        return role;
+    }, [user, institutionId]);
 
     const toggleNotifications = () => {
+        setSnackbarVisible(!snackbarVisible);
         console.log(data);
         setIsNotificationsEnabled(previousState => !previousState);
     };
@@ -84,16 +79,13 @@ const ProfileScreen = () => {
             <LoadingSpinner />
         ) : (
             <View style={[styles.container, themeStyles.content]}>
-                <View style={styles.section}>
-                    <Text style={[styles.label, themeStyles.text]}>
-                        Intézmény
-                    </Text>
-                    <IconButton
-                        icon={isExpanded ? 'chevron-up' : 'chevron-down'}
-                        onPress={() => setIsExpanded(!isExpanded)}
-                        size={20} />
+                <ProfileSection
+                    label="Intézmény"
+                    icon="home-outline"
+                    onPress={() => setIsExpanded(!isExpanded)}
+                    actionIcon={isExpanded ? 'chevron-up' : 'chevron-down'}
+                />
 
-                </View>
                 {isExpanded &&
                     <View style={styles.nameContainer}>
                         {data?.name ? (
@@ -113,104 +105,91 @@ const ProfileScreen = () => {
                 }
 
                 <Divider />
-                <View style={styles.section}>
-                    <Text style={[styles.label, themeStyles.text]}>
-                        Szerep
-                    </Text>
-                    <Text style={[themeStyles.text]}>
-                        {ROLE_TRANSLATIONS[role]}
-                    </Text>
-
-                </View>
+                <ProfileSection
+                    label="Szerepkör"
+                    icon="account-outline"
+                    text={ROLE_TRANSLATIONS[role || "GUEST"]}
+                />
                 <Divider />
 
-                <View style={styles.section}>
-                    <Text style={[styles.label, themeStyles.text]}>
-                        Téma
-                    </Text>
-                    {isSwitchEnabled && (
-                        <Switch
-                            value={theme === 'dark'}
-                            onValueChange={toggleTheme} />
-                    )}
-                </View>
+                <ProfileSection
+                    label="Téma"
+                    icon="theme-light-dark"
+                    actionIcon={theme === 'light' ? 'weather-night' : 'weather-sunny'}
+                    onPress={toggleTheme}
+                />
                 <Divider />
-                <View style={styles.section}>
-                    <Text style={[styles.label, themeStyles.text]}>
-                        Értesítések
-                    </Text>
-                    {isSwitchEnabled && (
-                        <Switch
-                            value={isNotificationsEnabled}
-                            onValueChange={toggleNotifications} />
-                    )}
-                </View>
+                {
+                    role !== "GUEST" &&
+                    <ProfileSection
+                        label="Értesítések"
+                        icon="bell-outline"
+                        actionIcon={isNotificationsEnabled ? 'bell' : 'bell-off'}
+                        onPress={toggleNotifications}
+                        disabled={snackbarVisible}
+                    />
+                }
 
+                <Snackbar
+                    visible={snackbarVisible}
+                    onDismiss={() => setSnackbarVisible(false)}
+                    duration={2500}
+                >
+                    <Text style={{ color: theme === 'light' ? 'white' : 'black' }}>
+
+                        Értesítések {isNotificationsEnabled ? "bekapcsolva" : "kikapcsolva"}
+                    </Text>
+                </Snackbar>
                 {!user?.token ? (
                     <>
                         < Divider />
-                        <View style={styles.section}>
-                            <Text style={[styles.label, themeStyles.text]}>
-                                Bejelentkezés
-                            </Text>
-                            <IconButton
-                                icon='chevron-right'
-                                onPress={() => router.push('/login')}
-                                size={20} />
-                        </View>
+                        <ProfileSection
+                            label="Bejelentkezés"
+                            icon="login"
+                            actionIcon='chevron-right'
+                            onPress={() => router.push('/login')}
+                        />
                         <Divider />
-                        <View style={styles.section}>
-                            <Text style={[styles.label, themeStyles.text]}>
-                                Regisztráció
-                            </Text>
-                            <IconButton
-                                icon='chevron-right'
-                                onPress={() => router.push('/register')}
-                                size={20} />
-                        </View>
+                        <ProfileSection
+                            label="Regisztráció"
+                            icon="account-plus-outline"
+                            actionIcon='chevron-right'
+                            onPress={() => router.push('/register')}
+                        />
                     </>
                 ) : (
                     <>
-                        {role !== "GUESTs" &&
+                        {role !== "GUEST" && role !== "USER" &&
                             <>
                                 <Divider />
-                                <View style={styles.section}>
-                                    <Text style={[styles.label, themeStyles.text]}>
-                                        Hiányzás kezelése
-                                    </Text>
-                                    <IconButton
-                                        icon='calendar'
-                                        onPress={() => setAbsentModalVisible(true)}
-                                        size={20} />
-                                </View>
+                                <ProfileSection
+                                    label="Hiányzás kezelése"
+                                    icon="calendar"
+                                    actionIcon=''
+                                    onPress={() => setAbsentModalVisible(true)}
+                                />
                             </>
                         }
                         <AbsentModal
                             visible={absentModalVisible}
                             onDismiss={() => setAbsentModalVisible(false)} />
                         <Divider />
-                        <View style={styles.section}>
-                            <Text style={[styles.label, themeStyles.text]}>
-                                Jelszó módosítása
-                            </Text>
-                            <IconButton
-                                icon='key'
-                                onPress={() => setIsPasswordModalVisible(true)}
-                                size={20} />
-                        </View>
+                        <ProfileSection
+                            label="Jelszó módosítása"
+                            icon="lock"
+                            actionIcon='key'
+                            onPress={() => setIsPasswordModalVisible(true)}
+                        />
                         <Divider />
                         <ModifyPassword
                             isVisible={isPasswordModalVisible}
                             onClose={() => setIsPasswordModalVisible(false)} />
-                        <View style={styles.section}>
-                            <Text style={[styles.label, themeStyles.text]}>
-                                Kijelentkezés
-                            </Text>
-                            <IconButton
-                                icon='power'
-                                onPress={handleLogout}
-                                size={20} />
-                        </View>
+                        <ProfileSection
+                            label="Kijelentkezés"
+                            icon="logout"
+                            actionIcon='power'
+                            onPress={handleLogout}
+                        />
                     </>
                 )}
             </View >
@@ -221,7 +200,7 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         height: '100%',
-        padding: 20,
+        padding: 10,
         paddingTop: 30
     },
 

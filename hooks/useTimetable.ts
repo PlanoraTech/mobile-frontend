@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 import { Appointment } from '@/components/AppointmentCard';
+import { useQuery } from '@tanstack/react-query';
 
 
 
@@ -17,13 +18,8 @@ interface UseTimetableProps {
 export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) => {
   const { user } = useAuth();
   const { institutionId } = useInstitutionId();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
 
   useEffect(() => {
-    fetchTimetable();
     saveTimetable();
   }, [selectedId]);
 
@@ -32,16 +28,8 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
       await AsyncStorage.setItem('timetable', JSON.stringify({ id: selectedId, endpoint: selectedView }));
     }
   }
-  const fetchTimetable = async () => {
 
-    if (!selectedView || !selectedId) {
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
+  const fetchTimetable = async (): Promise<Appointment[]> => {
     try {
       const endpoints = {
         timetable: `/timetables/${selectedId}/appointments`,
@@ -57,14 +45,17 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
       }
 
       const data = await response.json();
-      setAppointments(data);
+      return data;
     } catch (error: any) {
       console.error(error.message);
-      setError('Hiba az órarend betöltése során. Kérjük próbáld újra később.');
-    } finally {
-      setLoading(false);
+      throw new Error('Hiba az órarend betöltése során.');
     }
   };
+  const { data: appointments, isPending: loading, error } = useQuery({
+    queryKey: ['timetable', selectedView, selectedId],
+    queryFn: fetchTimetable,
+    enabled: !!selectedView && !!selectedId
+  });
 
   return { appointments, loading, error };
 };

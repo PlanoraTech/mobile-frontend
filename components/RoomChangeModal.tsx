@@ -4,6 +4,8 @@ import DropdownComponent, { DropdownItem } from "./Dropdown";
 import { useEffect, useState } from "react";
 import ModalHeader from "./ModalHeader";
 import { StatusMessage } from "./StatusMessage";
+import { BASE_URL } from "@/constants";
+import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
 
 interface Props {
     visible: boolean;
@@ -13,6 +15,7 @@ interface Props {
 
 const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
     const theme = useTheme();
+    const { institutionId } = useInstitutionId();
     const [selectedRooms, setSelectedRooms] = useState<DropdownItem[]>(rooms);
     const [availableRooms, setAvailableRooms] = useState<DropdownItem[]>([
         { id: "1", name: "Room 1" },
@@ -54,7 +57,7 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
         try {
             setError("");
             setSuccess("");
-            const response = await fetch('https://api.example.com/rooms', {
+            const response = await fetch(`${BASE_URL}/${institutionId}/rooms`, {
                 method: 'POST',
                 body: JSON.stringify(selectedRooms),
                 headers: {
@@ -71,6 +74,7 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
                 }
             }
             setSuccess("Sikeres művelet");
+            handleClose();
         } catch (error: any) {
             console.error(error.message);
             setError("Ismeretlen hiba történt...");
@@ -82,10 +86,15 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
             setSelectedRooms(rooms);
             setError("");
             try {
-                const response = await fetch('https://api.example.com/rooms');
-                if (response.status === 401 || response.status === 403) {
-                    setError("Nincs jogosultságod a lekéréshez");
-                    return;
+                const response = await fetch(`${BASE_URL}/${institutionId}/rooms/available`);
+
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        setError("Nincs jogosultságod a lekéréshez");
+                        return;
+                    }
+                    console.error("Unexpected response:", response);
+                    throw new Error();
                 }
                 const data = await response.json();
                 setAvailableRooms(data);
@@ -93,8 +102,10 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
                 setError("Ismeretlen hiba történt...");
             }
         }
-        fetchAvailableRooms();
-    }, []);
+        if (visible) {
+            fetchAvailableRooms();
+        }
+    }, [visible]);
 
     return (
         <Portal>

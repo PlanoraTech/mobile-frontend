@@ -13,7 +13,7 @@ interface Props {
 
 const ProfileSection = ({ label, icon, actionIcon, onPress, disabled, text }: Props) => {
     return (
-        <TouchableRipple onPress={!disabled ? onPress : () => { }} rippleColor="rgba(0, 0, 0, .32)" style={styles.section}>
+        <TouchableRipple onPress={!disabled ? onPress : () => { }} rippleColor="rgba(0, 0, 0, 0.32)" style={styles.section}>
             <>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Icon source={icon} size={24} />

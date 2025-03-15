@@ -78,7 +78,7 @@ const ProfileScreen = () => {
         loading ? (
             <LoadingSpinner />
         ) : (
-            <View style={[styles.container, themeStyles.content]}>
+            <View style={[styles.container, themeStyles.background]}>
                 <ProfileSection
                     label="Intézmény"
                     icon="home-outline"

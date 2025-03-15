@@ -102,8 +102,7 @@ export default function LoginScreen() {
                                 <Checkbox
                                     status={formData.rememberMe ? 'checked' : 'unchecked'}
                                     onPress={() => setFormData(prev => ({ ...prev, rememberMe: !formData.rememberMe }))}
-                                    color={styles.checkboxChecked.backgroundColor}
-                                    uncheckedColor={styles.checkboxUnchecked.backgroundColor}
+                                    color="#007AFF"
                                 />
                                 <Text style={styles.switchAuthText}>Emlékezz rám</Text>
                             </View>

@@ -32,7 +32,8 @@ export enum DayOfWeek {
 
 export const BASE_URL = 'https://planora-dfce142fac4b.herokuapp.com/institutions';
 export const BASE_URL_AUTH = 'https://planora-dfce142fac4b.herokuapp.com';
-
+//export const BASE_URL = 'http://192.168.61.222:3000/institutions';
+//export const BASE_URL_AUTH = 'http://192.168.61.222:3000';
 
 export const TAB_TYPES = {
   TIMETABLE: 0,

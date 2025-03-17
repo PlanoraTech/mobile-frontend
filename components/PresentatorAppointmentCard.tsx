@@ -21,9 +21,11 @@ const PresentatorAppointmentCard = ({ appointment }: Props) => {
     const substitutedPresentators = appointment.presentators.filter(p => p.isSubstituted);
     const presentators = appointment.presentators.filter(p => !p.isSubstituted);
     const time = formatTimeRange(appointment.start, appointment.end)
+
     useEffect(() => {
         handlePress();
     }, [])
+
     const leftCardStyle = useAnimatedStyle(() => {
         return {
             width: withTiming(

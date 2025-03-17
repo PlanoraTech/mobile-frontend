@@ -95,8 +95,6 @@ export default function TimetableScreen() {
   if (institutionLoading.institution) return <LoadingSpinner />;
 
   const renderTimetableContent = () => {
-
-
     if (!data.institution) {
       return <NotFoundContent onPress={() => setModalVisible(true)} message="Válassz intézményt a beállítások gombbal" />;
     }
@@ -139,7 +137,7 @@ export default function TimetableScreen() {
             </View>
             :
             <View style={styles.toggleCenterContainer}>
-              <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}>Planora</Text>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16, color: themeStyles.text.color }}>Planora</Text>
             </View>
           }
           <IconButton icon="cog" size={28} onPress={() => setModalVisible(true)} />

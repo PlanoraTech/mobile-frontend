@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { BASE_URL_AUTH } from '@/constants';
+import { unsubscribeFromPushNotifications } from '@/utils/notificationUtil';
 
 export interface User {
     credentials?: AuthData,
@@ -94,6 +95,8 @@ export class StandardAuthAdapter {
 
     async logout(): Promise<void> {
         try {
+            const token = await SecureStore.getItemAsync('auth_tokens');
+            unsubscribeFromPushNotifications(token!);
             await SecureStore.deleteItemAsync('auth_tokens');
         } catch (error: any) {
             console.error('Logout error:', error);

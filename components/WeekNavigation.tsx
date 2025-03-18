@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { getThemeStyles } from '@/assets/styles/themes';
 import { SCREEN_WIDTH } from '@/constants';
+import { Icon, IconButton } from 'react-native-paper';
 
 interface WeekNavigationProps {
   currentDate: Date;
@@ -24,24 +25,29 @@ export const WeekNavigation = ({ currentDate, onWeekChange }: WeekNavigationProp
 
   return (
     <View style={[styles.weekNavigation, themeStyles.content, themeStyles.border]}>
-      <Pressable
+      {/*  <Pressable
         style={styles.navButton}
         onPress={() => onWeekChange('prev')}
       >
         <ChevronLeft color={themeStyles.textSecondary.color} size={24} />
         <ChevronLeft color={themeStyles.textSecondary.color} size={24} style={styles.secondArrow} />
-      </Pressable>
+      </Pressable> */}
+      { /* convert pressable to iconbutton*/}
+
+      <IconButton
+        icon='arrow-left'
+        size={24}
+        onPress={() => onWeekChange('prev')}
+      />
       <Text style={[styles.weekText, themeStyles.textSecondary]}>
 
         {formatWeekRange(currentDate)}
       </Text>
-      <Pressable
-        style={styles.navButton}
+      <IconButton
+        icon='arrow-right'
+        size={24}
         onPress={() => onWeekChange('next')}
-      >
-        <ChevronRight color={themeStyles.textSecondary.color} size={24} />
-        <ChevronRight color={themeStyles.textSecondary.color} size={24} style={styles.secondArrow} />
-      </Pressable>
+      />
     </View>
 
   );

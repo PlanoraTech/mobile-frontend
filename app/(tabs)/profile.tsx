@@ -18,6 +18,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useQuery } from '@tanstack/react-query';
 import { Institution } from '@/components/Dropdown';
 import ProfileSection from '@/components/ProfileSection';
+import { isSubscribedToNotifications, registerForPushNotifications, unsubscribeFromPushNotifications } from '@/utils/notificationUtil';
 
 const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
@@ -32,25 +33,40 @@ const ProfileScreen = () => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [snackbarVisible, setSnackbarVisible] = useState(false);
 
+    useEffect(() => {
+        const determineNotificationPermission = async () => {
+            const isSubscribed = await isSubscribedToNotifications(user!.token!);
+            setIsNotificationsEnabled(isSubscribed);
+        }
+        if (user?.token) {
+            determineNotificationPermission();
+        }
+    }, []);
+
+
     const getInstitution = async (): Promise<Institution> => {
-        const response = await fetch(`${BASE_URL}/${institutionId}`, {
-            headers: {
-                Authorization: `Bearer ${user?.token}`,
-            },
-        });
+        const response = await fetch(`${BASE_URL}/${institutionId}/?token=${user?.token}`)
         const data = await response.json();
         return data;
     }
     const { data } = useQuery({ queryKey: ['institution', institutionId], queryFn: getInstitution });
 
     const role = useMemo(() => {
-        const role = user?.institutions.find((inst) => inst.institutionId === institutionId)?.role
-        return role;
+        return user?.institutions.find((inst) => inst.institutionId === institutionId)?.role
     }, [user, institutionId]);
 
-    const toggleNotifications = () => {
-        setSnackbarVisible(!snackbarVisible);
-        setIsNotificationsEnabled(previousState => !previousState);
+    const toggleNotifications = async () => {
+        setLoading(true);
+        setSnackbarVisible(false)
+        if (!isNotificationsEnabled) {
+            const success = await registerForPushNotifications(user?.token!);
+            success ? setIsNotificationsEnabled(true) : setIsNotificationsEnabled(false);
+        } else {
+            await unsubscribeFromPushNotifications(user?.token!);
+            setIsNotificationsEnabled(false);
+        }
+        setSnackbarVisible(true);
+        setLoading(false);
     };
 
     const handleLogout = async () => {
@@ -76,7 +92,7 @@ const ProfileScreen = () => {
         loading ? (
             <LoadingSpinner />
         ) : (
-            <View style={[styles.container, themeStyles.content]}>
+            <View style={[styles.container, themeStyles.background]}>
                 <ProfileSection
                     label="Intézmény"
                     icon="home-outline"
@@ -118,7 +134,7 @@ const ProfileScreen = () => {
                 />
                 <Divider />
                 {
-                    role !== "GUEST" &&
+                    user?.token &&
                     <ProfileSection
                         label="Értesítések"
                         icon="bell-outline"
@@ -163,7 +179,7 @@ const ProfileScreen = () => {
                                 <ProfileSection
                                     label="Hiányzás kezelése"
                                     icon="calendar"
-                                    actionIcon=''
+                                    actionIcon='swap-horizontal'
                                     onPress={() => setAbsentModalVisible(true)}
                                 />
                             </>

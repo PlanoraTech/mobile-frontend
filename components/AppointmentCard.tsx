@@ -1,15 +1,14 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, memo } from "react";
 import { StyleSheet, Pressable, View, Alert } from "react-native";
 import { formatTimeRange } from "@/utils/dateUtils";
 import { DropdownItem } from "./Dropdown";
 import { DayOfWeek, SCREEN_WIDTH } from "@/constants";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
 } from 'react-native-reanimated';
-import { Button, Dialog, Portal, Text, useTheme } from 'react-native-paper';
-import RoomChangeModal from "./RoomChangeModal";
+import { Text, useTheme } from 'react-native-paper';
+import { set } from "date-fns";
+import PresentatorAppointmentCard from "./PresentatorAppointmentCard";
+
 
 
 interface AppointmentCardProps {
@@ -27,70 +26,19 @@ export interface Appointment {
   isCancelled: boolean;
 }
 
-export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
+const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const theme = useTheme()
 
   const substitutedPresentators = appointment.presentators.filter(p => p.isSubstituted);
   const presentators = appointment.presentators.filter(p => !p.isSubstituted);
-  const [optionsNotShown, setOptionsNotShown] = useState(true);
-  const [isUpsent, setIsUpsent] = useState(false);
-  const [dialogVisible, setDialogVisible] = useState(false);
-  const [roomChangeModalVisible, setRoomChangeModalVisible] = useState(false);
-  const expandProgress = useSharedValue(0);
   const time = formatTimeRange(appointment.start, appointment.end)
-
-  const leftCardStyle = useAnimatedStyle(() => {
-    return {
-      width: withTiming(
-        expandProgress.value === 0
-          ? SCREEN_WIDTH - 40
-          : SCREEN_WIDTH / 2 - 40,
-        { duration: 400 }
-      ),
-    };
-  });
-
-  const rightCardStyle = useAnimatedStyle(() => {
-    return {
-      width: withTiming(
-        expandProgress.value === 0
-          ? 0
-          : SCREEN_WIDTH / 2 - 40,
-        { duration: 400 }
-      ),
-    };
-  });
-
+  const [presentatorCardVisible, setPresentatorCardVisible] = useState(false);
   const handlePress = () => {
-    expandProgress.value = expandProgress.value === 0 ? 1 : 0;
-    setOptionsNotShown(!optionsNotShown);
-  };
-
-  const openRoomModal = () => {
-    setRoomChangeModalVisible(true);
-  };
-
-  const closeRoomModal = () => {
-    setRoomChangeModalVisible(false);
-  };
-
-  const handleSubstitution = () => {
-    setDialogVisible(false)
-    setIsUpsent(!isUpsent)
-
-    //post substituted
-  };
-
+    setPresentatorCardVisible(!presentatorCardVisible);
+  }
   return (
-    <View style={styles.container}>
-      <Animated.View
-        style={[
-          styles.card,
-          { backgroundColor: theme.colors.surface },
-          appointment.isCancelled && styles.cancelledCard,
-          leftCardStyle
-        ]}
-      >
+    presentatorCardVisible ? (<PresentatorAppointmentCard appointment={appointment} />) :
+      <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Pressable onPress={handlePress}>
           <Text style={styles.subjectName}>
             {appointment.subject.name}
@@ -121,50 +69,8 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
             <Text style={styles.cancelledText}>ELMARAD</Text>
           )}
         </Pressable>
-      </Animated.View>
 
-      <Portal>
-        <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-          <Dialog.Title>
-            {
-              dialogVisible && // after confirm isUpsent instantly changes causing misleading textchange while dialog is closing
-              <Text>{isUpsent ? "Jelenlét" : "Hiányzás"} megerősítése</Text>
-            }
-
-          </Dialog.Title>
-          <Dialog.Actions>
-            <Button textColor={theme.colors.onSurface} onPress={() => setDialogVisible(false)}>Mégse</Button>
-            <Button mode="contained" onPress={handleSubstitution}>Megerősítés</Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-
-      <Animated.View style={[rightCardStyle]}>
-        <View style={styles.optionCard}>
-          <Button
-            compact
-            buttonColor={isUpsent ? theme.colors.tertiary : theme.colors.secondary}
-            onPress={() => setDialogVisible(true)}
-            mode="contained" contentStyle={{
-              height: '100%',
-            }}>
-
-            {isUpsent ? "Jelen leszek" : "Hiányozni fogok"}
-
-          </Button>
-        </View>
-        <View style={styles.optionCard}>
-
-          <Button compact onPress={openRoomModal} mode="contained"
-            contentStyle={{
-              height: '100%',
-            }} >
-            Teremcsere
-          </Button>
-        </View>
-        <RoomChangeModal rooms={appointment.rooms} visible={roomChangeModalVisible} onDismiss={closeRoomModal} />
-      </Animated.View>
-    </View>
+      </View>
   );
 };
 
@@ -191,10 +97,9 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   card: {
-    marginLeft: 10,
+    marginHorizontal: 10,
     borderRadius: 8,
     padding: 15,
-    marginVertical: 5,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -226,3 +131,5 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
+
+export default memo(AppointmentCard);

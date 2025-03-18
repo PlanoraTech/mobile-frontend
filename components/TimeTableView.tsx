@@ -3,7 +3,7 @@ import { Appointment } from "@/components/AppointmentCard";
 import { DayEvent } from "@/components/EventModal";
 import React, { RefObject, useEffect, useState } from "react";
 import { FlatList, View, StyleSheet, ScrollView, Text, Pressable } from "react-native";
-import { AppointmentCard } from "@/components/AppointmentCard";
+import AppointmentCard from "@/components/AppointmentCard";
 import { DayTab } from "./DayTab";
 import { WeekNavigation } from "./WeekNavigation";
 import { useTheme } from "@/contexts/ThemeProvider";
@@ -34,6 +34,7 @@ export const TimetableView = ({
   events,
   handleViewableItemsChanged
 }: TimetableViewProps) => {
+  console.log("appointments", appointments);
   const { theme } = useTheme();
   const { user } = useAuth();
   const themeStyle = getThemeStyles(theme);
@@ -44,8 +45,6 @@ export const TimetableView = ({
     newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
     setCurrentDate(newDate);
   };
-
-
 
   const weekDates = getCurrentWeekDates(currentDate);
 
@@ -69,17 +68,18 @@ export const TimetableView = ({
             </Text>
           </View>
         ) : (
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <FlatList
-              data={dayAppointments}
-              keyExtractor={(appointment) => appointment.id}
-              renderItem={({ item }) => (
-                <AppointmentCard appointment={item} />
-              )}
-              showsVerticalScrollIndicator={false}
-              scrollEnabled={false}
-            />
-          </ScrollView>
+
+          <FlatList
+            data={dayAppointments}
+            ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+            keyExtractor={(appointment) => appointment.id}
+            renderItem={({ item }) => (
+              <AppointmentCard appointment={item} />
+            )}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled
+          />
+
         )}
       </View>
     );

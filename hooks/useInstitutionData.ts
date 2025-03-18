@@ -66,7 +66,7 @@ export const useInstitutionData = () => {
         ],
     });
 
-    const isPending = results.some(result => result.isPending) && !!institutionId;
+    const isLoading = results.some(result => result.isLoading);
 
     const errors = results.map(result => result.error).filter(Boolean);
     const error = errors.length > 0 ? errors[0] : null;
@@ -79,7 +79,7 @@ export const useInstitutionData = () => {
         eventsResult
     ] = results;
 
-    const institution: InstitutionData | null = !isPending && !error ? {
+    const institution: InstitutionData | null = !isLoading && !error ? {
         id: institutionId,
         name: institutionResult.data?.name || '',
         timetables: timetablesResult.data || [],
@@ -88,5 +88,5 @@ export const useInstitutionData = () => {
         events: eventsResult.data || []
     } : null;
 
-    return { institution, isPending, error };
+    return { institution, isLoading, error };
 };

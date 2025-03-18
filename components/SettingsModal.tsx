@@ -198,11 +198,13 @@ export const SettingsModal = ({
         onInstChange();
     }, [user, handleClose, setInstitutionId, onInstChange]);
 
-    const orderedInstitutions = useMemo(() =>
-        [...institutions].sort((a) =>
+    const orderedInstitutions = useMemo(() => {
+        if (!institutions) return [];
+        return [...institutions].sort((a) =>
             user?.institutions.some((inst: { institutionId: string }) => inst.institutionId === a.id) ? -1 : 1
-        ),
-        [institutions, user?.institutions]
+        );
+
+    }, [institutions, user?.institutions]
     );
 
 

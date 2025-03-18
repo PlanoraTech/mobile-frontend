@@ -27,17 +27,17 @@ export default function TimetableScreen() {
 
   const {
     data: institutions,
-    isPending: institutionsLoading,
+    isLoading: institutionsLoading,
     error: institutionsError } = useInstitutions();
 
   const {
     institution,
-    isPending: institutionLoading,
+    isLoading: institutionLoading,
     error: institutionError } = useInstitutionData();
 
   const {
     data: appointments,
-    isPending: timetableLoading,
+    isLoading: timetableLoading,
     error: timetableError
   } = useTimetable({ selectedView, selectedId });
 
@@ -92,15 +92,24 @@ export default function TimetableScreen() {
 
 
     if (!institution) {
-      return <NotFoundContent onPress={() => setModalVisible(true)} message="Válassz intézményt a beállítások gombbal" />;
+      return <NotFoundContent
+        onPress={() => setModalVisible(true)}
+        message="Válassz intézményt a beállítások gombbal"
+      />;
     }
 
     if (timetableError && !showEvents) {
-      return <NotFoundContent onPress={() => setModalVisible(true)} message="Nem sikerült betölteni az elmentett/kiválasztott órarendet. Válassz új órarendet a beállítások gombbal." />;
+      return <NotFoundContent
+        onPress={() => setModalVisible(true)}
+        message="Nem sikerült betölteni az elmentett/kiválasztott órarendet. Válassz új órarendet a beállítások gombbal."
+      />;
     }
 
     if (selectedId === "" && !showEvents) {
-      return <NotFoundContent onPress={() => setModalVisible(true)} message="Válassz órarendet, előadót vagy termet a beállítások gombbal" />;
+      return <NotFoundContent
+        onPress={() => setModalVisible(true)}
+        message="Válassz órarendet, előadót vagy termet a beállítások gombbal"
+      />;
     }
 
     if (timetableLoading) {
@@ -121,7 +130,7 @@ export default function TimetableScreen() {
     );
   };
 
-  //if (institutionLoading) return <LoadingSpinner />;
+  if (institutionLoading) return <LoadingSpinner />;
 
   return (
     <View style={[

@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { BASE_URL } from '@/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthProvider';
@@ -15,18 +14,16 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
   const { user } = useAuth();
   const { institutionId } = useInstitutionId();
 
-  useEffect(() => {
-    saveTimetable();
-  }, [selectedId]);
-
   const saveTimetable = async () => {
     if (selectedId && selectedView) {
       await AsyncStorage.setItem('timetable', JSON.stringify({ id: selectedId, endpoint: selectedView }));
     }
   }
+  saveTimetable();
 
   const fetchTimetable = async (): Promise<Appointment[]> => {
-
+    console.log("Fetching timetable data...");
+    console.log(`Selected view: ${selectedView}, Selected ID: ${selectedId}`);
     const endpoints = {
       timetable: `/timetables/${selectedId}/appointments`,
       presentators: `/presentators/${selectedId}/appointments`,
@@ -34,14 +31,16 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
     };
 
     const endpoint = endpoints[selectedView as keyof typeof endpoints];
-    const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}/?token=${user?.token}`);
+    const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}`, {
+      headers: {
+        Authorization: `Bearer ${user?.token}`
+      }
+    });
 
     if (!response.ok) {
       throw new Error('Hiba az órarend betöltése során.');
     }
-
     return await response.json();
-
   };
 
   return useQuery({

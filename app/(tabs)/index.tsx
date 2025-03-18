@@ -12,6 +12,7 @@ import { getCurrentDayIndex } from "@/utils/dateUtils";
 import NotFoundContent from "@/components/NotFoundContent";
 import { IconButton, Text, useTheme } from "react-native-paper";
 import { useInstitutions } from "@/hooks/useInstitutions";
+import { StatusBar } from "expo-status-bar";
 
 export default function TimetableScreen() {
   const theme = useTheme();
@@ -138,6 +139,7 @@ export default function TimetableScreen() {
       { backgroundColor: theme.colors.surface },
       { paddingTop: Platform.OS === 'android' ? 24 : 0 }
     ]}>
+      <StatusBar style="dark" backgroundColor={theme.colors.surface} />
       <SafeAreaView style={[styles.header, { backgroundColor: theme.colors.surface }]}>
         <View style={styles.headerContent}>
           {institution ? (

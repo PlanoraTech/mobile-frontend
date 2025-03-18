@@ -45,13 +45,11 @@ const ProfileScreen = () => {
 
     const role = useMemo(() => {
         const role = user?.institutions.find((inst) => inst.institutionId === institutionId)?.role
-        console.log("role" + role);
         return role;
     }, [user, institutionId]);
 
     const toggleNotifications = () => {
         setSnackbarVisible(!snackbarVisible);
-        console.log(data);
         setIsNotificationsEnabled(previousState => !previousState);
     };
 

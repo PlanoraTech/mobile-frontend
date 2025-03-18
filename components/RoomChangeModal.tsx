@@ -41,7 +41,6 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
     }
 
     const addRoom = (room: DropdownItem) => {
-        console.log(room);
         setSelectedRooms([...selectedRooms, room]);
         setAvailableRooms(availableRooms.filter(r => r.id !== room.id));
     }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { BASE_URL } from '@/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthProvider';
@@ -6,14 +6,10 @@ import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 import { Appointment } from '@/components/AppointmentCard';
 import { useQuery } from '@tanstack/react-query';
 
-
-
-
 interface UseTimetableProps {
   selectedView: string | null;
   selectedId: string | null;
 }
-
 
 export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) => {
   const { user } = useAuth();
@@ -30,32 +26,28 @@ export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) =>
   }
 
   const fetchTimetable = async (): Promise<Appointment[]> => {
-    try {
-      const endpoints = {
-        timetable: `/timetables/${selectedId}/appointments`,
-        presentators: `/presentators/${selectedId}/appointments`,
-        rooms: `/rooms/${selectedId}/appointments`,
-      };
 
-      const endpoint = endpoints[selectedView as keyof typeof endpoints];
-      const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}/?token=${user?.token}`);
+    const endpoints = {
+      timetable: `/timetables/${selectedId}/appointments`,
+      presentators: `/presentators/${selectedId}/appointments`,
+      rooms: `/rooms/${selectedId}/appointments`,
+    };
 
-      if (!response.ok) {
-        throw new Error('Hiba az órarend betöltése során.');
-      }
+    const endpoint = endpoints[selectedView as keyof typeof endpoints];
+    const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}/?token=${user?.token}`);
 
-      const data = await response.json();
-      return data;
-    } catch (error: any) {
-      console.error(error.message);
+    if (!response.ok) {
       throw new Error('Hiba az órarend betöltése során.');
     }
+
+    return await response.json();
+
   };
-  const { data: appointments, isPending: loading, error } = useQuery({
+
+  return useQuery({
     queryKey: ['timetable', selectedView, selectedId],
     queryFn: fetchTimetable,
     enabled: !!selectedView && !!selectedId
   });
 
-  return { appointments, loading, error };
 };

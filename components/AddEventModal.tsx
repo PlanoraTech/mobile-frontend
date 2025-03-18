@@ -35,8 +35,6 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
                 date: currentDayDate,
             }
 
-            console.log(`url: ${BASE_URL}/${institutionId}/events`);
-
             const response = await fetch(`${BASE_URL}/${institutionId}/events/?token=${user?.token}`, {
                 method: "POST",
                 headers: {
@@ -44,10 +42,6 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
                 },
                 body: JSON.stringify(newEvent),
             });
-
-            console.log('newEvent', JSON.stringify(newEvent));
-            console.log('response', response.status);
-            console.log('response', await response.text());
 
             if (response.status === 401 || response.status === 403) {
                 setError("Nincs jogosultságod a művelethez");

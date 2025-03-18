@@ -87,7 +87,6 @@ export const TimetableView = ({
 
   const renderEventpage = ({ index }: { index: number }) => {
     const currentDayDate = weekDates[index];
-    console.log("currentDayDate", currentDayDate);
     const isDirector = user?.institutions.some(inst => inst.institutionId === institutionId && inst.role === 'DIRECTOR');
     const dayEvents = events.filter(event => {
       const eventDate = new Date(event.date);

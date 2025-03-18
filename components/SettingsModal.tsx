@@ -26,22 +26,14 @@ import Animated, {
 import { SegmentedButtons, useTheme } from 'react-native-paper';
 import ModalHeader from './ModalHeader';
 import { TAB_CONFIG } from '@/constants';
+import { InstitutionData } from '@/hooks/useInstitutionData';
 
 interface SettingsModalProps {
     visible: boolean;
     onClose: () => void;
-    loading: {
-        timetables: boolean;
-        presentators: boolean;
-        rooms: boolean;
-    };
+    loading: boolean;
     institutions: DropdownItem[];
-    data: {
-        institution: DropdownItem | null;
-        timetables: DropdownItem[];
-        presentators: DropdownItem[];
-        rooms: DropdownItem[];
-    };
+    institution: InstitutionData | null;
     onSelect: (item: DropdownItem, type: string) => void;
     onInstChange: () => void;
 }
@@ -51,7 +43,7 @@ export const SettingsModal = ({
     onClose,
     institutions,
     loading,
-    data,
+    institution,
     onSelect,
     onInstChange
 }: SettingsModalProps) => {
@@ -220,80 +212,68 @@ export const SettingsModal = ({
 
     const renderTabContent = () => {
         const currentTab = TAB_CONFIG[currentBtnIndex];
-        const loadingMap = {
-            presentators: loading.presentators,
-            timetables: loading.timetables,
-            rooms: loading.rooms
-        };
 
         const dataMap = {
-            presentators: data.presentators,
-            timetables: data.timetables,
-            rooms: data.rooms
+            presentators: institution?.presentators,
+            timetables: institution?.timetables,
+            rooms: institution?.rooms
         };
 
-        const isLoading = loadingMap[currentTab.loadingKey as keyof typeof loadingMap] ?? false;
         const itemsData = dataMap[currentTab.dataKey as keyof typeof dataMap] ?? [];
         const placeholderText = selectedPlaceholder[currentBtnIndex] || currentTab.placeholder;
         return (
             <View style={styles.card}>
-                {isLoading ? (
-                    <LoadingSpinner />
-                ) : (
-                    <DropdownComponent
-                        data={itemsData}
-                        placeholder={placeholderText}
-                        searchPlaceholder={currentTab.searchPlaceholder}
-                        onSelect={(item) => handleDropdownSelect(item, currentTab.type)}
-                    />
-                )}
+                <DropdownComponent
+                    data={itemsData}
+                    placeholder={placeholderText}
+                    searchPlaceholder={currentTab.searchPlaceholder}
+                    onSelect={(item) => handleDropdownSelect(item, currentTab.type)}
+                />
             </View>
         );
     };
 
     return (
-        <>
-            <Animated.View style={fadeAnimStyle}>
-                <TouchableOpacity
-                    testID="settings-modal"
-                    onPress={handleClose}
-                    activeOpacity={1}
-                    style={styles.modalContainer}
-                >
-                    <TouchableWithoutFeedback>
-                        <Animated.View
-                            style={[
-                                styles.modalContent,
-                                { backgroundColor: theme.colors.surface },
-                                slideAnimStyle,
-                            ]}
-                        >
-                            <ModalHeader title="Beállítások" handleClose={handleClose} />
-
-                            <ScrollView>
-                                <DropdownComponent
-                                    data={orderedInstitutions}
-                                    placeholder={data.institution?.name || "Intézmény kiválasztása"}
-                                    searchPlaceholder="Intézmény keresése..."
-                                    onSelect={handleInstSelect}
-                                />
-
-                                <View style={styles.dropdownContainer}>
-                                    <SegmentedButtons
-                                        value={String(currentBtnIndex)}
-                                        onValueChange={(value) => setCurrentBtnIndex(Number(value))}
-                                        density="regular"
-                                        buttons={segmentedButtonOptions}
+        <Animated.View style={fadeAnimStyle}>
+            <TouchableOpacity
+                testID="settings-modal"
+                onPress={handleClose}
+                activeOpacity={1}
+                style={styles.modalContainer}
+            >
+                <TouchableWithoutFeedback>
+                    <Animated.View
+                        style={[
+                            styles.modalContent,
+                            { backgroundColor: theme.colors.surface },
+                            slideAnimStyle,
+                        ]}
+                    >
+                        <ModalHeader title="Beállítások" handleClose={handleClose} />
+                        {loading ? (<LoadingSpinner />)
+                            : (
+                                <ScrollView>
+                                    <DropdownComponent
+                                        data={orderedInstitutions}
+                                        placeholder={institution?.name || "Intézmény kiválasztása"}
+                                        searchPlaceholder="Intézmény keresése..."
+                                        onSelect={handleInstSelect}
                                     />
-                                    {renderTabContent()}
-                                </View>
-                            </ScrollView>
-                        </Animated.View>
-                    </TouchableWithoutFeedback>
-                </TouchableOpacity>
-            </Animated.View>
 
-            {/* Error Message */}
+                                    <View style={styles.dropdownContainer}>
+                                        <SegmentedButtons
+                                            value={String(currentBtnIndex)}
+                                            onValueChange={(value) => setCurrentBtnIndex(Number(value))}
+                                            density="regular"
+                                            buttons={segmentedButtonOptions}
+                                        />
+                                        {renderTabContent()}
+                                    </View>
+                                </ScrollView>
+                            )}
+                    </Animated.View>
+                </TouchableWithoutFeedback>
+            </TouchableOpacity>
             {errorMessage && (
                 <StatusMessage
                     message={errorMessage}
@@ -301,7 +281,7 @@ export const SettingsModal = ({
                     type="error"
                 />
             )}
-        </>
+        </Animated.View>
     );
 };
 

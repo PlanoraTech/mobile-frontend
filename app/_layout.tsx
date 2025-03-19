@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from 'react-native-paper';
 import { useCombinedTheme } from "@/hooks/useCombinedTheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TimetableProvider } from "@/contexts/TimetableProvider";
 
 
 const authAdapter = new StandardAuthAdapter();
@@ -38,18 +39,18 @@ const StackNavigator = () => {
       }
     }>
 
-      <InstitutionIdProvider>
-        <GestureHandlerRootView>
-          <PaperProvider theme={paperTheme}>
 
-            <Stack>
-              <Stack.Screen name="(tabs)" options={{
-                headerShown: false,
-              }} />
-            </Stack>
-          </PaperProvider>
-        </GestureHandlerRootView>
-      </InstitutionIdProvider>
+      <GestureHandlerRootView>
+        <PaperProvider theme={paperTheme}>
+
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{
+              headerShown: false,
+            }} />
+          </Stack>
+        </PaperProvider>
+      </GestureHandlerRootView>
+
     </ThemeProvider>
 
 
@@ -64,8 +65,14 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider authAdapter={authAdapter}>
         <ThemeProviderLocal>
-          <StackNavigator />
+          <InstitutionIdProvider>
 
+            <TimetableProvider>
+
+              <StackNavigator />
+            </TimetableProvider>
+
+          </InstitutionIdProvider>
         </ThemeProviderLocal>
       </AuthProvider>
     </QueryClientProvider>

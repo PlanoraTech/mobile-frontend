@@ -1,5 +1,4 @@
 import { useInstitutionData } from "@/hooks/useInstitutionData";
-import { useTimetable } from "@/hooks/useTimetable";
 import { StatusMessage } from "@/components/StatusMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TimetableView } from "@/components/TimeTableView";
@@ -13,13 +12,12 @@ import NotFoundContent from "@/components/NotFoundContent";
 import { IconButton, Text, useTheme } from "react-native-paper";
 import { useInstitutions } from "@/hooks/useInstitutions";
 import { StatusBar } from "expo-status-bar";
+import { useTimetable } from "@/contexts/TimetableProvider";
 
 export default function TimetableScreen() {
   const theme = useTheme();
 
-  const [goalDayIndex, setGoalDayIndex] = useState(getCurrentDayIndex());
-  const [selectedView, setSelectedView] = useState<string>("");
-  const [selectedId, setSelectedId] = useState<string>("");
+  const [goalDayIndex, setGoalDayIndex] = useState(getCurrentDayIndex());;
   const [modalVisible, setModalVisible] = useState(false);
   const [showEvents, setShowEvents] = useState(false);
 
@@ -36,32 +34,20 @@ export default function TimetableScreen() {
     isLoading: institutionLoading,
     error: institutionError } = useInstitutionData();
 
-  const {
-    data: appointments,
-    isLoading: timetableLoading,
-    error: timetableError
-  } = useTimetable({ selectedView, selectedId });
+  /*   const {
+      data: appointments,
+      isLoading: timetableLoading,
+      error: timetableError
+    } = useTimetable({ selectedView, selectedId });
+   */
 
+  const { timetable, timetableLoading, timetableError, appointmentsQuery } = useTimetable();
 
   useEffect(() => {
     AsyncStorage.clear();
-    getSavedTimetable();
   }, []);
 
-  const getSavedTimetable = async () => {
-    const savedTimetable = await AsyncStorage.getItem('timetable');
-    if (savedTimetable) {
-      const { id, endpoint } = JSON.parse(savedTimetable);
-      if (id) {
-        setSelectedId(id);
-        setSelectedView(endpoint);
-      }
-    }
-  }
-
-  const handleSelection = (id: string, endpoint: string) => {
-    setSelectedId(id);
-    setSelectedView(endpoint);
+  const handleSelection = () => {
     setModalVisible(false);
   };
 
@@ -90,7 +76,7 @@ export default function TimetableScreen() {
 
 
   const renderTimetableContent = () => {
-
+    const appointments = appointmentsQuery.data || [];
 
     if (!institution) {
       return <NotFoundContent
@@ -106,7 +92,7 @@ export default function TimetableScreen() {
       />;
     }
 
-    if (selectedId === "" && !showEvents) {
+    if (timetable.selectedId === "" && !showEvents) {
       return <NotFoundContent
         onPress={() => setModalVisible(true)}
         message="Válassz órarendet, előadót vagy termet a beállítások gombbal"
@@ -119,8 +105,7 @@ export default function TimetableScreen() {
 
     return (
       <TimetableView
-        appointments={appointments!}
-        selectedTimetable={{ selectedView, selectedId }}
+        appointments={appointments}
         events={institution.events}
         onDayChange={handleDayChange}
         onScrolltoIndexEnd={handleScrolltoIndexEnd}
@@ -166,9 +151,9 @@ export default function TimetableScreen() {
         institutions={institutions}
         loading={institutionLoading || institutionsLoading}
         institution={institution}
-        onInstChange={() => setSelectedId("")}
-        onSelect={(item, type) => {
-          handleSelection(item.id, type.toLowerCase());
+
+        onSelect={() => {
+          handleSelection();
         }}
       />
       {institutionError && <StatusMessage type="error" message={institutionError.message} />}

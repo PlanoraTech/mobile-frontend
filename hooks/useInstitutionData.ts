@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { DropdownItem } from '@/components/Dropdown';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 import { DayEvent } from '@/components/EventCard';
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, RefetchOptions } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface InstitutionData {

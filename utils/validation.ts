@@ -21,34 +21,34 @@ export const validatePasswordContainsSpecialCharacters = (password: string): boo
 };
 
 export const validatePassword = (password: string): string => {
-    const validations = [
-        {
-            validate: validatePasswordLength,
-            message: 'A jelszónak minimum 8 karakterből kell állnia!'
-        },
-        {
-            validate: validatePasswordContainsNumbers,
-            message: 'A jelszónak legalább egy számot kell tartalmaznia!'
-        },
-        {
-            validate: validatePasswordContainsUppercase,
-            message: 'A jelszónak legalább egy nagybetűt kell tartalmaznia!'
-        },
-        {
-            validate: validatePasswordContainsLowercase,
-            message: 'A jelszónak legalább egy kisbetűt kell tartalmaznia!'
-        },
-        {
-            validate: validatePasswordContainsSpecialCharacters,
-            message: 'A jelszónak legalább egy speciális karaktert kell tartalmaznia!'
-        }
-    ];
-
-    for (const { validate, message } of validations) {
-        if (!validate(password)) {
-            return message;
-        }
-    }
+    /*   const validations = [
+          {
+              validate: validatePasswordLength,
+              message: 'A jelszónak minimum 8 karakterből kell állnia!'
+          },
+          {
+              validate: validatePasswordContainsNumbers,
+              message: 'A jelszónak legalább egy számot kell tartalmaznia!'
+          },
+          {
+              validate: validatePasswordContainsUppercase,
+              message: 'A jelszónak legalább egy nagybetűt kell tartalmaznia!'
+          },
+          {
+              validate: validatePasswordContainsLowercase,
+              message: 'A jelszónak legalább egy kisbetűt kell tartalmaznia!'
+          },
+          {
+              validate: validatePasswordContainsSpecialCharacters,
+              message: 'A jelszónak legalább egy speciális karaktert kell tartalmaznia!'
+          }
+      ];
+  
+      for (const { validate, message } of validations) {
+          if (!validate(password)) {
+              return message;
+          }
+      } */
     return '';
 };
 

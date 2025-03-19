@@ -1,6 +1,6 @@
 import { BASE_URL } from "@/constants";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
-import { useMutation } from "@tanstack/react-query";
+import { Query, QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { View, StyleSheet, TextInput } from "react-native";
 import { Button, IconButton, Modal, Portal, Text, useTheme } from 'react-native-paper';
@@ -25,12 +25,21 @@ export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps
     const [newTitle, setNewTitle] = useState(title);
     const { institutionId } = useInstitutionId();
     const { user } = useAuth()
+    const queryClient = useQueryClient();
+    const [statusMessage, setStatusMessage] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+
     const handleClose = () => {
         onClose(newTitle);
     }
 
-    const { mutate: modifyEvent, error } = useMutation({
+    // Mutation for modifying an event
+    const { mutate: modifyEvent, error: modifyError, isSuccess: isModifySuccess } = useMutation({
         mutationFn: async () => {
+            console.log("url", `${BASE_URL}/${institutionId}/events/${event.id}`);
+            console.log("body", JSON.stringify({
+                title: newTitle,
+            }));
+            console.log("token", user?.token);
             const response = await fetch(`${BASE_URL}/${institutionId}/events/${event.id}`, {
                 method: 'PATCH',
                 headers: {
@@ -44,18 +53,45 @@ export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-
+            console.log("response", await response.text());
         },
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['events', institutionId] });
+            setStatusMessage({ message: "Sikeresen módosítva", type: 'success' });
+
             handleClose();
+
         },
         onError: (error) => {
             console.error('Error:', error);
+            setStatusMessage({ message: error instanceof Error ? error.message : "Hiba történt a módosítás során", type: 'error' });
         }
-
     });
 
-
+    // New mutation for deleting an event
+    const { mutate: deleteEvent } = useMutation({
+        mutationFn: async () => {
+            const response = await fetch(`${BASE_URL}/${institutionId}/events/${event.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user?.token}`,
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Sikertelen törlés');
+            }
+            return await response.text();
+        },
+        onSuccess: () => {
+            handleClose();
+            queryClient.invalidateQueries({ queryKey: ['events', institutionId] });
+        },
+        onError: (error) => {
+            console.error('Delete Error:', error);
+            setStatusMessage({ message: error instanceof Error ? error.message : "Hiba történt a törlés során", type: 'error' });
+        }
+    });
 
     return (
         <Portal>
@@ -64,7 +100,6 @@ export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps
                 onDismiss={handleClose}
                 contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
             >
-
                 <View style={[styles.modalHeader, { borderBottomColor: theme.colors.outline }]}>
                     <Text variant="titleLarge" >
                         Esemény módosítása
@@ -90,12 +125,10 @@ export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps
                     autoCapitalize="sentences"
                 />
 
-
                 <View style={styles.ButtonsContainer}>
                     <Button
                         mode="contained"
-                        onPress={() => {
-                        }}
+                        onPress={() => deleteEvent()}
                         buttonColor={theme.colors.secondary}
                     >
                         Esemény törlése
@@ -108,9 +141,8 @@ export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps
                     </Button>
                 </View>
             </Modal>
-            {error && <StatusMessage message={error.message || "Hiba történt"} type="error" />}
+            {statusMessage && <StatusMessage message={statusMessage.message} type={statusMessage.type} />}
         </Portal>
-
     );
 }
 

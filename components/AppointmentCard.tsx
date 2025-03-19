@@ -1,18 +1,15 @@
-import { Fragment, useState, memo, useMemo } from "react";
+import { Fragment, useState, memo, useMemo, useEffect } from "react";
 import { StyleSheet, Pressable, View, Alert } from "react-native";
 import { formatTimeRange } from "@/utils/dateUtils";
 import { DropdownItem } from "./Dropdown";
 import { DayOfWeek } from "@/constants";
 import { Text, useTheme } from 'react-native-paper';
 import PresentatorAppointmentCard from "./PresentatorAppointmentCard";
-import { SelectedTimetable } from "@/hooks/useTimetable";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
-import { sub } from 'date-fns';
 
 interface AppointmentCardProps {
   appointment: Appointment;
-  selectedTimetable: SelectedTimetable;
 }
 
 export interface Appointment {
@@ -26,7 +23,7 @@ export interface Appointment {
   isCancelled: boolean;
 }
 
-const AppointmentCard = ({ appointment, selectedTimetable }: AppointmentCardProps) => {
+const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const theme = useTheme()
   const { institutionId } = useInstitutionId();
   const { user } = useAuth()
@@ -39,6 +36,10 @@ const AppointmentCard = ({ appointment, selectedTimetable }: AppointmentCardProp
     if (!user.institutions) return null;
     return user.institutions.find(i => i.institutionId === institutionId)?.role;
   }, [user, institutionId]);
+
+  useEffect(() => {
+    return () => console.log("Unmounting AppointmentCard component");
+  }, []);
 
   const handlePress = () => {
     if (role === 'PRESENTATOR') {
@@ -80,7 +81,6 @@ const AppointmentCard = ({ appointment, selectedTimetable }: AppointmentCardProp
         </Pressable>
       </View>
       : (<PresentatorAppointmentCard
-        selectedTimetable={selectedTimetable}
         appointment={appointment}
         substitutedPresentators={substitutedPresentators}
         setSubstitutedPresentators={setSubstitutedPresentators}
@@ -148,4 +148,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(AppointmentCard);
+export default AppointmentCard;

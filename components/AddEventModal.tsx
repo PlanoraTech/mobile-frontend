@@ -2,10 +2,11 @@ import { BASE_URL } from "@/constants";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
 import { useState } from "react";
-import { Text, TextInput, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { Button, Modal, Portal, useTheme, IconButton } from "react-native-paper";
 import { StatusMessage } from "./StatusMessage";
 import { AuthInput } from "./AuthInput";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface AddEventModalProps {
     isVisible: boolean;
@@ -20,41 +21,37 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
     const { institutionId } = useInstitutionId();
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const queryClient = useQueryClient();
 
-    const handleAdd = async () => {
-        if (!newTitle) {
-            return;
-        }
-
-        try {
-            setError("");
-            setSuccess("");
-
-            const newEvent = {
-                title: newTitle,
-                date: currentDayDate,
-            }
-
-            const response = await fetch(`${BASE_URL}/${institutionId}/events/?token=${user?.token}`, {
+    const addEventMutation = useMutation({
+        mutationFn: async () => {
+            const newEvent = { title: newTitle, date: currentDayDate };
+            const response = await fetch(`${BASE_URL}/${institutionId}/events`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${user?.token}`,
                 },
                 body: JSON.stringify(newEvent),
             });
 
             if (response.status === 401 || response.status === 403) {
-                setError("Nincs jogosultságod a művelethez");
-                return;
+                throw new Error("Nincs jogosultságod a művelethez");
             }
-
+            if (!response.ok) {
+                throw new Error("Nem sikerült hozzáadni az eseményt");
+            }
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["events", institutionId] }); // Invalidate events query
             setSuccess("Sikeresen hozzáadva");
             onClose();
-        } catch (error: any) {
-            console.error(error);
-            setError("Ismeretlen hiba történt...");
-        }
-    }
+        },
+        onError: (error: any) => {
+            setError(error.message || "Ismeretlen hiba történt...");
+        },
+    });
 
     return (
         <Portal>
@@ -67,30 +64,19 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
                 ]}
             >
                 <View style={[styles.modalHeader, { borderColor: theme.colors.outline }]}>
-                    <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
-                        Esemény létrehozása
-                    </Text>
-
-                    <IconButton
-                        icon="close"
-                        size={24}
-                        onPress={onClose}
-                        iconColor={theme.colors.onSurface}
-                    />
+                    <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>Esemény létrehozása</Text>
+                    <IconButton icon="close" size={24} onPress={onClose} iconColor={theme.colors.onSurface} />
                 </View>
 
                 <AuthInput
                     icon="calendar-outline"
                     placeholder="Esemény leírása"
                     value={newTitle}
-                    onChangeText={(text) => setNewTitle(text)}
+                    onChangeText={setNewTitle}
                 />
 
                 <View style={styles.ButtonsContainer}>
-                    <Button
-                        mode="contained"
-                        onPress={handleAdd}
-                    >
+                    <Button mode="contained" onPress={() => addEventMutation.mutate()}>
                         <Text style={styles.saveButtonText}>Hozzáadás</Text>
                     </Button>
                 </View>
@@ -100,7 +86,7 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
             {success && <StatusMessage message={success} type="success" />}
         </Portal>
     );
-}
+};
 
 const styles = StyleSheet.create({
     modalContent: {
@@ -119,25 +105,9 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
     },
-    closeButton: {
-        padding: 5,
-    },
-    closeButtonText: {
-        fontSize: 18,
-        fontWeight: '600',
-    },
-    input: {
-        padding: 10,
-        borderRadius: 8,
-        marginBottom: 15,
-    },
     ButtonsContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
-    },
-    saveButton: {
-        padding: 10,
-        borderRadius: 8,
     },
     saveButtonText: {
         color: '#fff',

@@ -13,32 +13,30 @@ import { AddEventCard } from "./AddEventCard";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getCurrentWeekDates, isSameDayUTC } from "@/utils/dateUtils";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
-import { SelectedTimetable } from '../hooks/useTimetable';
 interface TimetableViewProps {
-  appointments: Appointment[];
   onDayChange: (index: number) => void;
+  appointments: Appointment[];
   onScrolltoIndexEnd: () => void;
   events: DayEvent[];
   cardsListRef: RefObject<FlatList>;
   goalDayIndex: number;
-  selectedTimetable: SelectedTimetable;
   showedList: 'appointments' | 'events';
   handleViewableItemsChanged: (info: { viewableItems: any[] }) => void;
 }
 
 export const TimetableView = ({
-  appointments,
   goalDayIndex,
   onDayChange,
   onScrolltoIndexEnd,
   cardsListRef,
   showedList,
   events,
-  selectedTimetable,
-  handleViewableItemsChanged
+  handleViewableItemsChanged,
+  appointments,
 }: TimetableViewProps) => {
 
   const { theme } = useTheme();
+
   const { user } = useAuth();
   const themeStyle = getThemeStyles(theme);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -53,6 +51,7 @@ export const TimetableView = ({
 
   const renderDayPage = ({ index }: { index: number }) => {
     const currentDayDate = weekDates[index];
+
     const dayAppointments = appointments.filter(appointment => {
       const appointmentDate = new Date(appointment.start);
 
@@ -77,7 +76,7 @@ export const TimetableView = ({
             ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
             keyExtractor={(appointment) => appointment.id}
             renderItem={({ item }) => (
-              <AppointmentCard selectedTimetable={selectedTimetable} appointment={item} />
+              <AppointmentCard appointment={item} />
             )}
             showsVerticalScrollIndicator={false}
             scrollEnabled
@@ -121,6 +120,7 @@ export const TimetableView = ({
                 )}
                 showsVerticalScrollIndicator={false}
                 scrollEnabled
+
               />
               {isDirector && <AddEventCard currentDayDate={currentDayDate} />}
             </>

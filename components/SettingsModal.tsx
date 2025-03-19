@@ -27,6 +27,7 @@ import { SegmentedButtons, useTheme } from 'react-native-paper';
 import ModalHeader from './ModalHeader';
 import { TAB_CONFIG } from '@/constants';
 import { InstitutionData } from '@/hooks/useInstitutionData';
+import { useTimetable } from '@/contexts/TimetableProvider';
 
 interface SettingsModalProps {
     visible: boolean;
@@ -34,8 +35,7 @@ interface SettingsModalProps {
     loading: boolean;
     institutions: DropdownItem[];
     institution: InstitutionData | null;
-    onSelect: (item: DropdownItem, type: string) => void;
-    onInstChange: () => void;
+    onSelect: () => void;
 }
 
 export const SettingsModal = ({
@@ -45,12 +45,11 @@ export const SettingsModal = ({
     loading,
     institution,
     onSelect,
-    onInstChange
 }: SettingsModalProps) => {
     const theme = useTheme();
     const { user } = useAuth();
-    const { institutionId, setInstitutionId } = useInstitutionId();
-
+    const { setInstitutionId } = useInstitutionId();
+    const { setTimetableSelection } = useTimetable();
     const slideAnim = useSharedValue(-1000);
     const fadeAnim = useSharedValue(0);
     const displayValue = useSharedValue(0);
@@ -75,7 +74,8 @@ export const SettingsModal = ({
     }));
 
     const handleDropdownSelect = (item: DropdownItem, type: string) => {
-        onSelect(item, type);
+        onSelect();
+        setTimetableSelection(type.toLowerCase(), item.id);
         setSelectedPlaceholder({
             ...selectedPlaceholder,
             [currentBtnIndex]: item.name,
@@ -152,7 +152,7 @@ export const SettingsModal = ({
             onClose();
         });
     }
-    const handleInstSelect = useCallback((item: DropdownItem) => {
+    const handleInstSelect = (item: DropdownItem) => {
         const isUserLoggedIn = () => !!user;
 
         const hasInstitutionAccess = (institutionId: string) => {
@@ -191,13 +191,12 @@ export const SettingsModal = ({
             return;
         }
 
-        console.log('beforeId', institutionId);
-        console.log('afterId', item.id);
         AsyncStorage.removeItem('timetable');
         saveId('institution', item.id);
+        console.log('Selected institution ID:', item.id);
         setInstitutionId(item.id);
-        onInstChange();
-    }, [setInstitutionId, onInstChange, user, handleClose]);
+        setTimetableSelection(TAB_CONFIG[currentBtnIndex].value.toLowerCase(), '');
+    }
 
     const orderedInstitutions = useMemo(() => {
         if (!institutions) return [];

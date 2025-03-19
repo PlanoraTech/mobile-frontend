@@ -9,13 +9,12 @@ import { formatTimeRange } from "@/utils/dateUtils"
 import { useMutation } from "@tanstack/react-query"
 import { StatusMessage } from "./StatusMessage"
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider"
-import { SelectedTimetable } from '../hooks/useTimetable';
 import { useAuth } from "@/contexts/AuthProvider"
 import { DropdownItem } from "./Dropdown"
+import { useTimetable } from "@/contexts/TimetableProvider"
 
 interface Props {
     appointment: Appointment,
-    selectedTimetable: SelectedTimetable,
     substitutedPresentators: DropdownItem[],
     setSubstitutedPresentators: React.Dispatch<React.SetStateAction<DropdownItem[]>>,
     presentators: DropdownItem[],
@@ -24,18 +23,18 @@ interface Props {
 
 const PresentatorAppointmentCard = ({
     appointment,
-    selectedTimetable,
     presentators,
     setPresentators,
     substitutedPresentators,
     setSubstitutedPresentators
 }: Props) => {
+    const { refetchAppointments } = useTimetable()
     const theme = useTheme()
     const [dialogVisible, setDialogVisible] = useState(false);
     const [isSubstituted, setIsSubstituted] = useState(appointment.presentators.some(p => p.isSubstituted));
     const [optionsNotShown, setOptionsNotShown] = useState(true);
     const [roomChangeModalVisible, setRoomChangeModalVisible] = useState(false);
-
+    const { timetable } = useTimetable()
     const expandProgress = useSharedValue(0);
 
     const time = formatTimeRange(appointment.start, appointment.end)
@@ -75,8 +74,8 @@ const PresentatorAppointmentCard = ({
 
     const changeSubstitution = useMutation({
         mutationFn: async () => {
-            const view = selectedTimetable.selectedView === 'timetable' ? 'timetables' : selectedTimetable.selectedView;
-            const response = await fetch(`${BASE_URL}/${institutionId}/${view}/${selectedTimetable.selectedId}/appointments/${appointment.id}/presentators/${presentatorId}/substitute`, {
+            const view = timetable.selectedView === 'timetable' ? 'timetables' : timetable.selectedView;
+            const response = await fetch(`${BASE_URL}/${institutionId}/${view}/${timetable.selectedId}/appointments/${appointment.id}/presentators/${presentatorId}/substitute`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -98,6 +97,7 @@ const PresentatorAppointmentCard = ({
                 setPresentators(presentators.filter(p => p.id !== presentatorId));
             }
             setIsSubstituted(!isSubstituted);
+            refetchAppointments();
             setOptionsNotShown(true);
         },
         onError: (error) => {

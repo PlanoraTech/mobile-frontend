@@ -34,18 +34,7 @@ export default function TimetableScreen() {
     isLoading: institutionLoading,
     error: institutionError } = useInstitutionData();
 
-  /*   const {
-      data: appointments,
-      isLoading: timetableLoading,
-      error: timetableError
-    } = useTimetable({ selectedView, selectedId });
-   */
-
   const { timetable, timetableLoading, timetableError, appointmentsQuery } = useTimetable();
-
-  useEffect(() => {
-    AsyncStorage.clear();
-  }, []);
 
   const handleSelection = () => {
     setModalVisible(false);
@@ -77,8 +66,7 @@ export default function TimetableScreen() {
 
   const renderTimetableContent = () => {
     const appointments = appointmentsQuery.data || [];
-
-    if (!institution) {
+    if (!institution?.id) {
       return <NotFoundContent
         onPress={() => setModalVisible(true)}
         message="Válassz intézményt a beállítások gombbal"

@@ -19,6 +19,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Institution } from '@/components/Dropdown';
 import ProfileSection from '@/components/ProfileSection';
 import { isSubscribedToNotifications, registerForPushNotifications, unsubscribeFromPushNotifications } from '@/utils/notificationUtil';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
@@ -58,6 +59,7 @@ const ProfileScreen = () => {
     }, [user, institutionId]);
 
     const toggleNotifications = async () => {
+        AsyncStorage.clear();
         setLoading(true);
         setSnackbarVisible(false)
         if (!isNotificationsEnabled) {

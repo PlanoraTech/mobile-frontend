@@ -112,9 +112,6 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
     const setTimetableSelection = async (view: string, id: string) => {
         // Clear any existing errors when changing selection
         clearError();
-        console.log('institui   onId', institutionId);
-        console.log('selectedView', view);
-        console.log('selectedId', id);
         setTimetable({
             selectedView: view,
             selectedId: id
@@ -157,17 +154,14 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
     // Function to fetch the timetable data with improved error handling
     const fetchTimetable = async (): Promise<Appointment[]> => {
         if (!timetable.selectedView || !timetable.selectedId) {
-            console.warn('Timetable view or ID is not set. Returning empty array.');
             return [];
         }
 
         if (!user?.token) {
-            console.warn('User token is missing. Cannot fetch timetable data.');
             throw new Error('Authentication token is missing.');
         }
 
         if (!institutionId) {
-            console.warn('Institution ID is missing. Cannot fetch timetable data.');
             throw new Error('Institution ID is missing.');
         }
 
@@ -186,7 +180,6 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
         }
 
         try {
-            console.log(`Fetching timetable data from ${BASE_URL}/${institutionId}${endpoint}`);
             const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}`, {
                 headers: {
                     Authorization: `Bearer ${user?.token}`
@@ -211,7 +204,6 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
                 throw new Error(errorMessage);
             }
             const data = await response.json();
-            console.log(`Fetched timetable data`, data);
             return data;
         } catch (error: any) {
             // Only set error if it's not already been set by other handlers

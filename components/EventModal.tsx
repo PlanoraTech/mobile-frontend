@@ -35,11 +35,6 @@ export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps
     // Mutation for modifying an event
     const { mutate: modifyEvent, error: modifyError, isSuccess: isModifySuccess } = useMutation({
         mutationFn: async () => {
-            console.log("url", `${BASE_URL}/${institutionId}/events/${event.id}`);
-            console.log("body", JSON.stringify({
-                title: newTitle,
-            }));
-            console.log("token", user?.token);
             const response = await fetch(`${BASE_URL}/${institutionId}/events/${event.id}`, {
                 method: 'PATCH',
                 headers: {
@@ -53,7 +48,6 @@ export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            console.log("response", await response.text());
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['events', institutionId] });

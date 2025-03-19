@@ -6,7 +6,6 @@ import { BASE_URL_AUTH } from '@/constants';
 
 export async function registerForPushNotifications(userToken: string): Promise<boolean> {
     if (!Device.isDevice) {
-        console.log("Push notifications are only available on physical devices");
         return false;
     }
 
@@ -21,15 +20,12 @@ export async function registerForPushNotifications(userToken: string): Promise<b
         }
 
         if (finalStatus !== "granted") {
-            console.log("Permission not granted for push notifications");
             return false;
         }
-
 
         const token = await Notifications.getExpoPushTokenAsync({
             projectId: Constants.expoConfig?.extra?.eas.projectId,
         });
-
 
         if (Platform.OS === "android") {
             Notifications.setNotificationChannelAsync("default", {
@@ -39,7 +35,6 @@ export async function registerForPushNotifications(userToken: string): Promise<b
                 lightColor: "#FF231F7C",
             });
         }
-
 
         const response = await fetch(`${BASE_URL_AUTH}/notifications/register-token/?token=${userToken}`, {
             method: "POST",
@@ -53,7 +48,6 @@ export async function registerForPushNotifications(userToken: string): Promise<b
         });
 
         if (!response.ok) {
-            console.error("Failed to register token on server");
             return false;
         }
 
@@ -66,7 +60,6 @@ export async function registerForPushNotifications(userToken: string): Promise<b
 export async function unsubscribeFromPushNotifications(userToken: string): Promise<boolean> {
 
     if (!Device.isDevice) {
-        console.log("Push notifications are only available on physical devices");
         return false;
     }
 
@@ -74,16 +67,13 @@ export async function unsubscribeFromPushNotifications(userToken: string): Promi
 
         const currentPermission = await Notifications.getPermissionsAsync();
 
-
         if (currentPermission.status !== "granted") {
-            console.log("No push notification permissions to revoke");
             return true;
         }
 
         const token = await Notifications.getExpoPushTokenAsync({
             projectId: Constants.expoConfig?.extra?.eas.projectId,
         });
-
 
         const response = await fetch(`${BASE_URL_AUTH}/notifications/delete-token/?token=${userToken}`, {
             method: "DELETE",
@@ -97,10 +87,8 @@ export async function unsubscribeFromPushNotifications(userToken: string): Promi
         });
 
         if (!response.ok) {
-            console.error("Failed to unregister push token on server");
             return false;
         }
-
 
         if (Platform.OS === "ios") {
             alert("Please disable notifications for this app in your iOS Settings");
@@ -110,7 +98,6 @@ export async function unsubscribeFromPushNotifications(userToken: string): Promi
             await Notifications.deleteNotificationChannelAsync("default");
         }
 
-        console.log("Successfully unsubscribed from push notifications");
         return true;
 
     } catch (error) {
@@ -142,8 +129,6 @@ export const isSubscribedToNotifications = async (userToken: string): Promise<bo
         console.error("Error checking token on server:", error);
     }
     return false;
-
-
 };
 
 export const getCurrentNotificationPermission = async () => {

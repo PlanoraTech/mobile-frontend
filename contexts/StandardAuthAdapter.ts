@@ -109,7 +109,6 @@ export class StandardAuthAdapter {
             const token = await SecureStore.getItemAsync('auth_tokens');
             if (!token) return null;
             const response = await this.makeRequest<any>('/login', 'POST', { token: token });
-            console.log('Current user:', response.user);
             return { ...response.user, token };
         } catch (error) {
             console.error('Error loading current user:', error);

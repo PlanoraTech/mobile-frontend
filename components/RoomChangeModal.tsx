@@ -92,7 +92,6 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
                         setError("Nincs jogosultságod a lekéréshez");
                         return;
                     }
-                    console.error("Unexpected response:", response);
                     throw new Error();
                 }
                 const data = await response.json();

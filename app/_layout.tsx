@@ -62,20 +62,20 @@ const queryClient = new QueryClient()
 export default function RootLayout() {
   return (
 
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider authAdapter={authAdapter}>
-        <ThemeProviderLocal>
-          <InstitutionIdProvider>
+    <AuthProvider authAdapter={authAdapter}>
+      <ThemeProviderLocal>
+        <InstitutionIdProvider>
+          <QueryClientProvider client={queryClient}>
 
             <TimetableProvider>
 
               <StackNavigator />
             </TimetableProvider>
 
-          </InstitutionIdProvider>
-        </ThemeProviderLocal>
-      </AuthProvider>
-    </QueryClientProvider>
+          </QueryClientProvider>
+        </InstitutionIdProvider>
+      </ThemeProviderLocal>
+    </AuthProvider>
 
 
 

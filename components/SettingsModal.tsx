@@ -48,7 +48,7 @@ export const SettingsModal = ({
 }: SettingsModalProps) => {
     const theme = useTheme();
     const { user } = useAuth();
-    const { setInstitutionId } = useInstitutionId();
+    const { institutionId, setInstitutionId } = useInstitutionId();
     const { setTimetableSelection } = useTimetable();
     const slideAnim = useSharedValue(-1000);
     const fadeAnim = useSharedValue(0);
@@ -191,11 +191,13 @@ export const SettingsModal = ({
             return;
         }
 
-        AsyncStorage.removeItem('timetable');
-        saveId('institution', item.id);
-        console.log('Selected institution ID:', item.id);
-        setInstitutionId(item.id);
-        setTimetableSelection(TAB_CONFIG[currentBtnIndex].value.toLowerCase(), '');
+
+        if (item.id !== institutionId) {
+            saveId('institution', item.id);
+            AsyncStorage.removeItem('timetable');
+            setInstitutionId(item.id);
+            setTimetableSelection(TAB_CONFIG[currentBtnIndex].value.toLowerCase(), '');
+        }
     }
 
     const orderedInstitutions = useMemo(() => {

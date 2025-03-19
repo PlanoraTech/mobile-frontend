@@ -24,8 +24,6 @@ const clearSelectedInstitutionId = () => {
 }
 
 const fetchData = async (endpoint: string, id: string, token: string) => {
-    console.log("This function is called");
-    console.log(`path: ${BASE_URL}/${id}${endpoint}`);
     const response = await fetch(`${BASE_URL}/${id}${endpoint}`, {
         headers: {
             Authorization: `Bearer ${token}`
@@ -98,6 +96,5 @@ export const useInstitutionData = () => {
         rooms: roomsResult.data || [],
         events: eventsResult.data || []
     } : null;
-
     return { institution, isLoading, error };
 };

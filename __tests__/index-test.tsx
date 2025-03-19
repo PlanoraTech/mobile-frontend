@@ -7,7 +7,6 @@ import { StandardAuthAdapter } from '@/contexts/StandardAuthAdapter';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { userEvent } from '@testing-library/react-native';
 import { useInstitutionData } from '@/hooks/useInstitutionData';
-import { useTimetable } from '@/hooks/useTimetable';
 jest.mock('@/hooks/useInstitutionData', () => ({
 
     /*mock the useInstitutionData hook
@@ -111,13 +110,10 @@ describe('Index', () => {
         );
         const user = userEvent.setup();
 
-        indexScreen.debug();
         waitFor(() => {
             const settingsButton = indexScreen.getByTestId('settings-button');
             user.press(settingsButton);
         })
-
-
     });
     /*
         test('should switch show events page upon switch', async () => {

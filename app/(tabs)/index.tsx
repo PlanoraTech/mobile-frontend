@@ -45,10 +45,10 @@ export default function TimetableScreen() {
 
   useEffect(() => {
     AsyncStorage.clear();
-    fetchSavedTimetable();
+    getSavedTimetable();
   }, []);
 
-  const fetchSavedTimetable = async () => {
+  const getSavedTimetable = async () => {
     const savedTimetable = await AsyncStorage.getItem('timetable');
     if (savedTimetable) {
       const { id, endpoint } = JSON.parse(savedTimetable);
@@ -120,6 +120,7 @@ export default function TimetableScreen() {
     return (
       <TimetableView
         appointments={appointments!}
+        selectedTimetable={{ selectedView, selectedId }}
         events={institution.events}
         onDayChange={handleDayChange}
         onScrolltoIndexEnd={handleScrolltoIndexEnd}

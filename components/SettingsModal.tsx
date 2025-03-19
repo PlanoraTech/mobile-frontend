@@ -49,7 +49,7 @@ export const SettingsModal = ({
 }: SettingsModalProps) => {
     const theme = useTheme();
     const { user } = useAuth();
-    const { setInstitutionId } = useInstitutionId();
+    const { institutionId, setInstitutionId } = useInstitutionId();
 
     const slideAnim = useSharedValue(-1000);
     const fadeAnim = useSharedValue(0);
@@ -147,12 +147,11 @@ export const SettingsModal = ({
         }
     }, [visible, runOpenAnimation, runCloseAnimation]);
 
-    const handleClose = useCallback(() => {
+    const handleClose = () => {
         runCloseAnimation(() => {
             onClose();
         });
-    }, [runCloseAnimation, onClose]);
-
+    }
     const handleInstSelect = useCallback((item: DropdownItem) => {
         const isUserLoggedIn = () => !!user;
 
@@ -192,11 +191,13 @@ export const SettingsModal = ({
             return;
         }
 
+        console.log('beforeId', institutionId);
+        console.log('afterId', item.id);
         AsyncStorage.removeItem('timetable');
         saveId('institution', item.id);
         setInstitutionId(item.id);
         onInstChange();
-    }, [user, handleClose, setInstitutionId, onInstChange]);
+    }, [setInstitutionId, onInstChange, user, handleClose]);
 
     const orderedInstitutions = useMemo(() => {
         if (!institutions) return [];

@@ -57,7 +57,7 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
             setError("");
             setSuccess("");
             const response = await fetch(`${BASE_URL}/${institutionId}/rooms`, {
-                method: 'POST',
+                method: '',
                 body: JSON.stringify(selectedRooms),
                 headers: {
                     'Content-Type': 'application/json'

@@ -1,18 +1,18 @@
-import { Fragment, useState, memo } from "react";
+import { Fragment, useState, memo, useMemo } from "react";
 import { StyleSheet, Pressable, View, Alert } from "react-native";
 import { formatTimeRange } from "@/utils/dateUtils";
 import { DropdownItem } from "./Dropdown";
-import { DayOfWeek, SCREEN_WIDTH } from "@/constants";
-import Animated, {
-} from 'react-native-reanimated';
+import { DayOfWeek } from "@/constants";
 import { Text, useTheme } from 'react-native-paper';
-import { set } from "date-fns";
 import PresentatorAppointmentCard from "./PresentatorAppointmentCard";
-
-
+import { SelectedTimetable } from "@/hooks/useTimetable";
+import { useAuth } from "@/contexts/AuthProvider";
+import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
+import { sub } from 'date-fns';
 
 interface AppointmentCardProps {
   appointment: Appointment;
+  selectedTimetable: SelectedTimetable;
 }
 
 export interface Appointment {
@@ -26,18 +26,27 @@ export interface Appointment {
   isCancelled: boolean;
 }
 
-const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
+const AppointmentCard = ({ appointment, selectedTimetable }: AppointmentCardProps) => {
   const theme = useTheme()
-
-  const substitutedPresentators = appointment.presentators.filter(p => p.isSubstituted);
-  const presentators = appointment.presentators.filter(p => !p.isSubstituted);
+  const { institutionId } = useInstitutionId();
+  const { user } = useAuth()
+  const [substitutedPresentators, setSubstitutedPresentators] = useState(appointment.presentators.filter(p => p.isSubstituted));
+  const [presentators, setPresentators] = useState(appointment.presentators.filter(p => !p.isSubstituted));
   const time = formatTimeRange(appointment.start, appointment.end)
   const [presentatorCardVisible, setPresentatorCardVisible] = useState(false);
+  const role = useMemo(() => {
+    if (!user) return null;
+    if (!user.institutions) return null;
+    return user.institutions.find(i => i.institutionId === institutionId)?.role;
+  }, [user, institutionId]);
+
   const handlePress = () => {
-    setPresentatorCardVisible(!presentatorCardVisible);
+    if (role === 'PRESENTATOR') {
+      setPresentatorCardVisible(!presentatorCardVisible);
+    }
   }
   return (
-    presentatorCardVisible ? (<PresentatorAppointmentCard appointment={appointment} />) :
+    !presentatorCardVisible ?
       <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <Pressable onPress={handlePress}>
           <Text style={styles.subjectName}>
@@ -69,8 +78,15 @@ const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
             <Text style={styles.cancelledText}>ELMARAD</Text>
           )}
         </Pressable>
-
       </View>
+      : (<PresentatorAppointmentCard
+        selectedTimetable={selectedTimetable}
+        appointment={appointment}
+        substitutedPresentators={substitutedPresentators}
+        setSubstitutedPresentators={setSubstitutedPresentators}
+        presentators={presentators}
+        setPresentators={setPresentators}
+      />)
   );
 };
 

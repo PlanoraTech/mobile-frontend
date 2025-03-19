@@ -1,93 +1,124 @@
-import { getThemeStyles } from "@/assets/styles/themes";
-import { useTheme } from "@/contexts/ThemeProvider";
+import { BASE_URL } from "@/constants";
+import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { Modal, Pressable, Text, TextInput, View, StyleSheet } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { IconButton } from "react-native-paper";
+import { View, StyleSheet, TextInput } from "react-native";
+import { Button, IconButton, Modal, Portal, Text, useTheme } from 'react-native-paper';
+import { StatusMessage } from "./StatusMessage";
+import { useAuth } from "@/contexts/AuthProvider";
+
 
 interface EventModalProps {
     isVisible: boolean;
     event: DayEvent;
-    onClose: () => void;
+    onClose: (title: string) => void;
+    title: string;
 }
 
 export interface DayEvent {
     id: string;
-    title: string;
     date: Date;
 }
 
-export const EventModal = ({ isVisible, event, onClose }: EventModalProps) => {
-    const { theme } = useTheme();
-    const themeStyles = getThemeStyles(theme);
-    const [newTitle, setNewTitle] = useState(event.title);
-
+export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps) => {
+    const theme = useTheme();
+    const [newTitle, setNewTitle] = useState(title);
+    const { institutionId } = useInstitutionId();
+    const { user } = useAuth()
     const handleClose = () => {
-        setNewTitle(event.title);
-        onClose();
+        onClose(newTitle);
     }
 
+    const { mutate: modifyEvent, error } = useMutation({
+        mutationFn: async () => {
+            const response = await fetch(`${BASE_URL}/${institutionId}/events/${event.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user?.token}`,
+                },
+                body: JSON.stringify({
+                    title: newTitle,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+        },
+        onSuccess: () => {
+            handleClose();
+        },
+        onError: (error) => {
+            console.error('Error:', error);
+        }
+
+    });
+
+
+
     return (
-        <Modal
-            visible={isVisible}
-            transparent={true}
-            onRequestClose={onClose}
-            animationType="fade"
-        >
-            <StatusBar backgroundColor='rgba(0, 0, 0, 0.3)' />
+        <Portal>
+            <Modal
+                visible={isVisible}
+                onDismiss={handleClose}
+                contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
+            >
 
-            <View style={styles.modalContainer}>
-                <View style={[styles.modalContent, themeStyles.content]}>
-                    <View style={[styles.modalHeader, themeStyles.border]}>
-                        <Text style={[styles.modalTitle, themeStyles.textSecondary]}>
-                            Esemény szerkesztése
-                        </Text>
+                <View style={[styles.modalHeader, { borderBottomColor: theme.colors.outline }]}>
+                    <Text variant="titleLarge" >
+                        Esemény módosítása
+                    </Text>
 
-                        <IconButton
-                            icon="close"
-                            size={24}
-                            onPress={handleClose}
-                            iconColor={themeStyles.textSecondary.color}
-                        />
-                    </View>
-
-                    <TextInput
-                        style={[
-                            styles.input,
-                            themeStyles.inputBackground,
-                            themeStyles.text,
-                        ]}
-                        multiline={true}
-                        value={newTitle}
-                        onChangeText={(text) => setNewTitle(text)}
-                        autoCapitalize="sentences"
+                    <IconButton
+                        icon="close"
+                        size={24}
+                        onPress={handleClose}
                     />
-
-                    <View style={styles.ButtonsContainer}>
-                        <Pressable
-                            style={[styles.deleteButton, themeStyles.buttonSecondary]}
-                        >
-                            <Text style={styles.buttonText}>Esemény törlése</Text>
-                        </Pressable>
-
-                        <Pressable
-                            style={[styles.saveButton, themeStyles.button]}
-                        >
-                            <Text style={styles.buttonText}>Mentés</Text>
-                        </Pressable>
-                    </View>
                 </View>
-            </View>
-        </Modal>
+
+                <TextInput
+                    style={[
+                        styles.input,
+                        { backgroundColor: theme.colors.surfaceDisabled },
+                        { borderColor: theme.colors.outline },
+                        { color: theme.colors.onSurface },
+                    ]}
+                    multiline={true}
+                    defaultValue={newTitle}
+                    onChangeText={(text) => setNewTitle(text)}
+                    autoCapitalize="sentences"
+                />
+
+
+                <View style={styles.ButtonsContainer}>
+                    <Button
+                        mode="contained"
+                        onPress={() => {
+                        }}
+                        buttonColor={theme.colors.secondary}
+                    >
+                        Esemény törlése
+                    </Button>
+                    <Button
+                        mode="contained"
+                        onPress={() => modifyEvent()}
+                    >
+                        Mentés
+                    </Button>
+                </View>
+            </Modal>
+            {error && <StatusMessage message={error.message || "Hiba történt"} type="error" />}
+        </Portal>
+
     );
 }
 
 const styles = StyleSheet.create({
     modalContainer: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        justifyContent: 'center',
-        alignItems: 'center',
+        borderRadius: 16,
+        padding: 20,
+        marginHorizontal: 20,
     },
     modalContent: {
         width: '80%',
@@ -113,7 +144,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     input: {
-        padding: 10,
         borderRadius: 8,
         marginBottom: 15,
     },

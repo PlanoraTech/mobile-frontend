@@ -1,18 +1,19 @@
 import { DAYS, SCREEN_WIDTH } from "@/constants";
 import { Appointment } from "@/components/AppointmentCard";
-import { DayEvent } from "@/components/EventModal";
-import React, { RefObject, useEffect, useState } from "react";
-import { FlatList, View, StyleSheet, ScrollView, Text, Pressable } from "react-native";
+import { DayEvent } from "@/components/EventCard";
+import React, { RefObject, useState } from "react";
+import { FlatList, View, StyleSheet, Text } from "react-native";
 import AppointmentCard from "@/components/AppointmentCard";
 import { DayTab } from "./DayTab";
 import { WeekNavigation } from "./WeekNavigation";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
-import { EventCard } from "./EventCard";
+import EventCard from "./EventCard";
 import { AddEventCard } from "./AddEventCard";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getCurrentWeekDates, isSameDayUTC } from "@/utils/dateUtils";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
+import { SelectedTimetable } from '../hooks/useTimetable';
 interface TimetableViewProps {
   appointments: Appointment[];
   onDayChange: (index: number) => void;
@@ -20,6 +21,7 @@ interface TimetableViewProps {
   events: DayEvent[];
   cardsListRef: RefObject<FlatList>;
   goalDayIndex: number;
+  selectedTimetable: SelectedTimetable;
   showedList: 'appointments' | 'events';
   handleViewableItemsChanged: (info: { viewableItems: any[] }) => void;
 }
@@ -32,9 +34,10 @@ export const TimetableView = ({
   cardsListRef,
   showedList,
   events,
+  selectedTimetable,
   handleViewableItemsChanged
 }: TimetableViewProps) => {
-  console.log("appointments", appointments);
+
   const { theme } = useTheme();
   const { user } = useAuth();
   const themeStyle = getThemeStyles(theme);
@@ -74,7 +77,7 @@ export const TimetableView = ({
             ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
             keyExtractor={(appointment) => appointment.id}
             renderItem={({ item }) => (
-              <AppointmentCard appointment={item} />
+              <AppointmentCard selectedTimetable={selectedTimetable} appointment={item} />
             )}
             showsVerticalScrollIndicator={false}
             scrollEnabled
@@ -109,7 +112,7 @@ export const TimetableView = ({
           )
         )
           : (
-            <ScrollView>
+            <>
               <FlatList
                 data={dayEvents}
                 keyExtractor={(event) => event.id!}
@@ -117,10 +120,11 @@ export const TimetableView = ({
                   <EventCard event={item} />
                 )}
                 showsVerticalScrollIndicator={false}
-                scrollEnabled={false}
+                scrollEnabled
               />
               {isDirector && <AddEventCard currentDayDate={currentDayDate} />}
-            </ScrollView>
+            </>
+
           )}
       </View>
     );

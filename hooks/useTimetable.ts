@@ -10,6 +10,11 @@ interface UseTimetableProps {
   selectedId: string | null;
 }
 
+export interface SelectedTimetable {
+  selectedView: string | null;
+  selectedId: string | null;
+}
+
 export const useTimetable = ({ selectedView, selectedId }: UseTimetableProps) => {
   const { user } = useAuth();
   const { institutionId } = useInstitutionId();

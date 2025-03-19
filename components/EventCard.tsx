@@ -1,33 +1,65 @@
 import { getThemeStyles } from "@/assets/styles/themes";
 import { useTheme } from "@/contexts/ThemeProvider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, Text, StyleSheet } from "react-native";
-import { DayEvent, EventModal } from "./EventModal";
+import { EventModal } from "./EventModal";
+import { useAuth } from "@/contexts/AuthProvider";
+import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
 
 interface EventCardProps {
     event: DayEvent;
 }
 
-export const EventCard = ({ event }: EventCardProps) => {
+export interface DayEvent {
+    id: string;
+    title: string;
+    date: Date;
+}
+
+const EventCard = ({ event }: EventCardProps) => {
     const { theme } = useTheme();
     const themeStyles = getThemeStyles(theme);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const { institutionId } = useInstitutionId();
+    const [title, setTitle] = useState("inital title");
+    const { user } = useAuth()
+    useEffect(() => {
+        return () => console.log('unmounting event card')
+    }, [])
+
+
+
+    const handlePress = () => {
+        const role = user?.institutions?.find(i => i.institutionId === institutionId)?.role;
+        if (role === 'DIRECTOR') {
+            setIsModalVisible(!isModalVisible);
+        }
+    };
+
+    const handleClose = (newTitle: string) => {
+        setTitle(newTitle);
+        setIsModalVisible(false);
+    };
     return (
         <Pressable
-            onPress={() => setIsModalVisible(true)}
+            onPress={handlePress}
             style={[styles.eventCard, themeStyles.content]}
         >
             <Text style={[styles.eventTitle, themeStyles.text]}>
-                {event.title}
+                {title}
             </Text>
-            <EventModal isVisible={isModalVisible} event={event} onClose={() => setIsModalVisible(false)} />
+            <EventModal title={title} isVisible={isModalVisible} event={event} onClose={handleClose} />
         </Pressable>
     );
 }
 
+export default EventCard;
+
 const styles = StyleSheet.create({
     eventCard: {
+        justifyContent: 'center',
         padding: 15,
+        marginHorizontal: 10,
         borderRadius: 8,
         marginVertical: 5,
         shadowColor: '#000',

@@ -52,7 +52,9 @@ const ProfileScreen = () => {
     const { data } = useQuery({ queryKey: ['institution', institutionId], queryFn: getInstitution });
 
     const role = useMemo(() => {
-        return user?.institutions.find((inst) => inst.institutionId === institutionId)?.role
+        if (!user) return null;
+        if (!user.institutions) return null;
+        return user.institutions.find((inst) => inst.institutionId === institutionId)?.role
     }, [user, institutionId]);
 
     const toggleNotifications = async () => {

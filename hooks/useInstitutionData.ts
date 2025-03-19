@@ -2,8 +2,9 @@ import { BASE_URL } from '@/constants';
 import { useAuth } from '@/contexts/AuthProvider';
 import { DropdownItem } from '@/components/Dropdown';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
-import { DayEvent } from '@/components/EventModal';
+import { DayEvent } from '@/components/EventCard';
 import { useQueries } from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface InstitutionData {
     id: string;
@@ -12,6 +13,14 @@ export interface InstitutionData {
     presentators: DropdownItem[];
     rooms: DropdownItem[];
     events: DayEvent[];
+}
+
+const clearSelectedInstitutionId = () => {
+    const { setInstitutionId } = useInstitutionId();
+    setInstitutionId("");
+    AsyncStorage.removeItem('selectedInstitutionId')
+        .then(() => console.log('Selected institution ID cleared'))
+        .catch(error => console.error('Error clearing selected institution ID:', error));
 }
 
 const fetchData = async (endpoint: string, id: string, token: string) => {
@@ -61,7 +70,7 @@ export const useInstitutionData = () => {
             {
                 queryKey: ['events', institutionId],
                 queryFn: () => fetchData("/events", institutionId, token),
-                enabled: !!institutionId
+                enabled: !!institutionId,
             },
         ],
     });
@@ -70,6 +79,8 @@ export const useInstitutionData = () => {
 
     const errors = results.map(result => result.error).filter(Boolean);
     const error = errors.length > 0 ? errors[0] : null;
+
+    error && clearSelectedInstitutionId();
 
     const [
         institutionResult,

@@ -80,6 +80,16 @@ export const TimetableView = ({
             )}
             showsVerticalScrollIndicator={false}
             scrollEnabled
+            removeClippedSubviews
+            getItemLayout={(_data: any, index: number) => (
+              { length: 120, offset: 120 * index, index }
+            )}
+            windowSize={5}
+            maxToRenderPerBatch={5}
+            initialNumToRender={4}
+            ListFooterComponent={() => (
+              <View style={{ height: 5 }} />
+            )}
           />
 
         )}
@@ -94,13 +104,14 @@ export const TimetableView = ({
       const eventDate = new Date(event.date);
       return isSameDayUTC(eventDate, currentDayDate);
     });
+    const today = new Date();
 
     return (
       <View
         style={styles.dayPage}
       >
         {dayEvents.length === 0 ? (
-          isDirector ? (
+          currentDayDate >= today && isDirector ? (
             <AddEventCard currentDayDate={currentDayDate} />
           ) : (
             <View style={[styles.notFoundContainer, themeStyle.background]}>
@@ -122,7 +133,7 @@ export const TimetableView = ({
                 scrollEnabled
 
               />
-              {isDirector && <AddEventCard currentDayDate={currentDayDate} />}
+              {isDirector && currentDayDate >= today && <AddEventCard currentDayDate={currentDayDate} />}
             </>
 
           )}

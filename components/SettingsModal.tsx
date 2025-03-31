@@ -28,6 +28,7 @@ import ModalHeader from './ModalHeader';
 import { TAB_CONFIG } from '@/constants';
 import { InstitutionData } from '@/hooks/useInstitutionData';
 import { useTimetable } from '@/contexts/TimetableProvider';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface SettingsModalProps {
     visible: boolean;
@@ -73,7 +74,9 @@ export const SettingsModal = ({
         },
     }));
 
+    const queryClient = useQueryClient();
     const handleDropdownSelect = (item: DropdownItem, type: string) => {
+        queryClient.invalidateQueries({ queryKey: ['timetable'] });
         onSelect();
         setTimetableSelection(type.toLowerCase(), item.id);
         setSelectedPlaceholder({

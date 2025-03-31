@@ -34,14 +34,21 @@ export class StandardAuthAdapter {
     private async makeRequest<T>(
         endpoint: string,
         method: 'GET' | 'POST',
-        body?: object
+        body?: object,
+        token?: string
     ): Promise<T> {
         try {
+            const headers: HeadersInit = {
+                'Content-Type': 'application/json',
+            };
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch(`${this.apiUrl}${endpoint}`, {
                 method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers,
                 body: body ? JSON.stringify(body) : undefined,
             });
 
@@ -61,7 +68,7 @@ export class StandardAuthAdapter {
 
                 throw new Error('Valami hiba történt... Kérlek próbáld újra később.');
             }
-            return response.json();
+            return await response.json();
         } catch (error: any) {
             console.error('Request error:', error);
             throw new Error(error.message);
@@ -108,7 +115,7 @@ export class StandardAuthAdapter {
         try {
             const token = await SecureStore.getItemAsync('auth_tokens');
             if (!token) return null;
-            const response = await this.makeRequest<any>('/login', 'POST', { token: token });
+            const response = await this.makeRequest<any>('/login/auto', 'POST', undefined, token);
             return { ...response.user, token };
         } catch (error) {
             console.error('Error loading current user:', error);

@@ -62,7 +62,7 @@ export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps
         }
     });
 
-    // New mutation for deleting an event
+
     const { mutate: deleteEvent } = useMutation({
         mutationFn: async () => {
             const response = await fetch(`${BASE_URL}/${institutionId}/events/${event.id}`, {

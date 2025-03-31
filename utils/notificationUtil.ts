@@ -3,14 +3,12 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { BASE_URL_AUTH } from '@/constants';
-
 export async function registerForPushNotifications(userToken: string): Promise<boolean> {
     if (!Device.isDevice) {
         return false;
     }
 
     try {
-
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
         let finalStatus = existingStatus;
 
@@ -27,6 +25,10 @@ export async function registerForPushNotifications(userToken: string): Promise<b
             projectId: Constants.expoConfig?.extra?.eas.projectId,
         });
 
+
+        const tokenIdMatch = token.data.match(/\[(.*?)\]/);
+        const tokenId = tokenIdMatch ? tokenIdMatch[1] : token.data;
+
         if (Platform.OS === "android") {
             Notifications.setNotificationChannelAsync("default", {
                 name: "default",
@@ -36,16 +38,20 @@ export async function registerForPushNotifications(userToken: string): Promise<b
             });
         }
 
-        const response = await fetch(`${BASE_URL_AUTH}/notifications/register-token/?token=${userToken}`, {
+        const response = await fetch(`${BASE_URL_AUTH}/notifications`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${userToken}`
+                "Authorization": `Bearer ${userToken}`,
             },
             body: JSON.stringify({
-                token: token.data,
+                expoPushToken: tokenId,
             }),
         });
+
+        console.log("Extracted token ID:", tokenId);
+        const responseText = await response.text();
+        console.log("Response from server:", responseText);
 
         if (!response.ok) {
             return false;
@@ -57,6 +63,7 @@ export async function registerForPushNotifications(userToken: string): Promise<b
         return false;
     }
 }
+
 export async function unsubscribeFromPushNotifications(userToken: string): Promise<boolean> {
 
     if (!Device.isDevice) {

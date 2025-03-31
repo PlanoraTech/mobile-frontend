@@ -157,9 +157,7 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
             return [];
         }
 
-        if (!user?.token) {
-            throw new Error('Authentication token is missing.');
-        }
+
 
         if (!institutionId) {
             throw new Error('Institution ID is missing.');

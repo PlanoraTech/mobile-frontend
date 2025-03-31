@@ -7,10 +7,20 @@ import { BASE_URL } from "@/constants";
 import { StatusMessage } from "./StatusMessage";
 import ViewToggle from "./ViewToggle";
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
+import { useAuth } from '@/contexts/AuthProvider';
+import { QueryClient as ReactQueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
+import { LoadingSpinner } from './LoadingSpinner';
 
 interface Props {
     visible: boolean;
     onDismiss: () => void;
+}
+
+type dateInterval = {
+    from: string;
+    to: string;
+    isSubstituted: boolean;
 }
 
 configHungarian();
@@ -26,41 +36,97 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
     const [endDate, setEndDate] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-
+    const { institutionId } = useInstitutionId();
     const [isAbsentChosen, setIsAbsentChosen] = useState(true);
     const [absences, setAbsences] = useState<{ [date: string]: any }>({});
-    const [currentFetched, setCurrentFetched] = useState<boolean>(false);
+    const { user } = useAuth();
 
     const [markedDates, setMarkedDates] = useState<{ [date: string]: any }>({});
-    useEffect(() => {
-        const selectedColor = theme.colors.primary;
-        setAbsences({
-            ...getDateRange("2025-02-11", "2025-02-15", selectedColor),
-            ...getDateRange("2025-03-20", "2025-03-22", selectedColor),
-            ...getDateRange("2025-04-05", "2025-04-10", selectedColor),
-            ...getDateRange("2025-05-15", "2025-05-16", selectedColor),
-            ...getDateRange("2025-06-01", "2025-06-07", selectedColor),
-            ...getDateRange("2025-07-01", "2025-07-01", selectedColor)
-        });
 
-    }, [visible]);
 
-    const fetchAbsences = async () => {
-        setCurrentFetched(true);
-        try {
-            setError(null);
-            const response = await fetch(`${BASE_URL}/absences/current`);
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ['absences', institutionId],
+        queryFn: async () => {
+            console.log("url", `${BASE_URL}/${institutionId}/presentators/${user?.institutions[0].presentatorId}/substitutions`)
+            const response: Promise<Date = await fetch(`${BASE_URL}/${institutionId}/presentators/${user?.institutions[0].presentatorId}/substitutions`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${user?.token}`
+                },
+            });
             if (!response.ok) {
+                console.log(await response.text())
                 throw new Error('Hiba történt a hiányzások lekérése során.');
             }
-            const data = await response.json();
-            setAbsences(data);
-        } catch (error: any) {
-            setError(error.message);
-        }
-    };
+            return response.json();
+        },
+        enabled: !!visible,
+    });
 
-    visible && !currentFetched && fetchAbsences();
+    //console.log("data", data)
+    //console.log("usertoken", user?.token)
+    // Process absences from the API data
+    useEffect(() => {
+        if (data && Array.isArray(data)) {
+
+            const absencesMap: { [date: string]: any } = {};
+
+            const orderedAbsences = data.sort((a: { from: string, to: string }, b: { from: string, to: string }) => {
+                //from greatest interval to lowest
+                return new Date(b.from).getTime() + new Date(b.to).getTime() - new Date(a.from).getTime() + new Date(a.to).getTime();
+            });
+            console.log("orderedAbsences", orderedAbsences)
+            data.forEach(absence => {
+                if (absence.from && absence.to) {
+                    const start = new Date(absence.from);
+                    const end = new Date(absence.to);
+                    const currentDate = new Date(start);
+
+                    // Determine color based on substitution status
+                    const color = theme.colors.secondary;
+
+                    // Mark starting date
+                    const startDateString = start.toISOString().split('T')[0];
+                    absencesMap[startDateString] = {
+                        startingDay: true,
+                        color: color,
+                        textColor: 'white'
+                    };
+
+                    // Mark dates in between
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    while (currentDate < end) {
+                        const dateString = currentDate.toISOString().split('T')[0];
+                        absencesMap[dateString] = {
+                            color: color,
+                            textColor: 'white'
+                        };
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+
+                    // Mark ending date
+                    const endDateString = end.toISOString().split('T')[0];
+                    absencesMap[endDateString] = {
+                        endingDay: true,
+                        color: color,
+                        textColor: 'white'
+                    };
+
+                    // If start and end are the same day
+                    if (startDateString === endDateString) {
+                        absencesMap[startDateString] = {
+                            startingDay: true,
+                            endingDay: true,
+                            color: color,
+                            textColor: 'white'
+                        };
+                    }
+                }
+            });
+
+            setAbsences(absencesMap);
+        }
+    }, [data, theme.colors]);
 
     const getDateRange = (firstDate: string, secondDate: string, selectionColor: string) => {
         const range: { [date: string]: any } = {};
@@ -126,20 +192,34 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
 
         }
     }, [startDate, endDate, theme.colors.primary]);
-
+    const presentatorId = user?.institutions.find((institution) => institution.institutionId === institutionId)?.presentatorId;
+    const queryClient = useQueryClient();
     const handleConfirm = async () => {
         try {
             setError(null);
             setSuccess(null);
+            const body = JSON.stringify({ from: startDate, to: endDate, isSubstituted: isAbsentChosen });
+            console.log("body", body);
             const response = await fetch(
-                `${BASE_URL}/absences`,
-                { method: 'POST', body: JSON.stringify({ startDate, endDate }) }
+                `${BASE_URL}/${institutionId}/presentators/${presentatorId}/substitute`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Authorization": `Bearer ${user?.token}`
+                    },
+
+                    method: 'PATCH',
+                    body: JSON.stringify({ from: startDate, to: endDate, isSubstituted: isAbsentChosen })
+                }
             );
             if (!response.ok) {
+                console.log(await response.text())
                 throw new Error(isAbsentChosen ? 'Hiba történt a hiányzás bejelentése során.'
                     : 'Hiba történt a jelenlét bejelentése során.');
             }
             setSuccess('Az adatok mentése sikeres volt.');
+            queryClient.invalidateQueries({ queryKey: ['timetable'] });
+            queryClient.invalidateQueries({ queryKey: ['absences'] });
             onClose();
         } catch (error: any) {
             setError(error.message);
@@ -152,7 +232,6 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
         setStartDate(null);
         setEndDate(null);
         setIsAbsentChosen(true);
-        setCurrentFetched(false);
     }
 
     const handleViewChange = () => {
@@ -173,58 +252,54 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                 contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
                 dismissable={true}
             >
-                <ViewToggle
-                    leftText='Hiányzás'
-                    rightText='Jelenlét'
-                    onViewChange={handleViewChange}
-                />
+                {isLoading ? <LoadingSpinner /> :
+                    <><ViewToggle
+                        leftText='Hiányzás'
+                        rightText='Jelenlét'
+                        onViewChange={handleViewChange} /><View style={[styles.dateDisplayContainer, { backgroundColor: theme.colors.surface }]}>
+                            <View style={styles.dateDisplay}>
+                                <Text variant="labelMedium">Kezdő dátum</Text>
+                                <Text variant="titleMedium">{formatDisplayDate(startDate)}</Text>
+                            </View>
 
-                <View style={[styles.dateDisplayContainer, { backgroundColor: theme.colors.surface }]}>
-                    <View style={styles.dateDisplay}>
-                        <Text variant="labelMedium">Kezdő dátum</Text>
-                        <Text variant="titleMedium">{formatDisplayDate(startDate)}</Text>
-                    </View>
+                            <View style={styles.dateDisplay}>
+                                <Text variant="labelMedium">Befejező dátum</Text>
+                                <Text variant="titleMedium">{formatDisplayDate(endDate)}</Text>
+                            </View>
+                        </View>
+                        <Calendar
+                            minDate={minDate}
+                            maxDate={maxDate}
+                            horizontal={true}
+                            onDayPress={handleDayPress}
+                            markedDates={{ ...absences, ...markedDates }}
+                            monthFormat="yyyy MMMM"
+                            markingType="period"
+                            enableSwipeMonths={true}
+                            theme={{
+                                calendarBackground: theme.colors.surface,
+                                textSectionTitleColor: '#b6c1cd',
+                                todayTextColor: theme.colors.primary,
+                                textDayFontSize: 16,
+                                textMonthFontSize: 16,
+                                textDayHeaderFontSize: 14,
+                                selectedDayBackgroundColor: theme.colors.primary,
+                                dotColor: theme.colors.primary,
+                                arrowColor: theme.colors.onSurface,
+                            }} /><View style={styles.buttonContainer}>
+                            <Button mode="contained" onPress={onClose}>
+                                Mégse
+                            </Button>
+                            <Button
+                                mode="contained"
+                                disabled={!startDate || !endDate}
+                                onPress={handleConfirm}
+                            >
+                                Megerősítés
+                            </Button>
+                        </View></>
 
-                    <View style={styles.dateDisplay}>
-                        <Text variant="labelMedium">Befejező dátum</Text>
-                        <Text variant="titleMedium">{formatDisplayDate(endDate)}</Text>
-                    </View>
-                </View>
-
-                <Calendar
-                    minDate={minDate}
-                    maxDate={maxDate}
-                    horizontal={true}
-                    onDayPress={handleDayPress}
-                    markedDates={{ ...absences, ...markedDates }}
-                    monthFormat="yyyy MMMM"
-                    markingType="period"
-                    enableSwipeMonths={true}
-                    theme={{
-                        calendarBackground: theme.colors.surface,
-                        textSectionTitleColor: '#b6c1cd',
-                        todayTextColor: theme.colors.primary,
-                        textDayFontSize: 16,
-                        textMonthFontSize: 16,
-                        textDayHeaderFontSize: 14,
-                        selectedDayBackgroundColor: theme.colors.primary,
-                        dotColor: theme.colors.primary,
-                        arrowColor: theme.colors.onSurface,
-                    }}
-                />
-
-                <View style={styles.buttonContainer}>
-                    <Button mode="contained" onPress={onClose}>
-                        Mégse
-                    </Button>
-                    <Button
-                        mode="contained"
-                        disabled={!startDate || !endDate}
-                        onPress={handleConfirm}
-                    >
-                        Megerősítés
-                    </Button>
-                </View>
+                }
             </Modal>
             {error && <StatusMessage type={"error"} message={error} />}
             {success && <StatusMessage type={"success"} message={success} />}

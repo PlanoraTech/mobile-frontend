@@ -75,6 +75,8 @@ const PresentatorAppointmentCard = ({
     const changeSubstitution = useMutation({
         mutationFn: async () => {
             const view = timetable.selectedView === 'timetable' ? 'timetables' : timetable.selectedView;
+            console.log(`${BASE_URL}/${institutionId}/${view}/${timetable.selectedId}/appointments/${appointment.id}/presentators/${presentatorId}/substitute`)
+            console.log(user?.token)
             const response = await fetch(`${BASE_URL}/${institutionId}/${view}/${timetable.selectedId}/appointments/${appointment.id}/presentators/${presentatorId}/substitute`, {
                 method: 'PATCH',
                 headers: {
@@ -84,6 +86,10 @@ const PresentatorAppointmentCard = ({
                 body: JSON.stringify({ isSubstituted: !isSubstituted }),
             });
             if (!response.ok) {
+                console.error('Error:', await response.text());
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('Nincs jogosultságod a művelethez!');
+                }
                 throw new Error('Valami hiba történt a jelenlét megerősítése során!');
             }
         },

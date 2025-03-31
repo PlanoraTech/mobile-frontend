@@ -7,6 +7,7 @@ import { Button, Modal, Portal, useTheme, IconButton } from "react-native-paper"
 import { StatusMessage } from "./StatusMessage";
 import { AuthInput } from "./AuthInput";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface AddEventModalProps {
     isVisible: boolean;
@@ -20,7 +21,6 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
     const { user } = useAuth();
     const { institutionId } = useInstitutionId();
     const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
     const queryClient = useQueryClient();
 
     const addEventMutation = useMutation({
@@ -38,20 +38,29 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
             if (response.status === 401 || response.status === 403) {
                 throw new Error("Nincs jogosultságod a művelethez");
             }
+            console.log(await response.text());
             if (!response.ok) {
                 throw new Error("Nem sikerült hozzáadni az eseményt");
             }
-            return response.json();
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["events", institutionId] }); // Invalidate events query
-            setSuccess("Sikeresen hozzáadva");
+            setNewTitle("");
             onClose();
         },
         onError: (error: any) => {
             setError(error.message || "Ismeretlen hiba történt...");
         },
     });
+
+    const handleAddEvent = () => {
+        if (newTitle.length < 3) {
+            setError("Az esemény leírásának legalább 3 karakter hosszúnak kell lennie.");
+            return;
+        }
+        addEventMutation.mutate();
+    }
+
 
     return (
         <Portal>
@@ -63,27 +72,25 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
                     { backgroundColor: theme.colors.surface }
                 ]}
             >
-                <View style={[styles.modalHeader, { borderColor: theme.colors.outline }]}>
-                    <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>Esemény létrehozása</Text>
-                    <IconButton icon="close" size={24} onPress={onClose} iconColor={theme.colors.onSurface} />
-                </View>
-
-                <AuthInput
-                    icon="calendar-outline"
-                    placeholder="Esemény leírása"
-                    value={newTitle}
-                    onChangeText={setNewTitle}
-                />
-
-                <View style={styles.ButtonsContainer}>
-                    <Button mode="contained" onPress={() => addEventMutation.mutate()}>
-                        <Text style={styles.saveButtonText}>Hozzáadás</Text>
-                    </Button>
-                </View>
+                {addEventMutation.isPending ? <LoadingSpinner />
+                    :
+                    <><View style={[styles.modalHeader, { borderColor: theme.colors.outline }]}>
+                        <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>Esemény létrehozása</Text>
+                        <IconButton icon="close" size={24} onPress={onClose} iconColor={theme.colors.onSurface} />
+                    </View><AuthInput
+                            icon="calendar-outline"
+                            placeholder="Esemény leírása"
+                            value={newTitle}
+                            onChangeText={setNewTitle} />
+                        <View style={styles.ButtonsContainer}>
+                            <Button mode="contained" onPress={handleAddEvent}>
+                                Hozzáadás
+                            </Button>
+                        </View></>
+                }
             </Modal>
 
             {error && <StatusMessage message={error} type="error" />}
-            {success && <StatusMessage message={success} type="success" />}
         </Portal>
     );
 };

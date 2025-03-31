@@ -116,7 +116,7 @@ export default function TimetableScreen() {
       <StatusBar style="dark" backgroundColor={theme.colors.surface} />
       <SafeAreaView style={[styles.header, { backgroundColor: theme.colors.surface }]}>
         <View style={styles.headerContent}>
-          {institution ? (
+          {institution?.id ? (
             <View style={styles.toggleCenterContainer}>
               <ViewToggle leftText="Órarend" rightText="Esemény" onViewChange={() => setShowEvents(!showEvents)} />
             </View>

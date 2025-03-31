@@ -59,7 +59,6 @@ const ProfileScreen = () => {
     }, [user, institutionId]);
 
     const toggleNotifications = async () => {
-        AsyncStorage.clear();
         setLoading(true);
         setSnackbarVisible(false)
         if (!isNotificationsEnabled) {

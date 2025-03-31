@@ -1,16 +1,12 @@
-import { Fragment, useState, memo, useMemo, useEffect } from "react";
-import { StyleSheet, Pressable, View, Alert } from "react-native";
+import React, { Fragment, useState, memo, useMemo, Suspense, useEffect } from "react";
+import { StyleSheet, Pressable, View } from "react-native";
 import { formatTimeRange } from "@/utils/dateUtils";
 import { DropdownItem } from "./Dropdown";
 import { DayOfWeek } from "@/constants";
 import { Text, useTheme } from 'react-native-paper';
-import PresentatorAppointmentCard from "./PresentatorAppointmentCard";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
-
-interface AppointmentCardProps {
-  appointment: Appointment;
-}
+import PresentatorAppointmentCard from "./PresentatorAppointmentCard";
 
 export interface Appointment {
   id: string;
@@ -23,72 +19,153 @@ export interface Appointment {
   isCancelled: boolean;
 }
 
-const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
-  const theme = useTheme()
-  const { institutionId } = useInstitutionId();
-  const { user } = useAuth()
-  const [substitutedPresentators, setSubstitutedPresentators] = useState(appointment.presentators.filter(p => p.isSubstituted));
-  const [presentators, setPresentators] = useState(appointment.presentators.filter(p => !p.isSubstituted));
-  const time = formatTimeRange(appointment.start, appointment.end)
-  const [presentatorCardVisible, setPresentatorCardVisible] = useState(false);
-  const role = useMemo(() => {
-    if (!user) return null;
-    if (!user.institutions) return null;
-    return user.institutions.find(i => i.institutionId === institutionId)?.role;
-  }, [user, institutionId]);
+interface AppointmentCardProps {
+  appointment: Appointment;
+}
 
+interface FastTextProps {
+  children: React.ReactNode;
+  style: any;
+}
+
+interface PresentatorTextProps {
+  presentators: DropdownItem[];
+}
+
+interface RoomTextProps {
+  rooms: DropdownItem[];
+}
+
+const getCardStyle = (backgroundColor: string) => [
+  styles.card,
+  { backgroundColor }
+];
+
+
+const FastText = memo(({ children, style }: FastTextProps) => (
+  <Text style={style}>{children}</Text>
+));
+
+
+const SimplePresentatorText = memo(({ presentators }: PresentatorTextProps) => (
+  <FastText style={styles.presentatorText}>
+    {presentators.map(p => p.name).join(', ')}
+  </FastText>
+));
+
+
+const SimpleRoomText = memo(({ rooms }: RoomTextProps) => (
+  <FastText style={styles.roomText}>
+    {rooms.map(r => r.name).join(' - ')}
+  </FastText>
+));
+
+const AppointmentCard = memo(({ appointment }: AppointmentCardProps) => {
+  const theme = useTheme();
+  const cardStyle = useMemo(() => getCardStyle(theme.colors.surface), [theme.colors.surface]);
+
+
+  const [isDetailedView, setIsDetailedView] = useState(false);
+  const [presentatorCardVisible, setPresentatorCardVisible] = useState(false);
+
+
+  const [normalPresentators, setPresentators] = useState(appointment.presentators.filter(p => !p.isSubstituted));
+  const [substitutedPresentators, setSubstitutedPresentators] = useState(appointment.presentators.filter(p => p.isSubstituted));
+
+
+  const { user } = useAuth();
+  const { institutionId } = useInstitutionId();
   useEffect(() => {
-    return () => console.log("Unmounting AppointmentCard component");
+    handlePress();
   }, []);
 
   const handlePress = () => {
+
+    if (!isDetailedView) {
+      setIsDetailedView(true);
+      return;
+    }
+
+    if (!user || !user.institutions) return;
+
+    const role = user.institutions.find(i => i.institutionId === institutionId)?.role;
     if (role === 'PRESENTATOR') {
       setPresentatorCardVisible(!presentatorCardVisible);
     }
-  }
-  return (
-    !presentatorCardVisible ?
-      <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <Pressable onPress={handlePress}>
-          <Text style={styles.subjectName}>
-            {appointment.subject.name}
-          </Text>
-          <Text style={[styles.timeText]}>
-            {time}
-          </Text>
-          <Text style={styles.presentatorText}>
-            {[...substitutedPresentators, ...presentators].map((p, index, array) => (
-              <Fragment key={p.id}>
-                <Text
-                  style={[
-                    styles.presentatorText,
-                    substitutedPresentators.includes(p) && { textDecorationLine: 'line-through' }
-                  ]}
-                >
-                  {p.name}
-                </Text>
-                {index < array.length - 1 && <Text>, </Text>}
-              </Fragment>
-            ))}
-          </Text>
+  };
 
-          <Text style={styles.roomText}>
-            {appointment.rooms.map(r => r.name).join(' - ')}
-          </Text>
+  if (!isDetailedView) {
+    return (
+      <View style={cardStyle}>
+        <Pressable onPress={handlePress}>
+          <FastText style={styles.subjectName}>
+            {appointment.subject.name}
+          </FastText>
+          <FastText style={styles.timeText}>
+            {formatTimeRange(appointment.start, appointment.end)}
+          </FastText>
+          <SimplePresentatorText presentators={appointment.presentators} />
+          <SimpleRoomText rooms={appointment.rooms} />
           {appointment.isCancelled && (
-            <Text style={styles.cancelledText}>ELMARAD</Text>
+            <FastText style={styles.cancelledText}>ELMARAD</FastText>
           )}
         </Pressable>
       </View>
-      : (<PresentatorAppointmentCard
-        appointment={appointment}
-        substitutedPresentators={substitutedPresentators}
-        setSubstitutedPresentators={setSubstitutedPresentators}
-        presentators={presentators}
-        setPresentators={setPresentators}
-      />)
+    );
+  }
+
+
+  if (presentatorCardVisible) {
+    return (
+      <Suspense fallback={<View style={cardStyle}><Text>Loading...</Text></View>}>
+        <PresentatorAppointmentCard
+          appointment={appointment}
+          substitutedPresentators={substitutedPresentators}
+          setSubstitutedPresentators={setSubstitutedPresentators}
+          presentators={normalPresentators}
+          setPresentators={setPresentators}
+        />
+      </Suspense>
+    );
+  }
+
+  return (
+    <View style={cardStyle}>
+      <Pressable onPress={handlePress}>
+        <FastText style={styles.subjectName}>
+          {appointment.subject.name}
+        </FastText>
+        <FastText style={styles.timeText}>
+          {formatTimeRange(appointment.start, appointment.end)}
+        </FastText>
+
+        <FastText style={styles.presentatorText}>
+          {appointment.presentators.map((p, index, array) => (
+            <Fragment key={p.id}>
+              <Text
+                style={[
+                  styles.presentatorText,
+                  p.isSubstituted && { textDecorationLine: 'line-through' }
+                ]}
+              >
+                {p.name}
+              </Text>
+              {index < array.length - 1 && <Text>, </Text>}
+            </Fragment>
+          ))}
+        </FastText>
+
+        <SimpleRoomText rooms={appointment.rooms} />
+
+        {appointment.isCancelled && (
+          <FastText style={styles.cancelledText}>ELMARAD</FastText>
+        )}
+      </Pressable>
+    </View>
   );
-};
+});
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -132,7 +209,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     color: '#fff',
-    fontWeight: 600,
+    fontWeight: '600',
     textAlign: 'center'
   },
   timeText: {

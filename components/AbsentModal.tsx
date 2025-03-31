@@ -9,8 +9,9 @@ import ViewToggle from "./ViewToggle";
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 import { useAuth } from '@/contexts/AuthProvider';
-import { QueryClient as ReactQueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
+import { QueryClient as ReactQueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { LoadingSpinner } from './LoadingSpinner';
+import DropdownComponent from './Dropdown';
 
 interface Props {
     visible: boolean;
@@ -34,21 +35,21 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
     const maxDate = `${nextYear}-12-31`;
     const [startDate, setStartDate] = useState<string | null>(null);
     const [endDate, setEndDate] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const { institutionId } = useInstitutionId();
     const [isAbsentChosen, setIsAbsentChosen] = useState(true);
     const [absences, setAbsences] = useState<{ [date: string]: any }>({});
     const { user } = useAuth();
-
+    const [selectedPresentatorId, setSelectedPresentatorId] = useState<string | null>(null);
     const [markedDates, setMarkedDates] = useState<{ [date: string]: any }>({});
+    const [placeholder, setPlaceholder] = useState<string>('Válassz előadót');
 
-
-    const { data, isLoading, isError } = useQuery({
+    const { data, isLoading, error } = useQuery({
         queryKey: ['absences', institutionId],
         queryFn: async () => {
-            console.log("url", `${BASE_URL}/${institutionId}/presentators/${user?.institutions[0].presentatorId}/substitutions`)
-            const response: Promise<Date = await fetch(`${BASE_URL}/${institutionId}/presentators/${user?.institutions[0].presentatorId}/substitutions`, {
+            console.log("url", `${BASE_URL}/${institutionId}/presenttors/${user?.institutions[0].presentatorId}/substitutions`)
+            const response = await fetch(`${BASE_URL}/${institutionId}/presentators/${user?.institutions[0].presentatorId}/substitutions`, {
                 headers: {
                     'Content-Type': 'application/json',
                     "Authorization": `Bearer ${user?.token}`
@@ -62,7 +63,7 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
         },
         enabled: !!visible,
     });
-
+    console.log("error", error)
     //console.log("data", data)
     //console.log("usertoken", user?.token)
     // Process absences from the API data
@@ -194,37 +195,62 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
     }, [startDate, endDate, theme.colors.primary]);
     const presentatorId = user?.institutions.find((institution) => institution.institutionId === institutionId)?.presentatorId;
     const queryClient = useQueryClient();
-    const handleConfirm = async () => {
-        try {
-            setError(null);
-            setSuccess(null);
-            const body = JSON.stringify({ from: startDate, to: endDate, isSubstituted: isAbsentChosen });
-            console.log("body", body);
+
+    const { mutate, isPending: isMutationLoading, error: mutationError } = useMutation({
+        mutationFn: async (variables: { startDate: string, endDate: string, isAbsentChosen: boolean }) => {
+            const { startDate, endDate, isAbsentChosen } = variables;
+            console.log("hello")
+            //console.log("body", JSON.stringify({ from: startDate, to: endDate, isSubstituted: isAbsentChosen }))
             const response = await fetch(
-                `${BASE_URL}/${institutionId}/presentators/${presentatorId}/substitute`,
+                `${BASE_URL}/${institutionId}/presentators/${presentatorId || selectedPresentatorId}/substitute`,
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        "Authorization": `Bearer ${user?.token}`
+                        'Authorization': `Bearer ${user?.token}`,
                     },
-
                     method: 'PATCH',
                     body: JSON.stringify({ from: startDate, to: endDate, isSubstituted: isAbsentChosen })
                 }
             );
+            console.log("responseText", await response.text())
             if (!response.ok) {
-                console.log(await response.text())
+
+
+                if (response.status === 400) throw new Error('Hibás kérés. Ellenőrizd a dátumokat!');
+                if (response.status === 404) throw new Error('Az adott időszakban nincsen órád.');
                 throw new Error(isAbsentChosen ? 'Hiba történt a hiányzás bejelentése során.'
                     : 'Hiba történt a jelenlét bejelentése során.');
             }
+            //console.log(await response.json())
+        },
+        onSuccess: () => {
             setSuccess('Az adatok mentése sikeres volt.');
             queryClient.invalidateQueries({ queryKey: ['timetable'] });
             queryClient.invalidateQueries({ queryKey: ['absences'] });
             onClose();
-        } catch (error: any) {
-            setError(error.message);
+        },
+        onError: (error) => {
+            console.log("error", error)
+            setErrorMessage(error.message);
         }
-    };
+    });
+
+    const { data: presentators, isLoading: presentatorsLoading, error: presentatorsError } = useQuery({
+        queryKey: ['presentators', institutionId],
+        queryFn: async () => {
+            const response = await fetch(`${BASE_URL}/${institutionId}/presentators`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${user?.token}`
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Hiba történt az előadók lekérése során.');
+            }
+            return response.json();
+        },
+        enabled: !!visible,
+    });
 
     const onClose = () => {
         onDismiss();
@@ -232,6 +258,7 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
         setStartDate(null);
         setEndDate(null);
         setIsAbsentChosen(true);
+        queryClient.invalidateQueries({ queryKey: ['absences', institutionId] });
     }
 
     const handleViewChange = () => {
@@ -243,7 +270,18 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
         }
     }
 
+    const selectPresentator = (id: string, name: string) => {
+        setSelectedPresentatorId(id);
+        setPlaceholder(name);
+    }
+
+    const handleConfirm = () => {
+        if (startDate && endDate) {
+            mutate({ startDate, endDate, isAbsentChosen });
+        }
+    };
     return (
+
 
         <Portal>
             <Modal
@@ -252,11 +290,13 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                 contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
                 dismissable={true}
             >
-                {isLoading ? <LoadingSpinner /> :
-                    <><ViewToggle
-                        leftText='Hiányzás'
-                        rightText='Jelenlét'
-                        onViewChange={handleViewChange} /><View style={[styles.dateDisplayContainer, { backgroundColor: theme.colors.surface }]}>
+                {isLoading || isMutationLoading ? <LoadingSpinner /> :
+                    <>
+                        <DropdownComponent onSelect={(item) => selectPresentator(item.id, item.name)} placeholder={placeholder} data={presentators} />
+                        <ViewToggle
+                            leftText='Hiányzás'
+                            rightText='Jelenlét'
+                            onViewChange={handleViewChange} /><View style={[styles.dateDisplayContainer, { backgroundColor: theme.colors.surface }]}>
                             <View style={styles.dateDisplay}>
                                 <Text variant="labelMedium">Kezdő dátum</Text>
                                 <Text variant="titleMedium">{formatDisplayDate(startDate)}</Text>
@@ -300,14 +340,14 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                         </View></>
 
                 }
+                {mutationError && <StatusMessage type={"error"} message={mutationError.message} />}
             </Modal>
-            {error && <StatusMessage type={"error"} message={error} />}
+            {errorMessage && <StatusMessage type={"error"} message={errorMessage} />}
             {success && <StatusMessage type={"success"} message={success} />}
         </Portal>
 
     );
 };
-
 export default AbsentModal;
 
 const styles = StyleSheet.create({
@@ -351,4 +391,4 @@ const styles = StyleSheet.create({
     toText: {
         color: '#757575',
     }
-});
+})

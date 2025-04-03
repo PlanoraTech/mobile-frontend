@@ -1,10 +1,8 @@
-# Expo App Setup Guide
-
-This guide will walk you through setting up and running the Expo app locally.
+# Setup
 
 ## Prerequisites
 
-1. **Node.js and npm**: Ensure that Node.js and npm are installed on your machine. You can download them [here](https://nodejs.org/).
+1. **Node.js** (version 22 or higher): Ensure that Node.js and npm are installed on your machine. You can download them [here](https://nodejs.org/).
 2. **Expo Go App**: Install the **Expo Go** app on your mobile device:
    - [Google Play Store (Android)](https://play.google.com/store/apps/details?id=host.exp.exponent)
    - [Apple App Store (iOS)](https://apps.apple.com/app/expo-go/id982107779)
@@ -23,7 +21,7 @@ cd <project-directory>
 ### 2. Install Dependencies
 Install the required dependencies:
 ```bash
-npm install
+npm i
 ```
 
 ### 3. Configure the Base URL

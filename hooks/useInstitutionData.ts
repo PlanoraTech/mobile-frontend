@@ -1,101 +1,100 @@
-
 import { BASE_URL } from '@/constants';
-import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthProvider';
 import { DropdownItem } from '@/components/Dropdown';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
-import { DayEvent } from '@/components/EventModal';
-
+import { DayEvent } from '@/components/EventCard';
+import { useQueries, RefetchOptions } from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface InstitutionData {
-    institution: DropdownItem | null;
+    id: string;
+    name: string;
     timetables: DropdownItem[];
     presentators: DropdownItem[];
     rooms: DropdownItem[];
     events: DayEvent[];
 }
 
-interface LoadingState {
-    institution: boolean;
-    timetables: boolean;
-    presentators: boolean;
-    rooms: boolean;
-    events: boolean;
+const clearSelectedInstitutionId = () => {
+    const { setInstitutionId } = useInstitutionId();
+    setInstitutionId("");
+    AsyncStorage.removeItem('selectedInstitutionId')
+        .then(() => console.log('Selected institution ID cleared'))
+        .catch(error => console.error('Error clearing selected institution ID:', error));
 }
 
+const fetchData = async (endpoint: string, id: string, token: string) => {
+    const response = await fetch(`${BASE_URL}/${id}${endpoint}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    if (response.status === 403) {
+        throw new Error(`Nincs jogosultságod az intézmény adatainak lekéréséhez!`);
+    }
+    if (!response.ok) {
+        throw new Error(`Nem sikerült lekérni az intézmény adatait!`);
+    }
+    return await response.json();
+};
+
 export const useInstitutionData = () => {
-    const { user } = useAuth();
     const { institutionId } = useInstitutionId();
-    const [data, setData] = useState<InstitutionData>({
+    const { user } = useAuth();
+    const token = user?.token || '';
 
-        institution: null,
-        timetables: [],
-        presentators: [],
-        rooms: [],
-        events: []
+    const results = useQueries({
+        queries: [
+            {
+                queryKey: ['institution', institutionId],
+                queryFn: () => fetchData("", institutionId, token),
+                enabled: !!institutionId
+            },
+            {
+                queryKey: ['timetables', institutionId],
+                queryFn: () => fetchData("/timetables", institutionId, token),
+                enabled: !!institutionId
+            },
+            {
+                queryKey: ['presentators', institutionId],
+                queryFn: () => fetchData("/presentators", institutionId, token),
+                enabled: !!institutionId
+            },
+            {
+                queryKey: ['rooms', institutionId],
+                queryFn: () => fetchData("/rooms", institutionId, token),
+                enabled: !!institutionId
+            },
+            {
+                queryKey: ['events', institutionId],
+                queryFn: () => fetchData("/events", institutionId, token),
+                enabled: !!institutionId,
+            },
+        ],
     });
 
-    const [loading, setLoading] = useState<LoadingState>({
-        institution: false,
-        timetables: false,
-        presentators: false,
-        rooms: false,
-        events: false
-    });
+    const isLoading = results.some(result => result.isLoading);
 
-    const [error, setError] = useState<string | null>(null);
+    const errors = results.map(result => result.error).filter(Boolean);
+    const error = errors.length > 0 ? errors[0] : null;
 
-    const fetchData = async (endpoint: string, dataKey: keyof InstitutionData, loadingKey: keyof LoadingState) => {
-        try {
-            setError(null);
-            setLoading(prev => ({ ...prev, [loadingKey]: true }));
+    error && clearSelectedInstitutionId();
 
-            const response = await fetch(`${BASE_URL}/${institutionId}${endpoint}/?token=${user?.token}`);
-            if (response.status === 403) {
-                throw new Error(`Nincs jogosultságod az intézmény adatainak lekéréséhez!`);
-            }
-            if (!response.ok) {
-                throw new Error(`Nem sikerült lekérni az intézmény adatait!`);
-            }
-            const result = await response.json();
-            setData(prev => ({ ...prev, [dataKey]: result }));
+    const [
+        institutionResult,
+        timetablesResult,
+        presentatorsResult,
+        roomsResult,
+        eventsResult
+    ] = results;
 
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Valami hiba történt...');
-        } finally {
-            setLoading(prev => ({ ...prev, [loadingKey]: false }));
-        }
-    };
-
-    const fetchEvents = async () => {
-          setLoading(prev => ({ ...prev, events: true}));
-          try {
-            const response = await fetch(`${BASE_URL}/${institutionId}/timetables/?token=${user?.token}`);
-            if (!response.ok) {
-              throw new Error('Hiba az események betöltése során.');
-            }
-            const data = await response.json();
-            setData(prev => ({...prev, events:  data.events || []}));
-          } catch (error: any) {
-            console.error(error.message);
-            setError('Hiba az események betöltése során. Kérjük próbáld újra később.');
-          } finally {
-            setLoading(prev => ({ ...prev, events: false}));
-          }
-        
-      };
-
-    useEffect(() => {
-        if (institutionId) {
-            Promise.all([
-                fetchData('', 'institution', 'institution'),
-                fetchData('/timetables', 'timetables', 'timetables'),
-                fetchData('/presentators', 'presentators', 'presentators'),
-                fetchData('/rooms', 'rooms', 'rooms'),
-                fetchEvents()
-            ]);
-        }
-    }, [institutionId]);
-
-    return { data, loading, error };
+    const institution: InstitutionData | null = !isLoading && !error ? {
+        id: institutionId,
+        name: institutionResult.data?.name || '',
+        timetables: timetablesResult.data || [],
+        presentators: presentatorsResult.data || [],
+        rooms: roomsResult.data || [],
+        events: eventsResult.data || []
+    } : null;
+    return { institution, isLoading, error };
 };

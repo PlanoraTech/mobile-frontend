@@ -19,6 +19,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Institution } from '@/components/Dropdown';
 import ProfileSection from '@/components/ProfileSection';
 import { isSubscribedToNotifications, registerForPushNotifications, unsubscribeFromPushNotifications } from '@/utils/notificationUtil';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
@@ -52,7 +53,9 @@ const ProfileScreen = () => {
     const { data } = useQuery({ queryKey: ['institution', institutionId], queryFn: getInstitution });
 
     const role = useMemo(() => {
-        return user?.institutions.find((inst) => inst.institutionId === institutionId)?.role
+        if (!user) return null;
+        if (!user.institutions) return null;
+        return user.institutions.find((inst) => inst.institutionId === institutionId)?.role
     }, [user, institutionId]);
 
     const toggleNotifications = async () => {

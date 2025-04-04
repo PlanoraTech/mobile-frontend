@@ -3,15 +3,12 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { BASE_URL_AUTH } from '@/constants';
-
 export async function registerForPushNotifications(userToken: string): Promise<boolean> {
     if (!Device.isDevice) {
-        console.log("Push notifications are only available on physical devices");
         return false;
     }
 
     try {
-
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
         let finalStatus = existingStatus;
 
@@ -21,15 +18,16 @@ export async function registerForPushNotifications(userToken: string): Promise<b
         }
 
         if (finalStatus !== "granted") {
-            console.log("Permission not granted for push notifications");
             return false;
         }
-
 
         const token = await Notifications.getExpoPushTokenAsync({
             projectId: Constants.expoConfig?.extra?.eas.projectId,
         });
 
+
+        const tokenIdMatch = token.data.match(/\[(.*?)\]/);
+        const tokenId = tokenIdMatch ? tokenIdMatch[1] : token.data;
 
         if (Platform.OS === "android") {
             Notifications.setNotificationChannelAsync("default", {
@@ -40,20 +38,22 @@ export async function registerForPushNotifications(userToken: string): Promise<b
             });
         }
 
-
-        const response = await fetch(`${BASE_URL_AUTH}/notifications/register-token/?token=${userToken}`, {
+        const response = await fetch(`${BASE_URL_AUTH}/notifications`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${userToken}`
+                "Authorization": `Bearer ${userToken}`,
             },
             body: JSON.stringify({
-                token: token.data,
+                expoPushToken: tokenId,
             }),
         });
 
+        console.log("Extracted token ID:", tokenId);
+        const responseText = await response.text();
+        console.log("Response from server:", responseText);
+
         if (!response.ok) {
-            console.error("Failed to register token on server");
             return false;
         }
 
@@ -63,10 +63,10 @@ export async function registerForPushNotifications(userToken: string): Promise<b
         return false;
     }
 }
+
 export async function unsubscribeFromPushNotifications(userToken: string): Promise<boolean> {
 
     if (!Device.isDevice) {
-        console.log("Push notifications are only available on physical devices");
         return false;
     }
 
@@ -74,16 +74,13 @@ export async function unsubscribeFromPushNotifications(userToken: string): Promi
 
         const currentPermission = await Notifications.getPermissionsAsync();
 
-
         if (currentPermission.status !== "granted") {
-            console.log("No push notification permissions to revoke");
             return true;
         }
 
         const token = await Notifications.getExpoPushTokenAsync({
             projectId: Constants.expoConfig?.extra?.eas.projectId,
         });
-
 
         const response = await fetch(`${BASE_URL_AUTH}/notifications/delete-token/?token=${userToken}`, {
             method: "DELETE",
@@ -97,10 +94,8 @@ export async function unsubscribeFromPushNotifications(userToken: string): Promi
         });
 
         if (!response.ok) {
-            console.error("Failed to unregister push token on server");
             return false;
         }
-
 
         if (Platform.OS === "ios") {
             alert("Please disable notifications for this app in your iOS Settings");
@@ -110,7 +105,6 @@ export async function unsubscribeFromPushNotifications(userToken: string): Promi
             await Notifications.deleteNotificationChannelAsync("default");
         }
 
-        console.log("Successfully unsubscribed from push notifications");
         return true;
 
     } catch (error) {
@@ -142,8 +136,6 @@ export const isSubscribedToNotifications = async (userToken: string): Promise<bo
         console.error("Error checking token on server:", error);
     }
     return false;
-
-
 };
 
 export const getCurrentNotificationPermission = async () => {

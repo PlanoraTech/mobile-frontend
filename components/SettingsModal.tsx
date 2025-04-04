@@ -26,24 +26,17 @@ import Animated, {
 import { SegmentedButtons, useTheme } from 'react-native-paper';
 import ModalHeader from './ModalHeader';
 import { TAB_CONFIG } from '@/constants';
+import { InstitutionData } from '@/hooks/useInstitutionData';
+import { useTimetable } from '@/contexts/TimetableProvider';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface SettingsModalProps {
     visible: boolean;
     onClose: () => void;
-    loading: {
-        timetables: boolean;
-        presentators: boolean;
-        rooms: boolean;
-    };
+    loading: boolean;
     institutions: DropdownItem[];
-    data: {
-        institution: DropdownItem | null;
-        timetables: DropdownItem[];
-        presentators: DropdownItem[];
-        rooms: DropdownItem[];
-    };
-    onSelect: (item: DropdownItem, type: string) => void;
-    onInstChange: () => void;
+    institution: InstitutionData | null;
+    onSelect: () => void;
 }
 
 export const SettingsModal = ({
@@ -51,14 +44,13 @@ export const SettingsModal = ({
     onClose,
     institutions,
     loading,
-    data,
+    institution,
     onSelect,
-    onInstChange
 }: SettingsModalProps) => {
     const theme = useTheme();
     const { user } = useAuth();
-    const { setInstitutionId } = useInstitutionId();
-
+    const { institutionId, setInstitutionId } = useInstitutionId();
+    const { setTimetableSelection } = useTimetable();
     const slideAnim = useSharedValue(-1000);
     const fadeAnim = useSharedValue(0);
     const displayValue = useSharedValue(0);
@@ -82,8 +74,11 @@ export const SettingsModal = ({
         },
     }));
 
+    const queryClient = useQueryClient();
     const handleDropdownSelect = (item: DropdownItem, type: string) => {
-        onSelect(item, type);
+        queryClient.invalidateQueries({ queryKey: ['timetable'] });
+        onSelect();
+        setTimetableSelection(type.toLowerCase(), item.id);
         setSelectedPlaceholder({
             ...selectedPlaceholder,
             [currentBtnIndex]: item.name,
@@ -155,13 +150,12 @@ export const SettingsModal = ({
         }
     }, [visible, runOpenAnimation, runCloseAnimation]);
 
-    const handleClose = useCallback(() => {
+    const handleClose = () => {
         runCloseAnimation(() => {
             onClose();
         });
-    }, [runCloseAnimation, onClose]);
-
-    const handleInstSelect = useCallback((item: DropdownItem) => {
+    }
+    const handleInstSelect = (item: DropdownItem) => {
         const isUserLoggedIn = () => !!user;
 
         const hasInstitutionAccess = (institutionId: string) => {
@@ -200,17 +194,22 @@ export const SettingsModal = ({
             return;
         }
 
-        AsyncStorage.removeItem('timetable');
-        saveId('institution', item.id);
-        setInstitutionId(item.id);
-        onInstChange();
-    }, [user, handleClose, setInstitutionId, onInstChange]);
 
-    const orderedInstitutions = useMemo(() =>
-        [...institutions].sort((a) =>
+        if (item.id !== institutionId) {
+            saveId('institution', item.id);
+            AsyncStorage.removeItem('timetable');
+            setInstitutionId(item.id);
+            setTimetableSelection(TAB_CONFIG[currentBtnIndex].value.toLowerCase(), '');
+        }
+    }
+
+    const orderedInstitutions = useMemo(() => {
+        if (!institutions) return [];
+        return [...institutions].sort((a) =>
             user?.institutions.some((inst: { institutionId: string }) => inst.institutionId === a.id) ? -1 : 1
-        ),
-        [institutions, user?.institutions]
+        );
+
+    }, [institutions, user?.institutions]
     );
 
 
@@ -220,80 +219,68 @@ export const SettingsModal = ({
 
     const renderTabContent = () => {
         const currentTab = TAB_CONFIG[currentBtnIndex];
-        const loadingMap = {
-            presentators: loading.presentators,
-            timetables: loading.timetables,
-            rooms: loading.rooms
-        };
 
         const dataMap = {
-            presentators: data.presentators,
-            timetables: data.timetables,
-            rooms: data.rooms
+            presentators: institution?.presentators,
+            timetables: institution?.timetables,
+            rooms: institution?.rooms
         };
 
-        const isLoading = loadingMap[currentTab.loadingKey as keyof typeof loadingMap] ?? false;
         const itemsData = dataMap[currentTab.dataKey as keyof typeof dataMap] ?? [];
         const placeholderText = selectedPlaceholder[currentBtnIndex] || currentTab.placeholder;
         return (
             <View style={styles.card}>
-                {isLoading ? (
-                    <LoadingSpinner />
-                ) : (
-                    <DropdownComponent
-                        data={itemsData}
-                        placeholder={placeholderText}
-                        searchPlaceholder={currentTab.searchPlaceholder}
-                        onSelect={(item) => handleDropdownSelect(item, currentTab.type)}
-                    />
-                )}
+                <DropdownComponent
+                    data={itemsData}
+                    placeholder={placeholderText}
+                    searchPlaceholder={currentTab.searchPlaceholder}
+                    onSelect={(item) => handleDropdownSelect(item, currentTab.type)}
+                />
             </View>
         );
     };
 
     return (
-        <>
-            <Animated.View style={fadeAnimStyle}>
-                <TouchableOpacity
-                    testID="settings-modal"
-                    onPress={handleClose}
-                    activeOpacity={1}
-                    style={styles.modalContainer}
-                >
-                    <TouchableWithoutFeedback>
-                        <Animated.View
-                            style={[
-                                styles.modalContent,
-                                { backgroundColor: theme.colors.surface },
-                                slideAnimStyle,
-                            ]}
-                        >
-                            <ModalHeader title="Beállítások" handleClose={handleClose} />
-
-                            <ScrollView>
-                                <DropdownComponent
-                                    data={orderedInstitutions}
-                                    placeholder={data.institution?.name || "Intézmény kiválasztása"}
-                                    searchPlaceholder="Intézmény keresése..."
-                                    onSelect={handleInstSelect}
-                                />
-
-                                <View style={styles.dropdownContainer}>
-                                    <SegmentedButtons
-                                        value={String(currentBtnIndex)}
-                                        onValueChange={(value) => setCurrentBtnIndex(Number(value))}
-                                        density="regular"
-                                        buttons={segmentedButtonOptions}
+        <Animated.View style={fadeAnimStyle}>
+            <TouchableOpacity
+                testID="settings-modal"
+                onPress={handleClose}
+                activeOpacity={1}
+                style={styles.modalContainer}
+            >
+                <TouchableWithoutFeedback>
+                    <Animated.View
+                        style={[
+                            styles.modalContent,
+                            { backgroundColor: theme.colors.surface },
+                            slideAnimStyle,
+                        ]}
+                    >
+                        <ModalHeader title="Beállítások" handleClose={handleClose} />
+                        {loading ? (<LoadingSpinner />)
+                            : (
+                                <ScrollView>
+                                    <DropdownComponent
+                                        data={orderedInstitutions}
+                                        placeholder={institution?.name || "Intézmény kiválasztása"}
+                                        searchPlaceholder="Intézmény keresése..."
+                                        onSelect={handleInstSelect}
                                     />
-                                    {renderTabContent()}
-                                </View>
-                            </ScrollView>
-                        </Animated.View>
-                    </TouchableWithoutFeedback>
-                </TouchableOpacity>
-            </Animated.View>
 
-            {/* Error Message */}
+                                    <View style={styles.dropdownContainer}>
+                                        <SegmentedButtons
+                                            value={String(currentBtnIndex)}
+                                            onValueChange={(value) => setCurrentBtnIndex(Number(value))}
+                                            density="regular"
+                                            buttons={segmentedButtonOptions}
+                                        />
+                                        {renderTabContent()}
+                                    </View>
+                                </ScrollView>
+                            )}
+                    </Animated.View>
+                </TouchableWithoutFeedback>
+            </TouchableOpacity>
             {errorMessage && (
                 <StatusMessage
                     message={errorMessage}
@@ -301,7 +288,7 @@ export const SettingsModal = ({
                     type="error"
                 />
             )}
-        </>
+        </Animated.View>
     );
 };
 

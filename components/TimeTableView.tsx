@@ -1,21 +1,21 @@
 import { DAYS, SCREEN_WIDTH } from "@/constants";
 import { Appointment } from "@/components/AppointmentCard";
-import { DayEvent } from "@/components/EventModal";
-import React, { RefObject, useEffect, useState } from "react";
-import { FlatList, View, StyleSheet, ScrollView, Text, Pressable } from "react-native";
+import { DayEvent } from "@/components/EventCard";
+import React, { RefObject, useState } from "react";
+import { FlatList, View, StyleSheet, Text } from "react-native";
 import AppointmentCard from "@/components/AppointmentCard";
 import { DayTab } from "./DayTab";
 import { WeekNavigation } from "./WeekNavigation";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
-import { EventCard } from "./EventCard";
+import EventCard from "./EventCard";
 import { AddEventCard } from "./AddEventCard";
 import { useAuth } from "@/contexts/AuthProvider";
 import { getCurrentWeekDates, isSameDayUTC } from "@/utils/dateUtils";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
 interface TimetableViewProps {
-  appointments: Appointment[];
   onDayChange: (index: number) => void;
+  appointments: Appointment[];
   onScrolltoIndexEnd: () => void;
   events: DayEvent[];
   cardsListRef: RefObject<FlatList>;
@@ -25,17 +25,18 @@ interface TimetableViewProps {
 }
 
 export const TimetableView = ({
-  appointments,
   goalDayIndex,
   onDayChange,
   onScrolltoIndexEnd,
   cardsListRef,
   showedList,
   events,
-  handleViewableItemsChanged
+  handleViewableItemsChanged,
+  appointments,
 }: TimetableViewProps) => {
-  console.log("appointments", appointments);
+
   const { theme } = useTheme();
+
   const { user } = useAuth();
   const themeStyle = getThemeStyles(theme);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -50,6 +51,7 @@ export const TimetableView = ({
 
   const renderDayPage = ({ index }: { index: number }) => {
     const currentDayDate = weekDates[index];
+
     const dayAppointments = appointments.filter(appointment => {
       const appointmentDate = new Date(appointment.start);
 
@@ -78,6 +80,16 @@ export const TimetableView = ({
             )}
             showsVerticalScrollIndicator={false}
             scrollEnabled
+            removeClippedSubviews
+            getItemLayout={(_data: any, index: number) => (
+              { length: 120, offset: 120 * index, index }
+            )}
+            windowSize={5}
+            maxToRenderPerBatch={5}
+            initialNumToRender={4}
+            ListFooterComponent={() => (
+              <View style={{ height: 5 }} />
+            )}
           />
 
         )}
@@ -92,13 +104,14 @@ export const TimetableView = ({
       const eventDate = new Date(event.date);
       return isSameDayUTC(eventDate, currentDayDate);
     });
+    const today = new Date();
 
     return (
       <View
         style={styles.dayPage}
       >
         {dayEvents.length === 0 ? (
-          isDirector ? (
+          currentDayDate >= today && isDirector ? (
             <AddEventCard currentDayDate={currentDayDate} />
           ) : (
             <View style={[styles.notFoundContainer, themeStyle.background]}>
@@ -109,7 +122,7 @@ export const TimetableView = ({
           )
         )
           : (
-            <ScrollView>
+            <>
               <FlatList
                 data={dayEvents}
                 keyExtractor={(event) => event.id!}
@@ -117,10 +130,12 @@ export const TimetableView = ({
                   <EventCard event={item} />
                 )}
                 showsVerticalScrollIndicator={false}
-                scrollEnabled={false}
+                scrollEnabled
+
               />
-              {isDirector && <AddEventCard currentDayDate={currentDayDate} />}
-            </ScrollView>
+              {isDirector && currentDayDate >= today && <AddEventCard currentDayDate={currentDayDate} />}
+            </>
+
           )}
       </View>
     );

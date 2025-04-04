@@ -2,10 +2,12 @@ import { BASE_URL } from "@/constants";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
 import { useState } from "react";
-import { Text, TextInput, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { Button, Modal, Portal, useTheme, IconButton } from "react-native-paper";
 import { StatusMessage } from "./StatusMessage";
 import { AuthInput } from "./AuthInput";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface AddEventModalProps {
     isVisible: boolean;
@@ -19,48 +21,46 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
     const { user } = useAuth();
     const { institutionId } = useInstitutionId();
     const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
+    const queryClient = useQueryClient();
 
-    const handleAdd = async () => {
-        if (!newTitle) {
-            return;
-        }
-
-        try {
-            setError("");
-            setSuccess("");
-
-            const newEvent = {
-                title: newTitle,
-                date: currentDayDate,
-            }
-
-            console.log(`url: ${BASE_URL}/${institutionId}/events`);
-
-            const response = await fetch(`${BASE_URL}/${institutionId}/events/?token=${user?.token}`, {
+    const addEventMutation = useMutation({
+        mutationFn: async () => {
+            const newEvent = { title: newTitle, date: currentDayDate };
+            const response = await fetch(`${BASE_URL}/${institutionId}/events`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${user?.token}`,
                 },
                 body: JSON.stringify(newEvent),
             });
 
-            console.log('newEvent', JSON.stringify(newEvent));
-            console.log('response', response.status);
-            console.log('response', await response.text());
-
             if (response.status === 401 || response.status === 403) {
-                setError("Nincs jogosultságod a művelethez");
-                return;
+                throw new Error("Nincs jogosultságod a művelethez");
             }
-
-            setSuccess("Sikeresen hozzáadva");
+            console.log(await response.text());
+            if (!response.ok) {
+                throw new Error("Nem sikerült hozzáadni az eseményt");
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["events", institutionId] }); // Invalidate events query
+            setNewTitle("");
             onClose();
-        } catch (error: any) {
-            console.error(error);
-            setError("Ismeretlen hiba történt...");
+        },
+        onError: (error: any) => {
+            setError(error.message || "Ismeretlen hiba történt...");
+        },
+    });
+
+    const handleAddEvent = () => {
+        if (newTitle.length < 3) {
+            setError("Az esemény leírásának legalább 3 karakter hosszúnak kell lennie.");
+            return;
         }
+        addEventMutation.mutate();
     }
+
 
     return (
         <Portal>
@@ -72,41 +72,28 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
                     { backgroundColor: theme.colors.surface }
                 ]}
             >
-                <View style={[styles.modalHeader, { borderColor: theme.colors.outline }]}>
-                    <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>
-                        Esemény létrehozása
-                    </Text>
-
-                    <IconButton
-                        icon="close"
-                        size={24}
-                        onPress={onClose}
-                        iconColor={theme.colors.onSurface}
-                    />
-                </View>
-
-                <AuthInput
-                    icon="calendar-outline"
-                    placeholder="Esemény leírása"
-                    value={newTitle}
-                    onChangeText={(text) => setNewTitle(text)}
-                />
-
-                <View style={styles.ButtonsContainer}>
-                    <Button
-                        mode="contained"
-                        onPress={handleAdd}
-                    >
-                        <Text style={styles.saveButtonText}>Hozzáadás</Text>
-                    </Button>
-                </View>
+                {addEventMutation.isPending ? <LoadingSpinner />
+                    :
+                    <><View style={[styles.modalHeader, { borderColor: theme.colors.outline }]}>
+                        <Text style={[styles.modalTitle, { color: theme.colors.onSurface }]}>Esemény létrehozása</Text>
+                        <IconButton icon="close" size={24} onPress={onClose} iconColor={theme.colors.onSurface} />
+                    </View><AuthInput
+                            icon="calendar-outline"
+                            placeholder="Esemény leírása"
+                            value={newTitle}
+                            onChangeText={setNewTitle} />
+                        <View style={styles.ButtonsContainer}>
+                            <Button mode="contained" onPress={handleAddEvent}>
+                                Hozzáadás
+                            </Button>
+                        </View></>
+                }
             </Modal>
 
             {error && <StatusMessage message={error} type="error" />}
-            {success && <StatusMessage message={success} type="success" />}
         </Portal>
     );
-}
+};
 
 const styles = StyleSheet.create({
     modalContent: {
@@ -125,25 +112,9 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
     },
-    closeButton: {
-        padding: 5,
-    },
-    closeButtonText: {
-        fontSize: 18,
-        fontWeight: '600',
-    },
-    input: {
-        padding: 10,
-        borderRadius: 8,
-        marginBottom: 15,
-    },
     ButtonsContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
-    },
-    saveButton: {
-        padding: 10,
-        borderRadius: 8,
     },
     saveButtonText: {
         color: '#fff',

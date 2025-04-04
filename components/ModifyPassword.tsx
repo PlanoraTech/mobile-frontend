@@ -65,10 +65,11 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
             setError('');
             setSuccess('');
 
-            const response = await fetch(`${BASE_URL_AUTH}/profile?token=${user?.token}`, {
+            const response = await fetch(`${BASE_URL_AUTH}/profile`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user?.token}`,
                 },
                 body: JSON.stringify({
                     oldPassword: formData.oldPassword,
@@ -86,6 +87,7 @@ export const ModifyPassword = ({ isVisible, onClose }: ForgotPasswordModalProps)
                     setError("Hibás kérés");
                     return;
                 }
+                setError("Ismeretlen hiba történt...");
             }
 
             setSuccess("Jelszó módosítva");

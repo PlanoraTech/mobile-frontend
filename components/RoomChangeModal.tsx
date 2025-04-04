@@ -6,6 +6,10 @@ import ModalHeader from "./ModalHeader";
 import { StatusMessage } from "./StatusMessage";
 import { BASE_URL } from "@/constants";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
+import { confirmRoomSelection, fetchAvailableRooms } from "@/queryOptions/roomChangeFunctions";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { LoadingSpinner } from "./LoadingSpinner";
+import { useAuth } from "@/contexts/AuthProvider";
 
 interface Props {
     visible: boolean;
@@ -15,36 +19,20 @@ interface Props {
 
 const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
     const theme = useTheme();
+    const { user } = useAuth();
     const { institutionId } = useInstitutionId();
     const [selectedRooms, setSelectedRooms] = useState<DropdownItem[]>(rooms);
     const [availableRooms, setAvailableRooms] = useState<DropdownItem[]>([
-        { id: "1", name: "Room 1" },
-        { id: "2", name: "Room 2" },
-        { id: "3", name: "Room 3" },
-        { id: "4", name: "Room 4" },
-        { id: "5", name: "Room 5" },
-        { id: "6", name: "Room 6" },
-        { id: "7", name: "Room 7" },
-        { id: "8", name: "Room 8" },
-        { id: "9", name: "Room 9" },
-        { id: "10", name: "Room 10" },
-        { id: "11", name: "Room 11" },
-        { id: "12", name: "Room 12" },
-        { id: "13", name: "Room 13" },
-        { id: "14", name: "Room 14" },
-        { id: "15", name: "Room 15" },
-        { id: "16", name: "Room 16" },
+        { id: "", name: "Kérlek várj..." },
+
 
     ]);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
     const handleDelete = (item: DropdownItem) => {
         setSelectedRooms(selectedRooms.filter(r => r.id !== item.id));
         setAvailableRooms([...availableRooms, item]);
     }
 
     const addRoom = (room: DropdownItem) => {
-        console.log(room);
         setSelectedRooms([...selectedRooms, room]);
         setAvailableRooms(availableRooms.filter(r => r.id !== room.id));
     }
@@ -53,59 +41,32 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
         onDismiss();
     }
 
-    const handleConfirm = async () => {
-        try {
-            setError("");
-            setSuccess("");
-            const response = await fetch(`${BASE_URL}/${institutionId}/rooms`, {
-                method: 'POST',
-                body: JSON.stringify(selectedRooms),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+    const queryClient = useQueryClient();
 
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    setError("Nincs jogosultságod a művelethez");
-                }
-                if (response.status === 400) {
-                    setError("Hibás kérés");
-                }
-            }
-            setSuccess("Sikeres művelet");
+    const { data: fetchedRooms = [], error, isSuccess, isLoading } = useQuery({
+        queryKey: ['availableRooms', institutionId],
+        queryFn: () => fetchAvailableRooms(institutionId, user?.token!),
+        enabled: visible,
+    });
+
+    const { mutate, isPending, error: confirmError } = useMutation({
+        mutationFn: () => confirmRoomSelection(institutionId, selectedRooms, user?.token!),
+        onSuccess: () => {
             handleClose();
-        } catch (error: any) {
-            console.error(error.message);
-            setError("Ismeretlen hiba történt...");
-        }
-    }
+            queryClient.invalidateQueries({ queryKey: ['availableRooms'] });
+        },
+    });
 
     useEffect(() => {
-        const fetchAvailableRooms = async () => {
-            setSelectedRooms(rooms);
-            setError("");
-            try {
-                const response = await fetch(`${BASE_URL}/${institutionId}/rooms/available`);
-
-                if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        setError("Nincs jogosultságod a lekéréshez");
-                        return;
-                    }
-                    console.error("Unexpected response:", response);
-                    throw new Error();
-                }
-                const data = await response.json();
-                setAvailableRooms(data);
-            } catch (error: any) {
-                setError("Ismeretlen hiba történt...");
-            }
-        }
         if (visible) {
-            fetchAvailableRooms();
+            setSelectedRooms(rooms);
         }
-    }, [visible]);
+    }, [visible, rooms]);
+
+    const handleConfirm = () => {
+        mutate
+    };
+
 
     return (
         <Portal>
@@ -120,28 +81,34 @@ const roomChangeModal = ({ rooms, visible, onDismiss }: Props) => {
                     }
                 ]}
             >
-                <ModalHeader title="Termek" handleClose={handleClose} />
-                <FlatList
-                    data={selectedRooms}
-                    ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-                    renderItem={({ item }) =>
-                        <Chip onClose={() => handleDelete(item)} closeIcon={"close"} mode="outlined">{item.name}</Chip>
-                    }
-                    keyExtractor={(item) => item.id}
-                    style={{ marginBottom: 20 }}
-                />
-                <DropdownComponent onSelect={addRoom} data={availableRooms} placeholder="Terem hozzáadása" />
-                <View style={styles.buttonsContainer}>
-                    <Button mode="contained" onPress={handleClose}>
-                        Mégse
-                    </Button>
-                    <Button mode="contained" onPress={handleConfirm}>
-                        Megerősítés
-                    </Button>
-                </View>
+                {isPending || isLoading ? LoadingSpinner()
+                    :
+                    <>
+                        <ModalHeader title="Termek" handleClose={handleClose} />
+                        <FlatList
+                            data={selectedRooms}
+                            ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                            renderItem={({ item }) =>
+                                <Chip onClose={() => handleDelete(item)} closeIcon={"close"} mode="outlined">{item.name}</Chip>
+                            }
+                            keyExtractor={(item) => item.id}
+                            style={{ marginBottom: 20 }}
+                        />
+                        <DropdownComponent onSelect={addRoom} data={availableRooms} placeholder="Terem hozzáadása" />
+                        <View style={styles.buttonsContainer}>
+                            <Button mode="contained" onPress={handleClose}>
+                                Mégse
+                            </Button>
+                            <Button mode="contained" onPress={handleConfirm}>
+                                Megerősítés
+                            </Button>
+                        </View>
+                    </>
+                }
             </Modal>
-            {error && <StatusMessage message={error} type="error" />}
-            {success && <StatusMessage message={success} type="success" />}
+            {error && <StatusMessage message={error.message} type="error" />}
+            {confirmError && <StatusMessage message={confirmError.message} type="error" />}
+            {isSuccess && <StatusMessage message={"Sikeres módosítás!"} type="success" />}
         </Portal>
 
     );

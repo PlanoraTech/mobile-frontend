@@ -1,13 +1,15 @@
 import { BASE_URL } from "@/constants";
+import { SelectedTimetable } from "@/contexts/TimetableProvider";
 
-export const fetchAvailableRooms = async (institutionId: string, token: string | undefined) => {
-    const response = await fetch(`${BASE_URL}/${institutionId}/rooms/available`, {
+ 
+
+export const fetchAvailableRooms = async (institutionId: string, token: string | undefined, appointmentId: string, selectedTimetable: SelectedTimetable) => {
+    const response = await fetch(`${BASE_URL}/${institutionId}/${selectedTimetable.selectedView}/${selectedTimetable.selectedId}/appointments/${appointmentId}/rooms/available`, {
         headers: {
             'Authorization': `Bearer ${token}`,
         }
     }
     );
-    console.log(await response.text());
     if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
             throw new Error("Nincs jogosultságod a lekéréshez");
@@ -18,16 +20,16 @@ export const fetchAvailableRooms = async (institutionId: string, token: string |
     return response.json();
 };
 
-export const confirmRoomSelection = async (institutionId: string, selectedRooms: any, token: string) => {
-    const response = await fetch(`${BASE_URL}/${institutionId}/rooms`, {
-        method: 'POST',
+export const confirmRoomSelection = async (institutionId: string, selectedRooms: any, token: string, appointmentId: string, selectedTimetable: SelectedTimetable) => {
+    const response = await fetch(`${BASE_URL}/${institutionId}/${selectedTimetable.selectedView}/${selectedTimetable.selectedId}/appointments/${appointmentId}/rooms`, {
+        method: 'PATCH',
         body: JSON.stringify(selectedRooms),
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         }
     });
-
+    console.log("response", await response.text());
     if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
             throw new Error("Nincs jogosultságod a művelethez");
@@ -37,6 +39,4 @@ export const confirmRoomSelection = async (institutionId: string, selectedRooms:
         }
         throw new Error("Ismeretlen hiba történt...");
     }
-
-    return response.json();
 };

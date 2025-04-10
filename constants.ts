@@ -47,7 +47,7 @@ export const TAB_CONFIG = [
     label: 'Órarend',
     accessibilityLabel: 'Órarend',
     icon: 'calendar',
-    type: 'timetable',
+    type: 'timetables',
     placeholder: 'Válassz órarendet',
     searchPlaceholder: 'Órarend keresése...',
     loadingKey: 'timetable',

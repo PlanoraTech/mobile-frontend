@@ -164,7 +164,7 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
         }
 
         const endpoints = {
-            timetable: `/timetables/${timetable.selectedId}/appointments`,
+            timetables: `/timetables/${timetable.selectedId}/appointments`,
             presentators: `/presentators/${timetable.selectedId}/appointments`,
             rooms: `/rooms/${timetable.selectedId}/appointments`,
         };

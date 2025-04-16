@@ -1,43 +1,10 @@
-# Planora Mobile Application
+![Image](https://github.com/PlanoraTech/other-important-files/blob/9f8744e572874a421c6820d62750ddc49fd4d72a/planora-logo-white-github.png)
+# Planora
+This repository contains the mobile front of **Planora**, a comprehensive all-in-one institution management system.
 
-<div align="center">
-  <img src="./assets/images/planora-logo.svg" alt="Planora Logo" width="200" />
-</div>
+## Setup
 
-## Overview
-
-Planora is a comprehensive timetable and event management mobile application designed for educational institutions. It helps students, teachers, and administrators efficiently manage their schedules, appointments, and events.
-
-## Features
-
-- **Timetable Management**: View and manage class schedules and appointments
-- **Event Planning**: Create and manage events
-- **Room Management**: View and change room assignments
-- **Presenter Management**: Manage class presenters with substitution capabilities
-- **User Authentication**: Secure login and registration system
-- **Profile Management**: User profile customization and preferences
-- **Dark/Light Theme**: Adaptive UI with support for both dark and light themes
-- **Push Notifications**: Get notified about schedule changes and important events
-- **Offline Support**: Basic functionality even without an internet connection
-
-## Tech Stack
-
-- **Framework**: React Native with Expo
-- **Navigation**: Expo Router
-- **State Management**: React Context API
-- **API Requests**: TanStack React Query
-- **UI Components**: React Native Paper
-- **Storage**: AsyncStorage, Expo Secure Store
-- **Date Handling**: date-fns
-- **Testing**: Jest and React Testing Library
-- **Icons**: Expo Vector Icons, Lucide React Native
-- **Animations**: React Native Reanimated
-
-## Screenshots
-
-*[Screenshots will be added here]*
-
-## Prerequisites
+### Prerequisites
 
 - Node.js (>=14.0.0)
 - npm or yarn
@@ -45,7 +12,7 @@ Planora is a comprehensive timetable and event management mobile application des
 - Android Studio (for Android development)
 - Xcode (for iOS development, macOS only)
 
-## Installation
+### Installation
 
 1. Clone the repository:
    ```bash
@@ -119,14 +86,6 @@ eas build -p android
 # Build for iOS
 eas build -p ios
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ---
 

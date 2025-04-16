@@ -1,5 +1,5 @@
 
-import { View, Text, StyleSheet } from "react-native"
+import { Text, StyleSheet } from "react-native"
 import { useTheme, TouchableRipple } from "react-native-paper";
 
 interface Props {

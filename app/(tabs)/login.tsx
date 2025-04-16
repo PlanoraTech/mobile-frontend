@@ -106,9 +106,7 @@ export default function LoginScreen() {
                                 />
                                 <Text style={styles.switchAuthText}>Emlékezz rám</Text>
                             </View>
-                            <Pressable onPress={() => setIsModalVisible(true)}>
-                                <Text style={styles.forgotPassword}>Elfelejtetted a jelszót?</Text>
-                            </Pressable>
+                         
                         </View>
                         {isModalVisible && <ForgotPasswordModal onClose={() => setIsModalVisible(false)} />}
                         <Button style={styles.authButton} mode="contained" onPress={handleLogin}>

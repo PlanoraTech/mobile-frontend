@@ -1,6 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
 import { BASE_URL_AUTH } from '@/constants';
-import { unsubscribeFromPushNotifications } from '@/utils/notificationUtil';
 
 export interface User {
     credentials?: AuthData,
@@ -57,23 +56,29 @@ export class StandardAuthAdapter {
                 if (response.status === 409) {
                     throw new Error('A felhasználó már létezik');
                 }
-
                 if (response.status === 404) {
                     throw new Error('Hibás email cím vagy jelszó');
                 }
-
                 if (response.status === 500) {
                     throw new Error('Szerver hiba. Kérlek próbáld újra később.');
                 }
 
                 throw new Error('Valami hiba történt... Kérlek próbáld újra később.');
             }
+
+            const contentLength = response.headers.get('Content-Length');
+            const contentType = response.headers.get('Content-Type');
+            if (response.status === 204 || contentLength === '0' || !contentType?.includes('application/json')) {
+                return {} as T;
+            }
+
             return await response.json();
         } catch (error: any) {
             console.error('Request error:', error);
             throw new Error(error.message);
         }
     }
+
 
     private async storeAuthToken(token: string): Promise<void> {
         await SecureStore.setItemAsync('auth_tokens', token);
@@ -103,8 +108,12 @@ export class StandardAuthAdapter {
     async logout(): Promise<void> {
         try {
             const token = await SecureStore.getItemAsync('auth_tokens');
-            unsubscribeFromPushNotifications(token!);
+            if (!token) return;
+            await this.makeRequest<any>('/logout', 'POST', undefined, token);
+
+
             await SecureStore.deleteItemAsync('auth_tokens');
+
         } catch (error: any) {
             console.error('Logout error:', error);
             throw new Error(error.message || 'Sikertelen kijelentkezés');

@@ -25,10 +25,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SegmentedButtons, useTheme } from 'react-native-paper';
 import ModalHeader from './ModalHeader';
-import { TAB_CONFIG } from '@/constants';
+import { BASE_URL, TAB_CONFIG } from '@/constants';
 import { InstitutionData } from '@/hooks/useInstitutionData';
 import { useTimetable } from '@/contexts/TimetableProvider';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface SettingsModalProps {
     visible: boolean;
@@ -50,7 +50,7 @@ export const SettingsModal = ({
     const theme = useTheme();
     const { user } = useAuth();
     const { institutionId, setInstitutionId } = useInstitutionId();
-    const { setTimetableSelection } = useTimetable();
+    const { timetable, setTimetableSelection } = useTimetable();
     const slideAnim = useSharedValue(-1000);
     const fadeAnim = useSharedValue(0);
     const displayValue = useSharedValue(0);
@@ -129,6 +129,42 @@ export const SettingsModal = ({
         });
     }, [slideAnim, fadeAnim, displayValue]);
 
+    const { data, isError } = useQuery({
+        queryKey: ['placeholder'],
+        queryFn: async () => {
+            const response = await fetch(`${BASE_URL}/${institutionId}/${timetable.selectedView}/${timetable.selectedId}`, {
+                headers: {
+                    Authorization: `Bearer ${user?.token}`
+                }
+            })
+            return response.json();
+        },
+    });
+
+    useEffect(() => {
+        if (data && !isError) {
+          let newBtnIndex;
+          
+          switch (timetable.selectedView) {
+            case 'presentators':
+              newBtnIndex = 1;
+              break;
+            case 'rooms':
+              newBtnIndex = 2;
+              break;
+            case 'timetables':
+              newBtnIndex = 0;
+          }
+          
+          if (newBtnIndex !== undefined) {
+            setCurrentBtnIndex(newBtnIndex);
+            setSelectedPlaceholder({
+              ...selectedPlaceholder,
+              [newBtnIndex]: data.name, 
+            });
+          }
+        }
+      }, [data]);
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {

@@ -1,6 +1,6 @@
 import { BASE_URL } from "@/constants";
 import { useInstitutionId } from "@/contexts/InstitutionIdProvider";
-import { Query, QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { View, StyleSheet, TextInput } from "react-native";
 import { Button, IconButton, Modal, Portal, Text, useTheme } from 'react-native-paper';
@@ -32,8 +32,7 @@ export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps
         onClose(newTitle);
     }
 
-    // Mutation for modifying an event
-    const { mutate: modifyEvent, error: modifyError, isSuccess: isModifySuccess } = useMutation({
+    const { mutate: modifyEvent } = useMutation({
         mutationFn: async () => {
             const response = await fetch(`${BASE_URL}/${institutionId}/events/${event.id}`, {
                 method: 'PATCH',
@@ -135,7 +134,6 @@ export const EventModal = ({ isVisible, event, title, onClose }: EventModalProps
                     </Button>
                 </View>
             </Modal>
-            {statusMessage && <StatusMessage message={statusMessage.message} type={statusMessage.type} />}
         </Portal>
     );
 }

@@ -58,7 +58,6 @@ export const TimetableView = ({
       return isSameDayUTC(appointmentDate, currentDayDate);
     }).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
-
     return (
       <View
         style={styles.dayPage}
@@ -76,14 +75,13 @@ export const TimetableView = ({
             ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
             keyExtractor={(appointment) => appointment.id}
             renderItem={({ item }) => (
+              
               <AppointmentCard appointment={item} />
             )}
             showsVerticalScrollIndicator={false}
             scrollEnabled
             removeClippedSubviews
-            getItemLayout={(_data: any, index: number) => (
-              { length: 120, offset: 120 * index, index }
-            )}
+         
             windowSize={5}
             maxToRenderPerBatch={5}
             initialNumToRender={4}

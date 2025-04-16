@@ -25,15 +25,6 @@ export const WeekNavigation = ({ currentDate, onWeekChange }: WeekNavigationProp
 
   return (
     <View style={[styles.weekNavigation, themeStyles.content, themeStyles.border]}>
-      {/*  <Pressable
-        style={styles.navButton}
-        onPress={() => onWeekChange('prev')}
-      >
-        <ChevronLeft color={themeStyles.textSecondary.color} size={24} />
-        <ChevronLeft color={themeStyles.textSecondary.color} size={24} style={styles.secondArrow} />
-      </Pressable> */}
-      { /* convert pressable to iconbutton*/}
-
       <IconButton
         icon='arrow-left'
         size={24}

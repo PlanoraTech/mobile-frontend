@@ -6,10 +6,8 @@ import {
   StyleSheet,
   FlatList,
   TextInput,
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
-  StatusBar,
   Pressable,
   Keyboard
 } from 'react-native';
@@ -99,7 +97,6 @@ export const DropdownComponent = ({
   }, [visible, data]);
 
   const onItemPress = (item: DropdownItem) => {
-    //setValue(item.id);
     setVisible(false);
     setIsFocus(false);
     onSelect?.(item);

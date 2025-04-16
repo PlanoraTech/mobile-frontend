@@ -2,22 +2,23 @@ import { useInstitutionData } from "@/hooks/useInstitutionData";
 import { StatusMessage } from "@/components/StatusMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TimetableView } from "@/components/TimeTableView";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useRef, useState, RefObject } from "react";
+import React, { useRef, useState, RefObject } from "react";
 import { FlatList, SafeAreaView, View, StyleSheet, Platform } from "react-native";
 import { SettingsModal } from "@/components/SettingsModal";
 import ViewToggle from "@/components/ViewToggle";
 import { getCurrentDayIndex } from "@/utils/dateUtils";
 import NotFoundContent from "@/components/NotFoundContent";
-import { IconButton, Text, useTheme } from "react-native-paper";
+import { IconButton, useTheme } from "react-native-paper";
 import { useInstitutions } from "@/hooks/useInstitutions";
 import { StatusBar } from "expo-status-bar";
 import { useTimetable } from "@/contexts/TimetableProvider";
+// Import the new logo component
+import PlanoraLogo from "@/components/PlanoraLogo";
 
 export default function TimetableScreen() {
   const theme = useTheme();
 
-  const [goalDayIndex, setGoalDayIndex] = useState(getCurrentDayIndex());;
+  const [goalDayIndex, setGoalDayIndex] = useState(getCurrentDayIndex());
   const [modalVisible, setModalVisible] = useState(false);
   const [showEvents, setShowEvents] = useState(false);
 
@@ -122,8 +123,9 @@ export default function TimetableScreen() {
             </View>
           )
             : (
-              <View style={styles.toggleCenterContainer}>
-                <Text variant="titleMedium">Planora</Text>
+              <View style={styles.logoContainer}>
+                {/* Replace the Text component with the new logo */}
+                <PlanoraLogo width={150} height={40} />
               </View>
             )
           }
@@ -170,6 +172,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoContainer: {
+    position: 'absolute',
+    left: 40,
+    right: 0,
+    alignItems: 'flex-start',
     justifyContent: 'center',
   },
 });

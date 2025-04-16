@@ -18,8 +18,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useQuery } from '@tanstack/react-query';
 import { Institution } from '@/components/Dropdown';
 import ProfileSection from '@/components/ProfileSection';
-import { isSubscribedToNotifications, registerForPushNotifications, unsubscribeFromPushNotifications } from '@/utils/notificationUtil';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { isSubscribedToNotifications, registerForPushNotifications} from '@/utils/notificationUtil';
 
 const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
@@ -36,14 +35,13 @@ const ProfileScreen = () => {
 
     useEffect(() => {
         const determineNotificationPermission = async () => {
-            const isSubscribed = await isSubscribedToNotifications(user!.token!);
+            const isSubscribed = await isSubscribedToNotifications();
             setIsNotificationsEnabled(isSubscribed);
         }
         if (user?.token) {
             determineNotificationPermission();
         }
     }, []);
-
 
     const getInstitution = async (): Promise<Institution> => {
         const response = await fetch(`${BASE_URL}/${institutionId}/?token=${user?.token}`)
@@ -64,10 +62,7 @@ const ProfileScreen = () => {
         if (!isNotificationsEnabled) {
             const success = await registerForPushNotifications(user?.token!);
             success ? setIsNotificationsEnabled(true) : setIsNotificationsEnabled(false);
-        } else {
-            await unsubscribeFromPushNotifications(user?.token!);
-            setIsNotificationsEnabled(false);
-        }
+        } 
         setSnackbarVisible(true);
         setLoading(false);
     };
@@ -84,7 +79,7 @@ const ProfileScreen = () => {
     const openWebsite = () => {
         Linking.openURL(data!.website);
     }
-
+    console.log(role)
     useFocusEffect(
         useCallback(() => {
             setLoading(false);
@@ -108,7 +103,7 @@ const ProfileScreen = () => {
                         {data?.name ? (
                             <>
                                 <Text style={[styles.value, themeStyles.text, { color: data?.color }]}>
-                                    Budapesti Fejlesztői Szoftverfejlesztő és technikusi Két Tanítási Nyelvű {data?.name}
+                                    {data?.name}
                                 </Text>
                                 <IconButton icon='open-in-new' onPress={openWebsite} />
                             </>
@@ -176,7 +171,7 @@ const ProfileScreen = () => {
                     </>
                 ) : (
                     <>
-                        {role !== "GUEST" && role !== "USER" &&
+                        {(role === "PRESENTATOR" || role === "DIRECTOR") &&
                             <>
                                 <Divider />
                                 <ProfileSection

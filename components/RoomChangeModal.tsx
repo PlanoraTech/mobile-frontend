@@ -39,11 +39,9 @@ const RoomChangeModal = ({ rooms, visible, onDismiss, appointmentId }: Props) =>
     const { mutate, isPending, isSuccess, error: confirmError } = useMutation({
         mutationFn: () => confirmRoomSelection(institutionId, selectedRooms, user?.token!, appointmentId!, timetable),
         onMutate: () => {
-            // Immediately close the modal when mutation starts
             handleClose();
         },
         onSuccess: () => {
-            // Invalidate queries after mutation is successful
             queryClient.invalidateQueries({ queryKey: ['timetable'] });
         },
     });

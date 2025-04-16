@@ -42,9 +42,9 @@ const getCardStyle = (backgroundColor: string) => [
 ];
 
 
-const FastText = memo(({ children, style }: FastTextProps) => (
+const FastText = ({ children, style }: FastTextProps) => (
   <Text style={style}>{children}</Text>
-));
+);
 
 
 const SimplePresentatorText = memo(({ presentators }: PresentatorTextProps) => (
@@ -54,7 +54,7 @@ const SimplePresentatorText = memo(({ presentators }: PresentatorTextProps) => (
 ));
 
 
-const SimpleRoomText = memo(({ rooms }: RoomTextProps) => (
+export const SimpleRoomText = memo(({ rooms }: RoomTextProps) => (
   <FastText style={styles.roomText}>
     {rooms.map(r => r.name).join(' - ')}
   </FastText>
@@ -89,23 +89,22 @@ const AppointmentCard = memo(({ appointment }: AppointmentCardProps) => {
     if (!user || !user.institutions) return;
 
     const role = user.institutions.find(i => i.institutionId === institutionId)?.role;
-    if (role === 'PRESENTATOR') {
+    if (role === 'PRESENTATOR' || role === 'DIRECTOR') {
       setPresentatorCardVisible(!presentatorCardVisible);
     }
   };
-
   if (!isDetailedView) {
     return (
       <View style={cardStyle}>
         <Pressable onPress={handlePress}>
           <FastText style={styles.subjectName}>
             {appointment.subject.name}
-          </FastText>
+          </FastText> 
           <FastText style={styles.timeText}>
             {formatTimeRange(appointment.start, appointment.end)}
           </FastText>
           <SimplePresentatorText presentators={appointment.presentators} />
-          <SimpleRoomText rooms={appointment.rooms} />
+          {appointment.rooms.length > 0 && <SimpleRoomText rooms={appointment.rooms} />}
           {appointment.isCancelled && (
             <FastText style={styles.cancelledText}>ELMARAD</FastText>
           )}
@@ -138,7 +137,7 @@ const AppointmentCard = memo(({ appointment }: AppointmentCardProps) => {
         <FastText style={styles.timeText}>
           {formatTimeRange(appointment.start, appointment.end)}
         </FastText>
-
+        {appointment.presentators.length > 0 && 
         <FastText style={styles.presentatorText}>
           {appointment.presentators.map((p, index, array) => (
             <Fragment key={p.id}>
@@ -147,15 +146,16 @@ const AppointmentCard = memo(({ appointment }: AppointmentCardProps) => {
                   styles.presentatorText,
                   p.isSubstituted && { textDecorationLine: 'line-through' }
                 ]}
-              >
+                >
                 {p.name}
               </Text>
               {index < array.length - 1 && <Text>, </Text>}
             </Fragment>
           ))}
         </FastText>
+        }
 
-        <SimpleRoomText rooms={appointment.rooms} />
+        {appointment.rooms.length > 0 && <SimpleRoomText rooms={appointment.rooms} />}
 
         {appointment.isCancelled && (
           <FastText style={styles.cancelledText}>ELMARAD</FastText>

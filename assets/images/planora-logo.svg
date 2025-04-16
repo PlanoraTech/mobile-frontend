@@ -1,0 +1,38 @@
+<svg viewBox="0 0 240 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background shape -->
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#7C3AED" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Calendar Icon -->
+  <g transform="translate(10, 10)">
+    <rect x="0" y="0" width="40" height="40" rx="8" fill="url(#logoGradient)" />
+    
+    <!-- Calendar top bar -->
+    <rect x="5" y="5" width="30" height="8" rx="2" fill="white" opacity="0.9" />
+    
+    <!-- Calendar grid lines -->
+    <line x1="10" y1="18" x2="10" y2="35" stroke="white" stroke-width="1.5" opacity="0.6" />
+    <line x1="20" y1="18" x2="20" y2="35" stroke="white" stroke-width="1.5" opacity="0.6" />
+    <line x1="30" y1="18" x2="30" y2="35" stroke="white" stroke-width="1.5" opacity="0.6" />
+    
+    <line x1="5" y1="18" x2="35" y2="18" stroke="white" stroke-width="1.5" opacity="0.6" />
+    <line x1="5" y1="27" x2="35" y2="27" stroke="white" stroke-width="1.5" opacity="0.6" />
+    
+    <!-- Highlight spot -->
+    <circle cx="25" cy="22" r="4" fill="white" />
+  </g>
+  
+  <!-- Text "Planora" -->
+  <text x="60" y="36" font-family="Arial, sans-serif" font-weight="700" font-size="24" fill="#374151">
+    Planora
+  </text>
+  
+  <!-- Tagline -->
+  <text x="62" y="48" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">
+    Your schedule, simplified
+  </text>
+</svg>

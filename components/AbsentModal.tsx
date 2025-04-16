@@ -9,19 +9,13 @@ import ViewToggle from "./ViewToggle";
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 import { useAuth } from '@/contexts/AuthProvider';
-import { QueryClient as ReactQueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { LoadingSpinner } from './LoadingSpinner';
 import DropdownComponent from './Dropdown';
 
 interface Props {
     visible: boolean;
     onDismiss: () => void;
-}
-
-type dateInterval = {
-    from: string;
-    to: string;
-    isSubstituted: boolean;
 }
 
 configHungarian();
@@ -35,8 +29,7 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
     const maxDate = `${nextYear}-12-31`;
     const [startDate, setStartDate] = useState<string | null>(null);
     const [endDate, setEndDate] = useState<string | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
+
     const { institutionId } = useInstitutionId();
     const [isAbsentChosen, setIsAbsentChosen] = useState(true);
     const [absences, setAbsences] = useState<{ [date: string]: any }>({});
@@ -44,49 +37,43 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
     const [selectedPresentatorId, setSelectedPresentatorId] = useState<string | null>(null);
     const [markedDates, setMarkedDates] = useState<{ [date: string]: any }>({});
     const [placeholder, setPlaceholder] = useState<string>('Válassz előadót');
-
+    
+    const presentatorId = user?.institutions.find((institution) => institution.institutionId === institutionId)?.presentatorId;
+    const activePresentatorId = selectedPresentatorId || presentatorId;
+    
+    // Modified to include selectedPresentatorId in the query key
     const { data, isLoading, error } = useQuery({
-        queryKey: ['absences', institutionId],
+        queryKey: ['absences', institutionId, activePresentatorId],
+        
         queryFn: async () => {
-            console.log("url", `${BASE_URL}/${institutionId}/presenttors/${user?.institutions[0].presentatorId}/substitutions`)
-            const response = await fetch(`${BASE_URL}/${institutionId}/presentators/${user?.institutions[0].presentatorId}/substitutions`, {
+            // Use the selected presentator ID if available, otherwise use the current user's
+            const response = await fetch(`${BASE_URL}/${institutionId}/presentators/${activePresentatorId}/substitutions`, {
                 headers: {
                     'Content-Type': 'application/json',
                     "Authorization": `Bearer ${user?.token}`
                 },
             });
             if (!response.ok) {
-                console.log(await response.text())
                 throw new Error('Hiba történt a hiányzások lekérése során.');
             }
             return response.json();
         },
-        enabled: !!visible,
+        enabled: !!visible && !!activePresentatorId,
     });
-    console.log("error", error)
-    //console.log("data", data)
-    //console.log("usertoken", user?.token)
-    // Process absences from the API data
+
+
     useEffect(() => {
         if (data && Array.isArray(data)) {
-
             const absencesMap: { [date: string]: any } = {};
 
-            const orderedAbsences = data.sort((a: { from: string, to: string }, b: { from: string, to: string }) => {
-                //from greatest interval to lowest
-                return new Date(b.from).getTime() + new Date(b.to).getTime() - new Date(a.from).getTime() + new Date(a.to).getTime();
-            });
-            console.log("orderedAbsences", orderedAbsences)
             data.forEach(absence => {
                 if (absence.from && absence.to) {
                     const start = new Date(absence.from);
                     const end = new Date(absence.to);
                     const currentDate = new Date(start);
 
-                    // Determine color based on substitution status
                     const color = theme.colors.secondary;
 
-                    // Mark starting date
                     const startDateString = start.toISOString().split('T')[0];
                     absencesMap[startDateString] = {
                         startingDay: true,
@@ -94,7 +81,6 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                         textColor: 'white'
                     };
 
-                    // Mark dates in between
                     currentDate.setDate(currentDate.getDate() + 1);
                     while (currentDate < end) {
                         const dateString = currentDate.toISOString().split('T')[0];
@@ -105,7 +91,6 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                         currentDate.setDate(currentDate.getDate() + 1);
                     }
 
-                    // Mark ending date
                     const endDateString = end.toISOString().split('T')[0];
                     absencesMap[endDateString] = {
                         endingDay: true,
@@ -113,7 +98,6 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                         textColor: 'white'
                     };
 
-                    // If start and end are the same day
                     if (startDateString === endDateString) {
                         absencesMap[startDateString] = {
                             startingDay: true,
@@ -190,19 +174,34 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
             }
             const selectedColor = isAbsentChosen ? theme.colors.secondary : theme.colors.tertiary;
             setMarkedDates(getDateRange(startDate, dateString, selectedColor));
-
         }
     }, [startDate, endDate, theme.colors.primary]);
-    const presentatorId = user?.institutions.find((institution) => institution.institutionId === institutionId)?.presentatorId;
+    
     const queryClient = useQueryClient();
 
-    const { mutate, isPending: isMutationLoading, error: mutationError } = useMutation({
+    const resetState = () => {
+        setMarkedDates({});
+        setStartDate(null);
+        setEndDate(null);
+        setIsAbsentChosen(true);
+    }
+
+    const onClose = () => {
+        reset();
+        onDismiss();
+        setMarkedDates({});
+        setStartDate(null);
+        setEndDate(null);
+        setSelectedPresentatorId(null);
+        
+        queryClient.invalidateQueries({ queryKey: ['absences', institutionId] });
+    }
+
+    const { mutate, isPending: isMutationLoading, error: mutationError, isSuccess: mutationSuccess, reset } = useMutation({
         mutationFn: async (variables: { startDate: string, endDate: string, isAbsentChosen: boolean }) => {
             const { startDate, endDate, isAbsentChosen } = variables;
-            console.log("hello")
-            //console.log("body", JSON.stringify({ from: startDate, to: endDate, isSubstituted: isAbsentChosen }))
             const response = await fetch(
-                `${BASE_URL}/${institutionId}/presentators/${presentatorId || selectedPresentatorId}/substitute`,
+                `${BASE_URL}/${institutionId}/presentators/${activePresentatorId}/substitute`,
                 {
                     headers: {
                         'Content-Type': 'application/json',
@@ -212,30 +211,29 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                     body: JSON.stringify({ from: startDate, to: endDate, isSubstituted: isAbsentChosen })
                 }
             );
-            console.log("responseText", await response.text())
+          
             if (!response.ok) {
-
-
                 if (response.status === 400) throw new Error('Hibás kérés. Ellenőrizd a dátumokat!');
                 if (response.status === 404) throw new Error('Az adott időszakban nincsen órád.');
                 throw new Error(isAbsentChosen ? 'Hiba történt a hiányzás bejelentése során.'
                     : 'Hiba történt a jelenlét bejelentése során.');
             }
-            //console.log(await response.json())
         },
+      
+        
         onSuccess: () => {
-            setSuccess('Az adatok mentése sikeres volt.');
             queryClient.invalidateQueries({ queryKey: ['timetable'] });
             queryClient.invalidateQueries({ queryKey: ['absences'] });
-            onClose();
+            resetState(); 
+            onDismiss();
         },
         onError: (error) => {
-            console.log("error", error)
-            setErrorMessage(error.message);
-        }
+            resetState();
+            console.error('Hiba történt:', error);
+        },
     });
 
-    const { data: presentators, isLoading: presentatorsLoading, error: presentatorsError } = useQuery({
+    const { data: presentators} = useQuery({
         queryKey: ['presentators', institutionId],
         queryFn: async () => {
             const response = await fetch(`${BASE_URL}/${institutionId}/presentators`, {
@@ -252,14 +250,6 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
         enabled: !!visible,
     });
 
-    const onClose = () => {
-        onDismiss();
-        setMarkedDates({});
-        setStartDate(null);
-        setEndDate(null);
-        setIsAbsentChosen(true);
-        queryClient.invalidateQueries({ queryKey: ['absences', institutionId] });
-    }
 
     const handleViewChange = () => {
         const nextBoolean = !isAbsentChosen;
@@ -271,8 +261,16 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
     }
 
     const selectPresentator = (id: string, name: string) => {
+        // Reset current selection when changing presentator
+        setMarkedDates({});
+        setStartDate(null);
+        setEndDate(null);
+        
         setSelectedPresentatorId(id);
         setPlaceholder(name);
+        
+        // Invalidate and refetch the absences for the newly selected presentator
+        queryClient.invalidateQueries({ queryKey: ['absences', institutionId, id] });
     }
 
     const handleConfirm = () => {
@@ -280,9 +278,10 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
             mutate({ startDate, endDate, isAbsentChosen });
         }
     };
+
+    const isDirector = user?.institutions.find(institution => institution.institutionId === institutionId)?.role === 'DIRECTOR'
+
     return (
-
-
         <Portal>
             <Modal
                 visible={visible}
@@ -292,7 +291,7 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
             >
                 {isLoading || isMutationLoading ? <LoadingSpinner /> :
                     <>
-                        <DropdownComponent onSelect={(item) => selectPresentator(item.id, item.name)} placeholder={placeholder} data={presentators} />
+                        {isDirector && <DropdownComponent onSelect={(item) => selectPresentator(item.id, item.name)} placeholder={placeholder} data={presentators} /> }
                         <ViewToggle
                             leftText='Hiányzás'
                             rightText='Jelenlét'
@@ -342,8 +341,8 @@ const AbsentModal = ({ visible, onDismiss }: Props) => {
                 }
                 {mutationError && <StatusMessage type={"error"} message={mutationError.message} />}
             </Modal>
-            {errorMessage && <StatusMessage type={"error"} message={errorMessage} />}
-            {success && <StatusMessage type={"success"} message={success} />}
+            {error && <StatusMessage type={"error"} message={error.message} />}
+            {mutationSuccess && <StatusMessage type={"success"} message={"Az adatok mentése sikeres volt"} />}
         </Portal>
 
     );

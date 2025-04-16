@@ -1,10 +1,10 @@
 import { AuthInput } from "./AuthInput";
 import { useState } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "@/contexts/ThemeProvider";
 import { getThemeStyles } from "@/assets/styles/themes";
 import { Button, Modal, Portal, IconButton } from "react-native-paper";
-import { BASE_URL, BASE_URL_AUTH } from "@/constants";
+import { BASE_URL_AUTH } from "@/constants";
 import { useAuth } from "@/contexts/AuthProvider";
 import { StatusMessage } from "./StatusMessage";
 import { validatePassword } from "@/utils/validation";

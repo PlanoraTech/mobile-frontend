@@ -6,16 +6,14 @@ import { useInstitutionId } from '@/contexts/InstitutionIdProvider';
 import { Appointment } from '@/components/AppointmentCard';
 import { useQuery, QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 
-// Define possible error types for better error handling
 export type TimetableErrorType =
-    | 'FETCH_ERROR'       // Error when fetching appointments
-    | 'STORAGE_ERROR'     // Error with AsyncStorage operations
-    | 'INVALID_VIEW'      // Invalid view type selected
-    | 'AUTHENTICATION'    // Authentication issues
-    | 'NETWORK'           // Network connectivity issues
-    | 'UNKNOWN';          // Unknown errors
+    | 'FETCH_ERROR'       
+    | 'STORAGE_ERROR'     
+    | 'INVALID_VIEW'      
+    | 'AUTHENTICATION'    
+    | 'NETWORK'           
+    | 'UNKNOWN';         
 
-// Define the error object structure
 export interface TimetableError {
     type: TimetableErrorType;
     message: string;
@@ -23,52 +21,36 @@ export interface TimetableError {
     details?: any;
 }
 
-// Define the shape of our timetable context state
 export interface SelectedTimetable {
     selectedView: string | null;
     selectedId: string | null;
 }
 
-// Define the shape of the context including state and functions
 interface TimetableContextType {
-    // The current timetable selection state
     timetable: SelectedTimetable;
-    // Function to update the timetable selection
     setTimetableSelection: (view: string, id: string) => Promise<void>;
-    // Query result with the appointments data
     appointmentsQuery: QueryObserverResult<Appointment[], Error>;
-    // Reset the timetable selection to null values
     resetTimetableSelection: () => Promise<void>;
-    // Function to refetch appointments data
     refetchAppointments: (options?: RefetchOptions) => Promise<QueryObserverResult<Appointment[], Error>>;
-    // Check if we're currently loading appointments
     timetableLoading: boolean;
-    // Current error state (null if no error)
     timetableError: TimetableError | null;
-    // Function to clear the current error
     clearError: () => void;
-    // Function to manually set an error (useful for derived components)
     setError: (type: TimetableErrorType, message: string, details?: any) => void;
 }
 
-// Create the context with a meaningful default value
 const TimetableContext = createContext<TimetableContextType | undefined>(undefined);
 
-// Provider component that wraps your app and makes the timetable context available
 export const TimetableProvider = ({ children }: { children: ReactNode }) => {
-    // Internal state to track the selected view and ID
     const [timetable, setTimetable] = useState<SelectedTimetable>({
         selectedView: null,
         selectedId: null
     });
 
-    // Separate error state management
     const [error, setErrorState] = useState<TimetableError | null>(null);
 
     const { user } = useAuth();
     const { institutionId } = useInstitutionId();
 
-    // Helper function to set errors with consistent structure
     const setError = (type: TimetableErrorType, message: string, details?: any) => {
         setErrorState({
             type,
@@ -78,12 +60,10 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
-    // Function to clear current error
     const clearError = () => {
         setErrorState(null);
     };
 
-    // Effect to load saved timetable on component mount
     useEffect(() => {
         const loadSavedTimetable = async () => {
             try {
@@ -108,9 +88,7 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
         loadSavedTimetable();
     }, []);
 
-    // Function to update the timetable selection and save to storage
     const setTimetableSelection = async (view: string, id: string) => {
-        // Clear any existing errors when changing selection
         clearError();
         setTimetable({
             selectedView: view,
@@ -129,9 +107,7 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    // Function to reset timetable selection
     const resetTimetableSelection = async () => {
-        // Clear any existing errors when resetting
         clearError();
 
         setTimetable({
@@ -151,7 +127,6 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    // Function to fetch the timetable data with improved error handling
     const fetchTimetable = async (): Promise<Appointment[]> => {
         if (!timetable.selectedView || !timetable.selectedId) {
             return [];
@@ -185,7 +160,6 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
             });
 
             if (!response.ok) {
-                // Handle different HTTP error codes
                 let errorType: TimetableErrorType = 'FETCH_ERROR';
                 let errorMessage = 'Hiba az órarend betöltése során.';
 
@@ -204,7 +178,6 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
             const data = await response.json();
             return data;
         } catch (error: any) {
-            // Only set error if it's not already been set by other handlers
             if (!error!.message.includes('Invalid view type') &&
                 !error.message.includes('Hiba az órarend') &&
                 !error.message.includes('Hitelesítési hiba') &&
@@ -219,14 +192,12 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    // Use react-query to manage the data fetching
     const appointmentsQuery = useQuery({
         queryKey: ['timetable', timetable.selectedView, timetable.selectedId],
         queryFn: fetchTimetable,
         enabled: !!timetable.selectedView && !!timetable.selectedId && !!institutionId,
     });
 
-    // Handle query errors separately
     useEffect(() => {
         if (appointmentsQuery.error && !error) {
             const err = appointmentsQuery.error;
@@ -234,7 +205,6 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [appointmentsQuery.error, error]);
 
-    // Create the context value object with all the state and functions
     const contextValue: TimetableContextType = {
         timetable,
         setTimetableSelection,
@@ -247,7 +217,6 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
         setError
     };
 
-    // Provide the timetable context to children components
     return (
         <TimetableContext.Provider value={contextValue}>
             {children}
@@ -255,7 +224,6 @@ export const TimetableProvider = ({ children }: { children: ReactNode }) => {
     );
 };
 
-// Custom hook to use the timetable context
 export const useTimetable = () => {
     const context = useContext(TimetableContext);
 

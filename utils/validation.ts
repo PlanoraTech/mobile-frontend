@@ -21,7 +21,7 @@ export const validatePasswordContainsSpecialCharacters = (password: string): boo
 };
 
 export const validatePassword = (password: string): string => {
-    /*   const validations = [
+      /*  const validations = [
           {
               validate: validatePasswordLength,
               message: 'A jelszónak minimum 8 karakterből kell állnia!'
@@ -48,7 +48,7 @@ export const validatePassword = (password: string): string => {
           if (!validate(password)) {
               return message;
           }
-      } */
+      }  */
     return '';
 };
 

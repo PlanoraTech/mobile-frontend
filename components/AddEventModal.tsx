@@ -38,7 +38,6 @@ export const AddEventModal = ({ isVisible, currentDayDate, onClose }: AddEventMo
             if (response.status === 401 || response.status === 403) {
                 throw new Error("Nincs jogosultságod a művelethez");
             }
-            console.log(await response.text());
             if (!response.ok) {
                 throw new Error("Nem sikerült hozzáadni az eseményt");
             }

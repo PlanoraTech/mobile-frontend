@@ -23,10 +23,6 @@ const EventCard = ({ event }: EventCardProps) => {
     const { institutionId } = useInstitutionId();
     const [title, setTitle] = useState(event.title);
     const { user } = useAuth()
-    useEffect(() => {
-        return () => console.log('unmounting event card')
-    }, [])
-
 
 
     const handlePress = () => {

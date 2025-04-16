@@ -2,7 +2,7 @@ import { View, StyleSheet, Pressable } from "react-native"
 import { Button, Text, Dialog, Portal, useTheme } from "react-native-paper"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import RoomChangeModal from "./RoomChangeModal"
-import { Appointment } from "./AppointmentCard"
+import { Appointment, SimpleRoomText } from "./AppointmentCard"
 import { BASE_URL, SCREEN_WIDTH } from "@/constants"
 import { Fragment, useState, useEffect, useMemo } from "react"
 import { formatTimeRange } from "@/utils/dateUtils"
@@ -74,7 +74,7 @@ const PresentatorAppointmentCard = ({
     const changeSubstitution = useMutation({
         mutationFn: async () => {
             const view = timetable.selectedView === 'timetable' ? 'timetables' : timetable.selectedView;
-        
+
             const response = await fetch(`${BASE_URL}/${institutionId}/${view}/${timetable.selectedId}/appointments/${appointment.id}/presentators/${presentatorId}/substitute`, {
                 method: 'PATCH',
                 headers: {
@@ -84,7 +84,7 @@ const PresentatorAppointmentCard = ({
                 body: JSON.stringify({ isSubstituted: !isSubstituted }),
             });
             if (!response.ok) {
-          
+
                 if (response.status === 401 || response.status === 403) {
                     throw new Error('Nincs jogosultságod a művelethez!');
                 }
@@ -104,7 +104,7 @@ const PresentatorAppointmentCard = ({
             refetchAppointments();
             setOptionsNotShown(true);
         },
-      
+
     });
 
 
@@ -125,6 +125,7 @@ const PresentatorAppointmentCard = ({
         setOptionsNotShown(!optionsNotShown);
     };
 
+    const isPresentator = appointment.presentators.some(p => p.id === presentatorId);
 
     return (
         <View style={styles.container}>
@@ -143,25 +144,25 @@ const PresentatorAppointmentCard = ({
                     <Text style={[styles.timeText]}>
                         {time}
                     </Text>
-                    <Text style={styles.presentatorText}>
-                        {[...substitutedPresentators, ...presentators].map((p, index, array) => (
-                            <Fragment key={p.id}>
-                                <Text
-                                    style={[
-                                        styles.presentatorText,
-                                        substitutedPresentators.includes(p) && { textDecorationLine: 'line-through' }
-                                    ]}
-                                >
-                                    {p.name}
-                                </Text>
-                                {index < array.length - 1 && <Text>, </Text>}
-                            </Fragment>
-                        ))}
-                    </Text>
+                    {appointment.presentators.length > 0 &&
+                        <Text style={styles.presentatorText}>
+                            {[...substitutedPresentators, ...presentators].map((p, index, array) => (
+                                <Fragment key={p.id}>
+                                    <Text
+                                        style={[
+                                            styles.presentatorText,
+                                            substitutedPresentators.includes(p) && { textDecorationLine: 'line-through' }
+                                        ]}
+                                    >
+                                        {p.name}
+                                    </Text>
+                                    {index < array.length - 1 && <Text>, </Text>}
+                                </Fragment>
+                            ))}
+                        </Text>
 
-                    <Text style={styles.roomText}>
-                        {appointment.rooms.map(r => r.name).join(' - ')}
-                    </Text>
+                    }
+                    {appointment.rooms.length > 0 && <SimpleRoomText rooms={appointment.rooms} />}
                     {appointment.isCancelled && (
                         <Text style={styles.cancelledText}>ELMARAD</Text>
                     )}
@@ -170,7 +171,7 @@ const PresentatorAppointmentCard = ({
             <Portal>
                 <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
                     <Dialog.Title>
-                        {dialogVisible && // after confirm isUpsent instantly changes causing misleading textchange while dialog is closing
+                        {dialogVisible &&
                             <Text>{isSubstituted ? "Jelenlét" : "Hiányzás"} megerősítése</Text>}
 
                     </Dialog.Title>
@@ -182,19 +183,22 @@ const PresentatorAppointmentCard = ({
                 {changeSubstitution.isError && <StatusMessage message={changeSubstitution.error.message || ""} type="error" />}
             </Portal>
             <Animated.View style={[rightCardStyle]}>
-                <View style={styles.optionCard}>
-                    <Button
-                        compact
-                        buttonColor={isSubstituted ? theme.colors.tertiary : theme.colors.secondary}
-                        onPress={() => setDialogVisible(true)}
-                        mode="contained" contentStyle={{
-                            height: '100%',
-                        }}>
+                {
+                    isPresentator &&
+                    <View style={styles.optionCard}>
+                        <Button
+                            compact
+                            buttonColor={isSubstituted ? theme.colors.tertiary : theme.colors.secondary}
+                            onPress={() => setDialogVisible(true)}
+                            mode="contained" contentStyle={{
+                                height: '100%',
+                            }}>
 
-                        {isSubstituted ? "Jelen leszek" : "Hiányozni fogok"}
+                            {isSubstituted ? "Jelen leszek" : "Hiányozni fogok"}
 
-                    </Button>
-                </View>
+                        </Button>
+                    </View>
+                }
                 <View style={styles.optionCard}>
 
                     <Button compact onPress={openRoomModal} mode="contained"
